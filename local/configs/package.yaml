@@ -20,6 +20,8 @@ dev_requirements:
   - types-psutil
   - setuptools-wrapper
   - types-setuptools
+  - types-requests
+
   - "uvloop; sys_platform != 'win32' and sys_platform != 'cygwin'"
 
 commands:

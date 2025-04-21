@@ -78,7 +78,7 @@ jobs:
 
       - run: |
           mk python-release owner=libre-embedded \
-                            repo=runtimepy version=5.11.6
+                            repo=runtimepy version=5.12.0
         if: |
           matrix.python-version == '3.12'
           && matrix.system == 'ubuntu-latest'

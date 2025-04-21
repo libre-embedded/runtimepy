@@ -1,5 +1,4 @@
-import("https://cdn.jsdelivr.net/gh/danchitnis/" +
-       "webgl-plot@master/dist/webglplot.umd.min.js");
+import(location.origin + "/static/js/webglplot.umd.min.js");
 
 let webglContextCount = 0;
 

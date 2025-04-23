@@ -1,4 +1,4 @@
 # Runtime Structures
 
-Containers for underlying primitives that can participate in binary messaging.
-To be continued.
+Containers for primitives that an application can update to trigger
+events and evaluate business logic.

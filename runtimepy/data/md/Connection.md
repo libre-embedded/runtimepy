@@ -1,3 +1,3 @@
 # Connections
 
-To be continued.
+Runtime instances capable of sending and receiving messages.

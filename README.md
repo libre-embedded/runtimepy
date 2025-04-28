@@ -2,7 +2,7 @@
     =====================================
     generator=datazen
     version=3.2.1
-    hash=6b0b773eaaa04369914e4480e7e90086
+    hash=e49c32bf355e8e22aa9c1598b69b162b
     =====================================
 -->
 
@@ -15,6 +15,8 @@
 ![Dependents (via libraries.io)](https://img.shields.io/librariesio/dependents/pypi/runtimepy)
 
 *A framework for implementing Python services.*
+
+Consider [sponsoring development](https://github.com/sponsors/libre-embedded).
 
 ([interface documentation](https://libre-embedded.github.io/python/runtimepy))
 

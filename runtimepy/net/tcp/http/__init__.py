@@ -16,22 +16,24 @@ from vcorelib import DEFAULT_ENCODING
 from runtimepy import PKG_NAME, VERSION
 from runtimepy.net.http import HttpMessageProcessor
 from runtimepy.net.http.header import RequestHeader
-from runtimepy.net.http.response import ResponseHeader
+from runtimepy.net.http.response import AsyncResponse, ResponseHeader
 from runtimepy.net.tcp.connection import TcpConnection as _TcpConnection
+
+HttpResult = Optional[bytes | AsyncResponse]
 
 #
 # async def handler(
 #     response: ResponseHeader,
 #     request: RequestHeader,
 #     request_data: Optional[bytes],
-# ) -> Optional[bytes]:
+# ) -> HttpResult:
 #     """Sample handler."""
 #
 HttpRequestHandler = Callable[
     [ResponseHeader, RequestHeader, Optional[bytes]],
-    Awaitable[Optional[bytes]],
+    Awaitable[HttpResult],
 ]
-HttpResponse = Tuple[ResponseHeader, Optional[bytes]]
+HttpResponse = Tuple[ResponseHeader, HttpResult]
 
 HttpRequestHandlers = dict[http.HTTPMethod, HttpRequestHandler]
 
@@ -89,7 +91,7 @@ class HttpConnection(_TcpConnection):
         response: ResponseHeader,
         request: RequestHeader,
         request_data: Optional[bytes],
-    ) -> Optional[bytes]:
+    ) -> HttpResult:
         """Sample handler."""
 
     async def post_handler(
@@ -97,7 +99,7 @@ class HttpConnection(_TcpConnection):
         response: ResponseHeader,
         request: RequestHeader,
         request_data: Optional[bytes],
-    ) -> Optional[bytes]:
+    ) -> HttpResult:
         """Sample handler."""
 
     async def _process_request(
@@ -105,7 +107,7 @@ class HttpConnection(_TcpConnection):
         response: ResponseHeader,
         request_header: RequestHeader,
         request_data: Optional[bytes] = None,
-    ) -> Optional[bytes]:
+    ) -> HttpResult:
         """Process an individual request."""
 
         result = None
@@ -137,7 +139,7 @@ class HttpConnection(_TcpConnection):
             # Set boilerplate header data.
             request["user-agent"] = self.identity
 
-            self._send(request, data)
+            await self._send(request, data)
             self.expecting_response = True
             result = await self.responses.get()
             self.expecting_response = False
@@ -153,21 +155,29 @@ class HttpConnection(_TcpConnection):
         """
         return to_json(await self.request(request, data))
 
-    def _send(
+    async def _send(
         self,
         header: Union[ResponseHeader, RequestHeader],
-        data: Optional[bytes] = None,
+        data: HttpResult = None,
     ) -> None:
         """Send a request or response to a request."""
 
         # Set content length.
         header["content-length"] = "0"
-        if data:
+
+        if isinstance(data, AsyncResponse):
+            header["content-length"] = str(await data.size())
+        elif data is not None:
             header["content-length"] = str(len(data))
 
         self.send_binary(bytes(header))
-        if data:
-            self.send_binary(data)
+
+        if data is not None:
+            if isinstance(data, AsyncResponse):
+                async for chunk in data.process():
+                    self.send_binary(chunk)
+            else:
+                self.send_binary(data)
 
         header.log(self.logger, True)
 
@@ -183,7 +193,7 @@ class HttpConnection(_TcpConnection):
             if not self.expecting_response:
                 # Process request.
                 response = ResponseHeader()
-                self._send(
+                await self._send(
                     response,
                     await self._process_request(
                         response, cast(RequestHeader, header), payload

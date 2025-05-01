@@ -21,11 +21,11 @@ from runtimepy.channel.environment.command import GLOBAL
 from runtimepy.net.html import full_markdown_page
 from runtimepy.net.http.header import RequestHeader
 from runtimepy.net.http.request_target import PathMaybeQuery
-from runtimepy.net.http.response import ResponseHeader
+from runtimepy.net.http.response import AsyncResponse, ResponseHeader
 from runtimepy.net.server.html import HtmlApp, HtmlApps, get_html, html_handler
 from runtimepy.net.server.json import encode_json, json_handler
 from runtimepy.net.server.markdown import markdown_for_dir
-from runtimepy.net.tcp.http import HttpConnection
+from runtimepy.net.tcp.http import HttpConnection, HttpResult
 from runtimepy.util import normalize_root, path_has_part, read_binary
 
 MIMETYPES_INIT = False
@@ -173,10 +173,10 @@ class RuntimepyServerConnection(HttpConnection):
 
     async def try_file(
         self, path: PathMaybeQuery, response: ResponseHeader
-    ) -> Optional[bytes]:
+    ) -> HttpResult:
         """Try serving this path as a file directly from the file-system."""
 
-        result = None
+        result: HttpResult = None
 
         # Keep track of directories encountered.
         directories: list[Path] = []
@@ -214,7 +214,7 @@ class RuntimepyServerConnection(HttpConnection):
                 self.logger.info("Serving '%s' (MIME: %s)", candidate, mime)
 
                 # Return the file data.
-                result = await read_binary(candidate)
+                result = AsyncResponse(candidate)
                 break
 
         # Handle a directory as a last resort.
@@ -259,7 +259,7 @@ class RuntimepyServerConnection(HttpConnection):
         response: ResponseHeader,
         request: RequestHeader,
         request_data: Optional[bytes],
-    ) -> Optional[bytes]:
+    ) -> HttpResult:
         """Handle POST requests."""
 
         request.log(self.logger, False, level=logging.INFO)
@@ -281,7 +281,7 @@ class RuntimepyServerConnection(HttpConnection):
         response: ResponseHeader,
         request: RequestHeader,
         request_data: Optional[bytes],
-    ) -> Optional[bytes]:
+    ) -> HttpResult:
         """Handle GET requests."""
 
         request.log(self.logger, False, level=logging.INFO)

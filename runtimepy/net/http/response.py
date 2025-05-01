@@ -6,8 +6,12 @@ A module implementing HTTP-response interfaces.
 import http
 from io import StringIO
 import logging
+from pathlib import Path
+from typing import AsyncIterator, cast
 
 # third-party
+import aiofiles
+import aiofiles.os
 from vcorelib.logging import LoggerType
 
 # internal
@@ -83,3 +87,31 @@ class ResponseHeader(HeadersMixin):
             self.status_line,
             self.headers,
         )
+
+
+class AsyncResponse:
+    """
+    A class facilitating asynchronous server responses for e.g.
+    file-system files.
+    """
+
+    def __init__(self, path: Path, chunk_size: int = 1024) -> None:
+        """Initialize this instance."""
+
+        self.path = path
+        self.chunk_size = chunk_size
+
+    async def size(self) -> int:
+        """Get this response's size."""
+        return cast(int, await aiofiles.os.path.getsize(self.path))
+
+    async def process(self) -> AsyncIterator[bytes]:
+        """Yield chunks to write asynchronously."""
+
+        async with aiofiles.open(self.path, mode="rb") as path_fd:
+            while True:
+                data = await path_fd.read(self.chunk_size)
+                if data:
+                    yield data
+                else:
+                    break

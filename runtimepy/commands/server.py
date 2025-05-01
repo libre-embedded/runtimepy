@@ -48,7 +48,6 @@ def get_kwargs(args: _Namespace, **kwargs) -> dict[str, Any]:
     new_kwargs: dict[str, Any] = {**kwargs}
 
     # Pass additional arguments through.
-    print(args)
     for opt in PASSTHROUGH:
         value = getattr(args, opt, None)
         if value is not None:

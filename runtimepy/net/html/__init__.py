@@ -51,9 +51,10 @@ def create_app_shell(
     # Dark/light theme switch button.
     bootstrap_button(
         icon_str("lightbulb"),
-        tooltip=" Toggle light/dark.",
+        tooltip="Toggle light/dark.",
         id="theme-button",
         parent=button_column,
+        title="change theme button",
     )
 
     return container, button_column
@@ -112,6 +113,7 @@ def full_markdown_page(
         icon_str("printer"),
         tooltip="Printer-friendly view.",
         id="print-button",
+        title="print-view button",
         parent=div(tag="a", href="?print=true", parent=button_column),
     )
 

@@ -6,6 +6,7 @@ A module implementing HTML interfaces for web applications.
 from typing import Awaitable, Callable, Optional, TextIO
 
 # third-party
+from svgen.element import Element
 from svgen.element.html import Html
 from vcorelib import DEFAULT_ENCODING
 
@@ -20,10 +21,23 @@ HtmlApp = Callable[
 HtmlApps = dict[str, HtmlApp]
 
 
-def get_html() -> Html:
+def get_html(
+    title: str = HttpConnection.identity,
+    cache_control: str = "public",
+    **kwargs,
+) -> Html:
     """Get a default HTML document."""
 
-    return Html(HttpConnection.identity)
+    elem = Html(title, **kwargs)
+
+    elem.children.append(
+        Element(
+            tag="meta",
+            attrib={"http-equiv": "Cache-Control", "content": cache_control},
+        )
+    )
+
+    return elem
 
 
 async def html_handler(

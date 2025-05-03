@@ -156,7 +156,9 @@ class RuntimepyServerConnection(HttpConnection):
 
         response["Content-Type"] = f"text/html; charset={DEFAULT_ENCODING}"
 
-        return document.encode_str().encode()
+        with StringIO() as stream:
+            document.render(stream)
+            return stream.getvalue().encode()
 
     async def render_markdown_file(
         self,
@@ -206,6 +208,13 @@ class RuntimepyServerConnection(HttpConnection):
 
                 # Set MIME type if it can be determined.
                 if mime:
+                    # webhint suggestion
+                    if (
+                        mime.startswith("text")
+                        and DEFAULT_ENCODING not in mime
+                    ):
+                        mime += f"; charset={DEFAULT_ENCODING}"
+
                     response["Content-Type"] = mime
 
                 # We don't handle this yet.

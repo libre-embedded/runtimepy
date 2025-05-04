@@ -181,14 +181,14 @@ class RuntimepyServerConnection(HttpConnection):
         result: HttpResult = None
 
         # Keep track of directories encountered.
-        directories: list[Path] = []
+        directories: list[tuple[Path, Path]] = []
 
         # Build a list of all candidate files to check.
         candidates: list[Path] = []
         for search in self.paths:
             candidate = search.joinpath(path[0][1:])
             if candidate.is_dir():
-                directories.append(candidate)
+                directories.append((candidate, search))
                 candidates.append(candidate.joinpath("index.html"))
             else:
                 candidates.append(candidate)
@@ -228,9 +228,10 @@ class RuntimepyServerConnection(HttpConnection):
 
         # Handle a directory as a last resort.
         if not result and directories:
+            candidate, search = directories[0]
             result = self.render_markdown(
                 markdown_for_dir(
-                    directories[0], {"applications": self.apps.keys()}
+                    candidate, search, {"applications": self.apps.keys()}
                 ),
                 response,
                 path[1],

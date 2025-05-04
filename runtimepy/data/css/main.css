@@ -52,6 +52,6 @@ body > :first-child {
   border-right: var(--bs-border-width) var(--bs-border-style) var(--bs-link-hover-color) !important;
 }
 
-canvas:focus {
+:focus {
   outline: none;
 }

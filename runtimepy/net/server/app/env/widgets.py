@@ -110,6 +110,7 @@ def channel_table_header(
         tooltip="Clear plotted channels.",
         icon="x-lg",
         id="clear-plotted-channels",
+        title="button for clearing plotted channels",
     ).add_class("pb-2")
 
     input_box(
@@ -124,6 +125,7 @@ def channel_table_header(
         icon="trash",
         tooltip="Clear all plot points.",
         id="clear-plotted-points",
+        title="button for clearing plot point data",
     ).add_class("pb-2")
 
     cell = flex(tag="th", parent=ctl_row)

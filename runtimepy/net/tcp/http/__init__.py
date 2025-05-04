@@ -126,7 +126,11 @@ class HttpConnection(_TcpConnection):
             )
 
         # Set boilerplate header data.
-        response["server"] = self.identity
+
+        # webhint suggestions
+        # response["server"] = self.identity
+        response["server"] = PKG_NAME
+        response["X-Content-Type-Options"] = "nosniff"
 
         return result
 

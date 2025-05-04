@@ -226,6 +226,7 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
         vert_container = flex(
             parent=container,
             kind="column",
+            tag="form",
         )
         vert_container.add_class("channel-column", "collapse", "show")
 

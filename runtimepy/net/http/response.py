@@ -88,6 +88,13 @@ class ResponseHeader(HeadersMixin):
             self.headers,
         )
 
+    def static_resource(
+        self, value: str = "public, max-age=31536000, immutable"
+    ) -> None:
+        """Set headers for static resources."""
+
+        self["Cache-Control"] = value
+
 
 class AsyncResponse:
     """

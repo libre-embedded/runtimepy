@@ -237,6 +237,8 @@ class RuntimepyServerConnection(HttpConnection):
 
                 self.logger.info("Serving '%s' (MIME: %s)", candidate, mime)
 
+                response.static_resource()
+
                 # Return the file data.
                 result = AsyncResponse(candidate)
                 break
@@ -321,6 +323,7 @@ class RuntimepyServerConnection(HttpConnection):
                 # Handle favicon (for browser clients).
                 if path.startswith("/favicon"):
                     response["Content-Type"] = "image/x-icon"
+                    response.static_resource()
                     return self.favicon_data
 
                 # Try serving a file and handling redirects.

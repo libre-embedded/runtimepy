@@ -68,6 +68,8 @@ async def setup(app: AppInfo) -> int:
         )
     )
 
+    RuntimepyServerConnection.metadata.update(app.config_param("html", {}))
+
     # Default application (environment tabs).
     html_app = create_app(app, getattr(_import_module(module), method))
     target: str

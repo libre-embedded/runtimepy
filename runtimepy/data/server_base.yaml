@@ -1,6 +1,6 @@
 ---
 includes:
-  - package://runtimepy/factories.yaml
+  - package://runtimepy/base.yaml
 
 ports:
   - {name: runtimepy_http_server, type: tcp}
@@ -9,22 +9,6 @@ ports:
 
 structs:
   - {name: ui, factory: ui_state}
-
-init:
-  - runtimepy.net.arbiter.housekeeping.init
-
-config:
-  # Default redirects.
-  http_redirects:
-    "/": "/index.html"
-    "/index.html": "/app.html"
-
-  # Serve these applications by default at these paths.
-  http_app_paths: ["/app.html"]
-
-# Handles config["http_app_prefixes"].
-config_builders:
-  - runtimepy.net.html.arbiter.web_app_paths
 
 servers:
   - factory: runtimepy_http

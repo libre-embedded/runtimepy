@@ -55,6 +55,12 @@ class RuntimepyServerConnection(HttpConnection):
     class_paths: list[Pathlike] = [Path(), package_data_dir()]
     class_redirect_paths: dict[Path, Union[str, Path]] = {}
 
+    # Set these to control meta attributes.
+    metadata: dict[str, Optional[str]] = {
+        "title": HttpConnection.identity,
+        "description": None,
+    }
+
     def add_path(self, path: Pathlike, front: bool = False) -> None:
         """Add a path."""
 
@@ -145,7 +151,16 @@ class RuntimepyServerConnection(HttpConnection):
     ) -> bytes:
         """Return rendered markdown content."""
 
-        document = get_html()
+        meta: dict[str, str] = type(self).metadata.copy()  # type: ignore
+
+        meta.setdefault("description", "")
+        meta["description"] += (
+            " This page was rendered from "
+            f"Markdown by {HttpConnection.identity}."
+        )
+
+        document = get_html(**meta)
+
         with IndentedFileWriter.string() as writer:
             writer.write_markdown(content, **kwargs)
             full_markdown_page(
@@ -336,6 +351,7 @@ class RuntimepyServerConnection(HttpConnection):
                         response,
                         request_data,
                         default_app=type(self).default_app,
+                        **type(self).metadata,
                     )
 
                 if populated:

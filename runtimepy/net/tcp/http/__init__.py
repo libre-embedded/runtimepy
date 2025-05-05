@@ -52,10 +52,13 @@ def to_json(response: HttpResponse) -> Any:
     )
 
 
+IDENTITY = f"{PKG_NAME}/{VERSION}"
+
+
 class HttpConnection(_TcpConnection):
     """A class implementing a basic HTTP interface."""
 
-    identity = f"{PKG_NAME}/{VERSION}"
+    identity = IDENTITY
 
     expecting_response: bool
 

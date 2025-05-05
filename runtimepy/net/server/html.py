@@ -24,18 +24,31 @@ HtmlApps = dict[str, HtmlApp]
 def get_html(
     title: str = HttpConnection.identity,
     cache_control: str = "public",
+    description: str = None,
     **kwargs,
 ) -> Html:
     """Get a default HTML document."""
 
     elem = Html(title, **kwargs)
 
-    elem.children.append(
+    elem.head.children.append(
         Element(
             tag="meta",
             attrib={"http-equiv": "Cache-Control", "content": cache_control},
         )
     )
+
+    elem.head.children.append(
+        Element(tag="link", rel="icon", href="/favicon.ico")
+    )
+
+    if description:
+        elem.head.children.append(
+            Element(
+                tag="meta",
+                attrib={"name": "description", "content": description},
+            )
+        )
 
     return elem
 
@@ -47,6 +60,7 @@ async def html_handler(
     response: ResponseHeader,
     request_data: Optional[bytes],
     default_app: HtmlApp = None,
+    **kwargs,
 ) -> bool:
     """Render an HTML document in response to an HTTP request."""
 
@@ -56,6 +70,8 @@ async def html_handler(
     # Create the application.
     app = apps.get(request.target.path, default_app)
     if app is not None:
-        (await app(get_html(), request, response, request_data)).render(stream)
+        (
+            await app(get_html(**kwargs), request, response, request_data)
+        ).render(stream)
 
     return app is not None

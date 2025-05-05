@@ -68,6 +68,12 @@ class HttpConnection(_TcpConnection):
     # runtime don't need additional initialization.
     handlers: HttpRequestHandlers = {}
 
+    headers: dict[str, str] = {
+        "Server": PKG_NAME,
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "public",
+    }
+
     def init(self) -> None:
         """Initialize this instance."""
 
@@ -128,12 +134,9 @@ class HttpConnection(_TcpConnection):
                 f"No handler for {request_header.method} requests."
             )
 
-        # Set boilerplate header data.
-
-        # webhint suggestions
-        # response["server"] = self.identity
-        response["server"] = PKG_NAME
-        response["X-Content-Type-Options"] = "nosniff"
+        for key, value in type(self).headers.items():
+            if response.get(key) is None:
+                response[key] = value
 
         return result
 

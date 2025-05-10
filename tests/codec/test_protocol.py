@@ -13,6 +13,7 @@ from logging import getLogger
 # module under test
 from runtimepy.codec.protocol import Protocol, ProtocolFactory
 from runtimepy.codec.protocol.base import FieldSpec
+from runtimepy.codec.protocol.receiver import StructReceiver
 from runtimepy.enum.registry import EnumRegistry, RuntimeIntEnum
 from runtimepy.primitives import Uint32
 from runtimepy.primitives.byte_order import enum_registry
@@ -151,7 +152,7 @@ def test_protocol_basic():
 class SampleA(ProtocolFactory):
     """A sample protocol implementation."""
 
-    protocol = Protocol(EnumRegistry())
+    protocol = Protocol(EnumRegistry(), identifier=1)
 
     @classmethod
     def initialize(cls, protocol: Protocol) -> None:
@@ -165,7 +166,7 @@ class SampleA(ProtocolFactory):
 class SampleB(ProtocolFactory):
     """A sample protocol implementation."""
 
-    protocol = Protocol(EnumRegistry())
+    protocol = Protocol(EnumRegistry(), identifier=2)
 
     @classmethod
     def initialize(cls, protocol: Protocol) -> None:
@@ -181,7 +182,7 @@ class SampleB(ProtocolFactory):
 class SampleC(ProtocolFactory):
     """A sample protocol implementation."""
 
-    protocol = Protocol(EnumRegistry())
+    protocol = Protocol(EnumRegistry(), identifier=3)
 
     @classmethod
     def initialize(cls, protocol: Protocol) -> None:
@@ -267,7 +268,7 @@ ENUMS = enum_registry(Enum1)
 class Test1(ProtocolFactory):
     """A sample protocol implementation."""
 
-    protocol = Protocol(ENUMS)
+    protocol = Protocol(ENUMS, identifier=4)
 
     @classmethod
     def initialize(cls, protocol: Protocol) -> None:
@@ -281,7 +282,7 @@ class Test1(ProtocolFactory):
 class TestArrays(ProtocolFactory):
     """A sample protocol implementation."""
 
-    protocol = Protocol(ENUMS)
+    protocol = Protocol(ENUMS, identifier=5)
 
     @classmethod
     def initialize(cls, protocol: Protocol) -> None:
@@ -301,7 +302,7 @@ def test_protocol_ifgen_defect():
 class TestBitFields(ProtocolFactory):
     """A sample protocol that uses bit fields."""
 
-    protocol = Protocol(ENUMS)
+    protocol = Protocol(ENUMS, identifier=6)
 
     @classmethod
     def initialize(cls, protocol: Protocol) -> None:
@@ -327,3 +328,55 @@ def test_protocol_bit_fields():
 
     inst["five"] = 15
     assert inst["uint8"] == (15 << 4) + 1
+
+
+def test_protocol_streaming():
+    """Test sending and receiving id-prefixed struct messages."""
+
+    # SampleC
+    receiver = StructReceiver(
+        SampleA, SampleB, Test1, TestArrays, TestBitFields
+    )
+
+    inst_a = SampleA.instance()
+    inst_a["a"] = 1
+    inst_a["b"] = 2.0
+    inst_a.set("c_array", 3, index=0)
+    inst_a.set("c_array", 4, index=1)
+    inst_a.set("c_array", 5, index=2)
+    inst_a.set("c_array", 6, index=3)
+    inst_a.set("c_array", 7, index=4)
+    inst_a.set("c_array", 8, index=5)
+
+    handler_count = 0
+
+    def handle_sample_a(proto: Protocol) -> None:
+        """Sample handler."""
+
+        nonlocal handler_count
+        handler_count += 1
+
+        assert proto is not inst_a
+
+        assert proto["a"] == 1
+        assert proto["b"] == 2.0
+        assert inst_a.value("c_array", index=0) == 3
+        assert inst_a.value("c_array", index=1) == 4
+        assert inst_a.value("c_array", index=2) == 5
+        assert inst_a.value("c_array", index=3) == 6
+        assert inst_a.value("c_array", index=4) == 7
+        assert inst_a.value("c_array", index=5) == 8
+
+    receiver.add_handler(SampleA.id(), handle_sample_a)
+
+    with BytesIO() as stream:
+        inst_a.write_with_id(stream)
+        inst_a.write_with_id(stream)
+        receiver.process(stream.getvalue())
+
+    assert handler_count == 2
+
+    with BytesIO() as stream:
+        SampleB.instance().write_with_id(stream)
+        SampleC.instance().write_with_id(stream)
+        receiver.process(stream.getvalue())

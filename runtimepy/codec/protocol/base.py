@@ -6,6 +6,7 @@ A module implementing an interface to build communication protocols.
 from contextlib import contextmanager, suppress
 from copy import copy as _copy
 from io import StringIO
+from typing import BinaryIO as _BinaryIO
 from typing import Iterator as _Iterator
 from typing import NamedTuple
 from typing import Optional as _Optional
@@ -18,8 +19,9 @@ from vcorelib.logging import LoggerType
 
 # internal
 from runtimepy.enum import RuntimeEnum as _RuntimeEnum
-from runtimepy.enum.registry import EnumRegistry as _EnumRegistry
+from runtimepy.enum.registry import DEFAULT_ENUM_PRIMITIVE, EnumRegistry
 from runtimepy.primitives import AnyPrimitive as _AnyPrimitive
+from runtimepy.primitives import PrimitiveInstancelike
 from runtimepy.primitives import Primitivelike as _Primitivelike
 from runtimepy.primitives import normalize_instance as _normalize_instance
 from runtimepy.primitives.array import PrimitiveArray
@@ -29,6 +31,7 @@ from runtimepy.primitives.byte_order import (
 from runtimepy.primitives.byte_order import ByteOrder as _ByteOrder
 from runtimepy.primitives.field.fields import BitFields as _BitFields
 from runtimepy.primitives.field.manager import BitFieldsManager
+from runtimepy.primitives.int import UnsignedInt
 from runtimepy.primitives.serializable import Serializable, SerializableMap
 from runtimepy.registry.name import NameRegistry as _NameRegistry
 from runtimepy.registry.name import RegistryKey as _RegistryKey
@@ -66,11 +69,12 @@ class ProtocolBase(PrimitiveArray):
 
     def __init__(
         self,
-        enum_registry: _EnumRegistry,
+        enum_registry: EnumRegistry,
         names: _NameRegistry = None,
         fields: BitFieldsManager = None,
         build: ProtocolBuild = None,
         identifier: int = 1,
+        identifier_primitive: PrimitiveInstancelike = DEFAULT_ENUM_PRIMITIVE,
         byte_order: _Union[_ByteOrder, _RegistryKey] = _DEFAULT_BYTE_ORDER,
         serializables: SerializableMap = None,
         alias: str = None,
@@ -78,6 +82,12 @@ class ProtocolBase(PrimitiveArray):
         """Initialize this protocol."""
 
         self.id = identifier
+        self.id_primitive: UnsignedInt = _normalize_instance(  # type: ignore
+            identifier_primitive
+        )
+        assert self.id_primitive.kind.is_integer
+        self.id_primitive.value = self.id
+
         self.alias = alias
 
         # Register the byte-order enumeration if it's not present.
@@ -331,3 +341,8 @@ class ProtocolBase(PrimitiveArray):
     def __setitem__(self, name: str, val: ProtocolPrimitive) -> None:
         """Set a value of a field belonging to the protocol."""
         self.set(name, val)
+
+    def write_with_id(self, stream: _BinaryIO) -> None:
+        """Write this instance to a stream with its identifier as a prefix."""
+        self.id_primitive.to_stream(stream, byte_order=self.byte_order)
+        self.to_stream(stream)

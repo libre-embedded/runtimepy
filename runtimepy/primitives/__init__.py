@@ -121,9 +121,10 @@ def create(value: Primitivelike, **kwargs) -> AnyPrimitive:
     return normalize(value)(**kwargs)
 
 
-def normalize_instance(
-    value: Primitivelike | AnyPrimitive, **kwargs
-) -> AnyPrimitive:
+PrimitiveInstancelike = _Union[Primitivelike, AnyPrimitive]
+
+
+def normalize_instance(value: PrimitiveInstancelike, **kwargs) -> AnyPrimitive:
     """Creates a new instance only if necessary."""
 
     if not isinstance(value, Primitive):

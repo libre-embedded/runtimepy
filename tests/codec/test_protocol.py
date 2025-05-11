@@ -380,3 +380,21 @@ def test_protocol_streaming():
         SampleB.instance().write_with_id(stream)
         SampleC.instance().write_with_id(stream)
         receiver.process(stream.getvalue())
+
+    msg_bytes = "hello, world!".encode()
+
+    with BytesIO() as stream:
+        stream.write(receiver.non_struct_message_prefix)
+        stream.write(msg_bytes)
+        receiver.process(stream.getvalue())
+
+    receiver.add_non_struct_handler(lambda stream: stream.read() == msg_bytes)
+
+    with BytesIO() as stream:
+        stream.write(receiver.non_struct_message_prefix)
+        stream.write(msg_bytes)
+
+        stream.write(receiver.non_struct_message_prefix)
+        stream.write("NOT hello, world!".encode())
+
+        receiver.process(stream.getvalue())

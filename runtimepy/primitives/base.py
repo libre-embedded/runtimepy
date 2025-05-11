@@ -93,7 +93,12 @@ class Primitive(_Generic[T]):
 
     def __copy__(self) -> "Primitive[T]":
         """Make a copy of this primitive."""
-        return type(self)(value=self.value)
+
+        return type(self)(
+            value=self.value,
+            scaling=self.scaling,
+            time_source=self.time_source,
+        )
 
     def copy(self) -> "Primitive[T]":
         """A simple wrapper for copy."""

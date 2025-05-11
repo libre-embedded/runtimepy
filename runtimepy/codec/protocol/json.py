@@ -54,6 +54,7 @@ class JsonProtocol(ProtocolBase):
 
         data[META_KEY] = {
             "id": self.id,
+            "id_primitive": self.id_primitive.kind.name,
             "byte_order": self.byte_order.name.lower(),
             "alias": self.alias,
         }
@@ -131,6 +132,7 @@ class JsonProtocol(ProtocolBase):
             fields=fields,
             build=build,
             identifier=_cast(int, data[META_KEY]["id"]),
+            identifier_primitive=_cast(str, data[META_KEY]["id_primitive"]),
             byte_order=_cast(str, data[META_KEY]["byte_order"]),
             alias=data[META_KEY]["alias"],  # type: ignore
             serializables=serializables,

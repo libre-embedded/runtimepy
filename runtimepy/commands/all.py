@@ -1,16 +1,12 @@
 # =====================================
 # generator=datazen
 # version=3.2.3
-# hash=1814b7f7fae3556a0dbeec37141e4182
+# hash=f4667fb34b5066e16f0621961f11efd8
 # =====================================
 
 """
 A module aggregating package commands.
 """
-
-# built-in
-from typing import List as _List
-from typing import Tuple as _Tuple
 
 # third-party
 from vcorelib.args import CommandRegister as _CommandRegister
@@ -24,7 +20,7 @@ from runtimepy.commands.tftp import add_tftp_cmd
 from runtimepy.commands.tui import add_tui_cmd
 
 
-def commands() -> _List[_Tuple[str, str, _CommandRegister]]:
+def commands() -> list[tuple[str, str, _CommandRegister]]:
     """Get this package's commands."""
 
     return [

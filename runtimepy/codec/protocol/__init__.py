@@ -53,3 +53,8 @@ class ProtocolFactory(ABC):
         if cls._singleton is None:
             cls._singleton = cls.instance()
         return cls._singleton
+
+    @classmethod
+    def id(cls) -> int:
+        """Get an integer identifier for this protocol factory."""
+        return cls.singleton().id

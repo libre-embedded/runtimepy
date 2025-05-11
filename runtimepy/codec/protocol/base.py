@@ -160,6 +160,7 @@ class ProtocolBase(PrimitiveArray):
             build=self._build,
             byte_order=self.byte_order,
             identifier=self.id,
+            identifier_primitive=self.id_primitive.kind.name,
             serializables={
                 key: [val[0].copy_without_chain()]
                 for key, val in self.serializables.items()

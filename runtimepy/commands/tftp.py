@@ -42,9 +42,10 @@ def tftp_cmd(args: argparse.Namespace) -> int:
     else:
         task = tftp_write(addr, args.our_file, args.their_file, **kwargs)
 
-    return run_handle_stop(
+    result = run_handle_stop(
         stop_sig, task, enable_uvloop=not getattr(args, "no_uvloop", False)
     )
+    return result if result is not None else 1
 
 
 def add_tftp_cmd(parser: argparse.ArgumentParser) -> CommandFunction:

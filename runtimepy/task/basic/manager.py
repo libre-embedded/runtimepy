@@ -5,6 +5,7 @@ A module implementing a periodic-task manager.
 # built-in
 import asyncio as _asyncio
 from contextlib import asynccontextmanager as _asynccontextmanager
+from contextlib import suppress as _suppress
 from typing import AsyncIterator as _AsyncIterator
 from typing import Generic as _Generic
 from typing import Iterator as _Iterator
@@ -57,8 +58,24 @@ class PeriodicTaskManager(_Generic[T]):
     ) -> _AsyncIterator[None]:
         """Run tasks as an async context."""
 
+        task = None
+        if stop_sig is not None:
+
+            async def stopper() -> None:
+                """Stop tasks when stop signal is set."""
+
+                with _suppress(_asyncio.CancelledError):
+                    await stop_sig.wait()
+                    await self.stop()
+
+            task = _asyncio.get_running_loop().create_task(stopper())
+
         await self.start(stop_sig=stop_sig)
         try:
             yield
         finally:
             await self.stop()
+
+            if task is not None:
+                task.cancel()
+                await task

@@ -470,7 +470,7 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
     ) -> int:
         """Run the application until the stop signal is set."""
 
-        return run_handle_stop(
+        result = run_handle_stop(
             self.stop_sig,
             self.app(
                 app=app, check_connections=check_connections, config=config
@@ -479,3 +479,4 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
             signals=signals,
             enable_uvloop=enable_uvloop,
         )
+        return result if result is not None else 1

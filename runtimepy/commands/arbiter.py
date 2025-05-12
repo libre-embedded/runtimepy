@@ -41,11 +41,12 @@ def app(args: _Namespace) -> int:
     if args.init_only:
         stop_sig.set()
 
-    return _run_handle_stop(
+    result = _run_handle_stop(
         stop_sig,
         entry(stop_sig, args, window=args.window),
         enable_uvloop=not getattr(args, "no_uvloop", False),
     )
+    return result if result is not None else 1
 
 
 def arbiter_cmd(args: _Namespace) -> int:

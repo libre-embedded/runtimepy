@@ -72,6 +72,10 @@ class RuntimeEnum(_RegistryItem):
                 _cast(_BoolMappingData, data["items"])
             )
 
+        self.default: _Optional[str] = None
+        if "default" in data:
+            self.default = self.as_str(_cast(int, data["default"]))
+
     def asdict(self) -> _JsonObject:
         """Obtain a dictionary representing this instance."""
 
@@ -80,6 +84,8 @@ class RuntimeEnum(_RegistryItem):
             "type": str(self.type),
             "primitive": self.primitive,
         }
+        if self.default is not None:
+            result["default"] = self.default
         if self.is_integer:
             result["items"] = _cast(_JsonValue, self.ints.asdict())
         else:
@@ -173,9 +179,15 @@ class RuntimeEnum(_RegistryItem):
         }
 
     @staticmethod
-    def from_enum(enum: type[_IntEnum], identifier: int) -> "RuntimeEnum":
+    def from_enum(
+        enum: type[_IntEnum],
+        identifier: int,
+        default: _Union[str, bool, int] = None,
+    ) -> "RuntimeEnum":
         """Create a runtime enumeration from an enum class."""
 
         data = RuntimeEnum.data_from_enum(enum)
         data["id"] = identifier
+        if default is not None:
+            data["default"] = default
         return RuntimeEnum.create(data)

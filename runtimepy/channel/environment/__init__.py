@@ -3,7 +3,9 @@ A module implementing a channel environment.
 """
 
 # built-in
+from contextlib import ExitStack as _ExitStack
 from typing import Iterator as _Iterator
+from typing import cast as _cast
 
 # internal
 from runtimepy.channel import Default as _Default
@@ -19,6 +21,8 @@ from runtimepy.channel.environment.file import (
 from runtimepy.channel.environment.telemetry import (
     TelemetryChannelEnvironment as _TelemetryChannelEnvironment,
 )
+from runtimepy.codec.protocol import Protocol as _Protocol
+from runtimepy.codec.protocol.base import FieldSpec as _FieldSpec
 
 
 class ChannelEnvironment(
@@ -28,6 +32,58 @@ class ChannelEnvironment(
     _CreateChannelEnvironment,
 ):
     """A class integrating channel and enumeration registries."""
+
+    def register_protocol(self, protocol: _Protocol) -> None:
+        """Register protocol elements as named channels and fields."""
+
+        # Register any new enumerations.
+        self.enums.register_from_other(protocol.enum_registry)
+
+        for item in protocol.build:
+            # Handle regular primitive fields.
+            if isinstance(item, _FieldSpec):
+                if item.is_array():
+                    assert item.array_length is not None
+                    with self.names_pushed(item.name):
+                        for idx in range(item.array_length):
+                            self.channel(
+                                str(idx),
+                                kind=protocol.get_primitive(
+                                    item.name, index=idx
+                                ),
+                                commandable=item.commandable,
+                                enum=item.enum,
+                            )
+                else:
+                    self.channel(
+                        item.name,
+                        kind=protocol.get_primitive(item.name),
+                        commandable=item.commandable,
+                        enum=item.enum,
+                    )
+
+            # Handle nested protocols.
+            elif isinstance(item[0], str):
+                name = item[0]
+                candidates = protocol.serializables[name]
+                if isinstance(candidates[0], _Protocol):
+                    with self.names_pushed(name):
+                        for idx, candidate in enumerate(candidates):
+                            with _ExitStack() as stack:
+                                # Enter array-index namespace if applicable.
+                                if len(candidates) > 1:
+                                    stack.enter_context(
+                                        self.names_pushed(str(idx))
+                                    )
+
+                                self.register_protocol(
+                                    _cast(_Protocol, candidate)
+                                )
+
+            # bit fields
+            elif isinstance(item[0], int):
+                pass
+                # int channel for prim named item[1]
 
     def search_names(
         self, pattern: str, exact: bool = False

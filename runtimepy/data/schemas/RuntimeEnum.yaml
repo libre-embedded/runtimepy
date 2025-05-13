@@ -8,6 +8,12 @@ properties:
     type: integer
     minimum: 1
 
+  default:
+    oneOf:
+      - type: string
+      - type: integer
+      - type: boolean
+
   type:
     enum: [bool, int]
 

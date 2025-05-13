@@ -44,8 +44,13 @@ class FieldSpec(NamedTuple):
 
     name: str
     kind: str
+    commandable: bool
     enum: _Optional[_RegistryKey] = None
     array_length: _Optional[int] = None
+
+    def is_array(self) -> bool:
+        """Determine if this instance is an array."""
+        return self.array_length is not None and self.array_length > 1
 
     def asdict(self) -> _JsonObject:
         """Obtain a dictionary representing this instance."""
@@ -91,14 +96,14 @@ class ProtocolBase(PrimitiveArray):
         self.alias = alias
 
         # Register the byte-order enumeration if it's not present.
-        self._enum_registry = enum_registry
-        if not self._enum_registry.get("ByteOrder"):
-            _ByteOrder.register_enum(self._enum_registry)
+        self.enum_registry = enum_registry
+        if not self.enum_registry.get("ByteOrder"):
+            _ByteOrder.register_enum(self.enum_registry)
 
         # Each instance gets its own array.
         if not isinstance(byte_order, _ByteOrder):
             byte_order = _ByteOrder(
-                self._enum_registry["ByteOrder"].get_int(byte_order)
+                self.enum_registry["ByteOrder"].get_int(byte_order)
             )
 
         super().__init__(byte_order=byte_order)
@@ -108,14 +113,14 @@ class ProtocolBase(PrimitiveArray):
         self.names = names
 
         if fields is None:
-            fields = BitFieldsManager(self.names, self._enum_registry)
+            fields = BitFieldsManager(self.names, self.enum_registry)
         self._fields = fields
 
         self._regular_fields: dict[str, list[_AnyPrimitive]] = {}
         self._enum_fields: dict[str, _RuntimeEnum] = {}
 
         # Keep track of the order that the protocol was created.
-        self._build: ProtocolBuild = []
+        self.build: ProtocolBuild = []
 
         # Keep track of named serializables.
         self.serializables: SerializableMap = {}
@@ -128,6 +133,7 @@ class ProtocolBase(PrimitiveArray):
                 self.add_field(
                     item.name,
                     item.kind,
+                    commandable=item.commandable,
                     enum=item.enum,
                     array_length=item.array_length,
                 )
@@ -154,10 +160,10 @@ class ProtocolBase(PrimitiveArray):
         """Create another protocol instance from this one."""
 
         return self.__class__(
-            self._enum_registry,
+            self.enum_registry,
             names=self.names,
             fields=_copy(self._fields),
-            build=self._build,
+            build=self.build,
             byte_order=self.byte_order,
             identifier=self.id,
             identifier_primitive=self.id_primitive.kind.name,
@@ -183,7 +189,7 @@ class ProtocolBase(PrimitiveArray):
         self.register_name(name)
 
         instances = self.add_to_end(serializable, array_length=array_length)
-        self._build.append((name, len(instances)))
+        self.build.append((name, len(instances)))
 
         assert name not in self.serializables, name
         self.serializables[name] = instances
@@ -196,6 +202,7 @@ class ProtocolBase(PrimitiveArray):
         serializable: Serializable = None,
         array_length: int = None,
         track: bool = True,
+        commandable: bool = False,
     ) -> None:
         """Add a new field to the protocol."""
 
@@ -209,8 +216,9 @@ class ProtocolBase(PrimitiveArray):
 
         self.register_name(name)
 
+        runtime_enum = None
         if enum is not None:
-            runtime_enum = self._enum_registry[enum]
+            runtime_enum = self.enum_registry[enum]
             self._enum_fields[name] = runtime_enum
 
             # Allow the primitive type to be overridden when passed as a
@@ -221,13 +229,21 @@ class ProtocolBase(PrimitiveArray):
         assert kind is not None
         inst = _normalize_instance(kind)
 
+        # Set enum defaults.
+        if runtime_enum is not None and runtime_enum.default:
+            inst.value = runtime_enum.get_int(runtime_enum.default)
+
         assert name not in self._regular_fields, name
         self._regular_fields[name] = self.add(inst, array_length=array_length)
 
         if track:
-            self._build.append(
+            self.build.append(
                 FieldSpec(
-                    name, inst.kind.name, enum, array_length=array_length
+                    name,
+                    inst.kind.name,
+                    commandable,
+                    enum,
+                    array_length=array_length,
                 )
             )
 
@@ -240,7 +256,7 @@ class ProtocolBase(PrimitiveArray):
         if index is None:
             index = self._fields.add(fields)
 
-        self._build.append((index, name))
+        self.build.append((index, name))
         self.add_field(name, kind=fields.raw, track=False)
 
     @contextmanager
@@ -253,6 +269,10 @@ class ProtocolBase(PrimitiveArray):
         yield new
         self._add_bit_fields(name, new)
 
+    def get_primitive(self, name: str, index: int = 0) -> _AnyPrimitive:
+        """todo"""
+        return self._regular_fields[name][index]
+
     def value(
         self, name: str, resolve_enum: bool = True, index: int = 0
     ) -> ProtocolPrimitive:
@@ -261,7 +281,7 @@ class ProtocolBase(PrimitiveArray):
         val: ProtocolPrimitive = 0
 
         if name in self._regular_fields:
-            val = self._regular_fields[name][index].value
+            val = self.get_primitive(name, index=index).value
 
             # Resolve the enum value.
             if resolve_enum and name in self._enum_fields:

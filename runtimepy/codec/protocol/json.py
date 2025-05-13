@@ -74,7 +74,7 @@ class JsonProtocol(ProtocolBase):
         json_obj.update(
             {
                 name: _cast(_JsonValue, val.asdict())
-                for name, val in self._enum_registry.items.items()
+                for name, val in self.enum_registry.items.items()
                 if val.id in enum_ids and name not in json_obj
             }
         )
@@ -83,7 +83,7 @@ class JsonProtocol(ProtocolBase):
         build: list[
             _Union[tuple[int, str], _JsonObject, str, tuple[str, int]]
         ] = []
-        for item in self._build:
+        for item in self.build:
             if isinstance(item, FieldSpec):
                 build.append(item.asdict())
             else:

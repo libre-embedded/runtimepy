@@ -42,8 +42,6 @@ class PrimitiveArray(Serializable):
         """Initialize this primitive array."""
 
         self._primitives: list[_AnyPrimitive] = []
-        self.byte_order = byte_order
-        self._format: str = self.byte_order.fmt
 
         # Keep track of a quick lookup for converting between element indices
         # and byte indices.
@@ -53,11 +51,12 @@ class PrimitiveArray(Serializable):
         self.size = 0
         self.chain = None
 
+        super().__init__(byte_order=byte_order, chain=chain)
+        self._format: str = self.byte_order.fmt
+
         # Add initial items.
         for item in primitives:
             self.add(item)
-
-        super().__init__(byte_order=self.byte_order, chain=chain)
 
         self._fragments: list["PrimitiveArray"] = []
         self._fragment_specs: list[ArrayFragmentSpec] = []

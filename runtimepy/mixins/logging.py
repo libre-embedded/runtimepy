@@ -6,7 +6,7 @@ A module implementing a logger-mixin extension.
 from contextlib import AsyncExitStack
 import io
 import logging
-from typing import Any, Iterable
+from typing import Any, Iterable, Optional
 
 # third-party
 import aiofiles
@@ -26,6 +26,11 @@ class LogLevel(RuntimeIntEnum):
     WARNING = logging.WARNING
     ERROR = logging.ERROR
     CRITICAL = logging.CRITICAL
+
+    @classmethod
+    def id(cls) -> Optional[int]:
+        """Override in sub-class to coerce enum id."""
+        return 2
 
 
 LogLevellike = LogLevel | int | str

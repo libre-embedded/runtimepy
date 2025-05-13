@@ -74,7 +74,10 @@ class CreateChannelEnvironment(_BaseChannelEnvironment):
 
         # Keep track of any new enum channels.
         if enum is not None:
-            self.channel_enums[result] = self.enums[enum]
+            runtime = self.enums[enum]
+            self.channel_enums[result] = runtime
+            if runtime.default:
+                self[name] = runtime.default
 
         return self[name]
 

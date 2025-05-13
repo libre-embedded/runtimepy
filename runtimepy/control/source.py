@@ -62,7 +62,7 @@ class PrimitiveSource(RuntimeStruct, Generic[T]):
             )
 
 
-class DoubleSource(PrimitiveSource[Double]):
+class DoubleSource(PrimitiveSource[Double]):  # pylint:disable=abstract-method
     """A simple double output source."""
 
     kind = Double

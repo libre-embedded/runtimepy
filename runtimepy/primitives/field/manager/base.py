@@ -105,7 +105,10 @@ class BitFieldsManagerBase:
 
             # Also store the enum mapping.
             if field.is_enum:
-                self.enum_lookup[name] = self.enums[field.enum]
+                runtime = self.enums[field.enum]
+                self.enum_lookup[name] = runtime
+                if runtime.default:
+                    self.set(name, runtime.default)
 
         return index
 

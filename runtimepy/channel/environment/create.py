@@ -28,6 +28,7 @@ from runtimepy.enum.types import EnumTypelike as _EnumTypelike
 from runtimepy.mapping import EnumMappingData as _EnumMappingData
 from runtimepy.primitives import ChannelScaling, Primitive
 from runtimepy.primitives import Primitivelike as _Primitivelike
+from runtimepy.primitives.field.fields import BitFields as _BitFields
 from runtimepy.registry.name import RegistryKey as _RegistryKey
 
 
@@ -80,6 +81,13 @@ class CreateChannelEnvironment(_BaseChannelEnvironment):
                 self[name] = runtime.default
 
         return self[name]
+
+    def add_fields(self, name: str, fields: _BitFields) -> None:
+        """Add bit fields to this channel environment."""
+
+        self.channel(name, kind=fields.raw)
+        with self.names_pushed(name):
+            self.fields.add(fields, namespace=self._namespace, track=True)
 
     def int_channel(
         self,

@@ -80,10 +80,9 @@ class ChannelEnvironment(
                                     _cast(_Protocol, candidate)
                                 )
 
-            # bit fields
+            # Handle bit fields.
             elif isinstance(item[0], int):
-                pass
-                # int channel for prim named item[1]
+                self.add_fields(item[1], protocol.get_fields(item[0]))
 
     def search_names(
         self, pattern: str, exact: bool = False

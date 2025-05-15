@@ -46,7 +46,7 @@ class BitFieldBase:
 
         result = ""
 
-        for idx in range(self.raw.size * 8):
+        for idx in reversed(range(self.raw.size * 8)):
             val = 1 << idx
             if val & self.shifted_mask:
                 result += "^"

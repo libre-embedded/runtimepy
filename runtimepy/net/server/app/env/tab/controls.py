@@ -74,12 +74,15 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
         # Add boolean/bit toggle button.
         control = div(tag="td", parent=parent, class_str="p-0")
 
+        if chan.commandable:
+            control.add_class("border-2-start-info-subtle")
+
         chan_type = div(
             tag="td",
             text=get_channel_kind_str(env, chan, enum),
             parent=parent,
             title=f"Underlying primitive type for '{name}'.",
-            class_str="p-0 ps-1 pe-1",
+            class_str="p-0 ps-2 pe-1",
         )
 
         control_added = False
@@ -88,37 +91,68 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
             chan_type.add_class("fw-bold")
 
             if chan.commandable and not chan.type.is_boolean:
-                enum_dropdown(control, name, enum, cast(int, chan.raw.value))
+                enum_dropdown(
+                    control, name, enum, cast(int, chan.raw.value)
+                ).add_class(
+                    "border-2-end-info-subtle",
+                    "text-secondary-emphasis",
+                    "pt-1",
+                    "pb-1",
+                )
                 control_added = True
 
         if chan.type.is_boolean:
-            chan_type.add_class("text-primary-emphasis")
+            chan_type.add_class("text-primary")
             if chan.commandable:
                 button = toggle_button(
                     control, id=name, title=f"Toggle '{name}'."
                 )
-                button.add_class("toggle-value", *TABLE_BUTTON_CLASSES)
+                button.add_class(
+                    "toggle-value",
+                    "fs-5",
+                    "pt-0",
+                    "pb-0",
+                    "border-2-end-info-subtle",
+                    *TABLE_BUTTON_CLASSES,
+                )
                 control_added = True
 
                 if chan.default is not None:
                     default_button(
-                        control, name, chan, *TABLE_BUTTON_CLASSES, front=False
+                        control,
+                        name,
+                        chan,
+                        "p-0",
+                        *TABLE_BUTTON_CLASSES,
+                        front=False,
                     )
 
         elif chan.type.is_float:
             chan_type.add_class("text-secondary-emphasis")
         else:
-            chan_type.add_class("text-primary")
+            chan_type.add_class("text-primary-emphasis")
 
         # Input box with send button.
         if not control_added and chan.commandable:
-            container = value_input_box(name, control)
+            container = value_input_box(name, control).add_class(
+                "justify-content-start"
+            )
 
             # Reset-to-default button if a default value exists.
             if chan.default is not None:
-                default_button(container, name, chan, *TABLE_BUTTON_CLASSES)
+                default_button(
+                    container,
+                    name,
+                    chan,
+                    "pt-0",
+                    "pb-0",
+                    *TABLE_BUTTON_CLASSES,
+                    front=False,
+                )
 
             if chan.controls:
+                control.add_class("border-2-end-info-subtle")
+
                 # Determine if a slider should be created.
                 if "slider" in chan.controls:
                     elem = chan.controls["slider"]
@@ -130,8 +164,7 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
                         parent=container,
                         id=name,
                         title=f"Value control for '{name}'.",
-                        front=True,
-                    )
+                    ).add_class("bg-body", "rounded-pill", "me-2")
 
     def _bit_field_controls(
         self,
@@ -146,12 +179,29 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
 
         field = self.command.env.fields[name]
         if field.commandable:
+            control.add_class("border-2-start-info-subtle")
+
             if is_bit:
                 button = toggle_button(
                     control, id=name, title=f"Toggle '{name}'."
                 )
-                button.add_class("toggle-value", *TABLE_BUTTON_CLASSES)
+                button.add_class(
+                    "toggle-value",
+                    "fs-5",
+                    "pt-0",
+                    "pb-0",
+                    "border-start-0",
+                    "border-2-end-info-subtle",
+                    *TABLE_BUTTON_CLASSES,
+                )
             elif enum:
-                enum_dropdown(control, name, enum, field())
+                enum_dropdown(control, name, enum, field()).add_class(
+                    "border-2-end-info-subtle",
+                    "text-secondary-emphasis",
+                    "pt-1",
+                    "pb-1",
+                )
             else:
-                value_input_box(name, control)
+                value_input_box(name, control).add_class(
+                    "justify-content-start"
+                )

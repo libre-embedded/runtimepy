@@ -58,6 +58,7 @@ class FieldSpec(NamedTuple):
         result: _JsonObject = {
             "name": self.name,
             "kind": self.kind,
+            "commandable": self.commandable,
             "array_length": self.array_length,
         }
         if self.enum is not None:
@@ -270,8 +271,12 @@ class ProtocolBase(PrimitiveArray):
         self._add_bit_fields(name, new)
 
     def get_primitive(self, name: str, index: int = 0) -> _AnyPrimitive:
-        """todo"""
+        """Get an underlying primitive instance."""
         return self._regular_fields[name][index]
+
+    def get_fields(self, index: int) -> _BitFields:
+        """Get a bit-fields instance from its build identifier."""
+        return self._fields.fields[index]
 
     def value(
         self, name: str, resolve_enum: bool = True, index: int = 0

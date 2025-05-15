@@ -120,7 +120,10 @@ class JsonProtocol(ProtocolBase):
             if isinstance(item, dict):
                 build.append(
                     FieldSpec(
-                        item["name"], item["kind"], enum=item.get("enum")
+                        item["name"],
+                        item["kind"],
+                        item["commandable"],
+                        enum=item.get("enum"),
                     )
                 )
             else:

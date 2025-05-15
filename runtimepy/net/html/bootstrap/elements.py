@@ -66,8 +66,9 @@ def collapse_button(
     """Create a collapse button."""
 
     collapse = bootstrap_button(icon_str(icon), tooltip=tooltip, **kwargs)
-    collapse["data-bs-toggle"] = toggle
-    collapse["data-bs-target"] = target
+    if target:
+        collapse["data-bs-toggle"] = toggle
+        collapse["data-bs-target"] = target
 
     return collapse
 
@@ -90,7 +91,7 @@ def toggle_button(
         type="button",
         text=icon_str(icon, classes=icon_classes),
         parent=parent,
-        class_str="btn " + BOOTSTRAP_BUTTON,
+        class_str=f"btn {BOOTSTRAP_BUTTON}",
         **kwargs,
     )
     if tooltip:
@@ -105,7 +106,7 @@ def input_box(
     pattern: str = ".*",
     description: str = None,
     **kwargs,
-) -> None:
+) -> tuple[Element, Element, Element]:
     """Create command input box."""
 
     container = div(parent=parent, class_str="input-group")
@@ -126,6 +127,8 @@ def input_box(
         **kwargs,
     )
     box.add_class("form-control", "rounded-0", TEXT)
+
+    return container, label_elem, box
 
 
 def slider(

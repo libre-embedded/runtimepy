@@ -14,6 +14,7 @@ from typing import cast as _cast
 from vcorelib.io import ARBITER as _ARBITER
 from vcorelib.io.types import EncodeResult as _EncodeResult
 from vcorelib.io.types import JsonObject as _JsonObject
+from vcorelib.namespace import Namespace
 from vcorelib.paths import Pathlike as _Pathlike
 
 # internal
@@ -86,7 +87,12 @@ class BitFieldsManagerBase:
         """Encode this bit-fields manager to a file."""
         return fields_to_file(path, self.fields, **kwargs)
 
-    def add(self, fields: _BitFields) -> int:
+    def add(
+        self,
+        fields: _BitFields,
+        namespace: Namespace = None,
+        track: bool = False,
+    ) -> int:
         """Add new bit-fields to manage."""
 
         # Ensure that new fields can't be added after the current fields
@@ -97,7 +103,12 @@ class BitFieldsManagerBase:
         self.fields.append(fields)
 
         # Register fields into the lookup structure.
+        to_add = {}
         for name, field in fields.fields.items():
+            if namespace is not None:
+                name = namespace.namespace(name=name, track=track)
+                to_add[name] = field
+
             ident = self.registry.register_name(name)
             assert ident is not None, "Couldn't register bit-field '{name}'!"
             assert name not in self.lookup, name
@@ -109,6 +120,9 @@ class BitFieldsManagerBase:
                 self.enum_lookup[name] = runtime
                 if runtime.default:
                     self.set(name, runtime.default)
+
+        # Add possible namespaced-name mappings.
+        fields.fields.update(to_add)
 
         return index
 

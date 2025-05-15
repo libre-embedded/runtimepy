@@ -110,7 +110,7 @@ function startMainLoop() {
     if (splash) {
       let curr = window.getComputedStyle(splash).getPropertyValue("opacity");
       if (curr > 0) {
-        splash.style.opacity = curr - Math.min(0.05, deltaT / 2000);
+        splash.style.opacity = curr - Math.min(0.05, deltaT / 1000);
       } else {
         splash.style.display = "none";
         splash = undefined;

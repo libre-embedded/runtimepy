@@ -38,6 +38,7 @@
 .table {
   margin-bottom: 0;
   width: auto;
+  border-collapse: collapse;
 }
 
 .table-container {
@@ -52,7 +53,7 @@
   flex-shrink: 0;
 
   /* Don't allow plot area to become too hidden. */
-  max-width: 75%;
+  max-width: min-content;
 }
 
 .channel-value {
@@ -76,20 +77,25 @@ select.form-select:hover {
 
 textarea.text-logs {
   min-height: 10em !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-
-  border-top: 0;
+  font-size: 14px;
 }
 
 .vertical-divider {
-  flex-basis: 0.75em;
+  flex-basis: 1.0em;
   flex-grow: 0;
   flex-shrink: 0;
 }
 
 pre {
   color: var(--bs-code-color);
+}
+
+input:hover {
+  background-color: var(--bs-tertiary-bg);
+}
+
+input[type=checkbox]:hover {
+  cursor: pointer;
 }
 
 .vertical-divider:hover {
@@ -101,8 +107,22 @@ button:hover {
   background-color: var(--bs-tertiary-bg);
 }
 
+select:hover {
+  background-color: var(--bs-tertiary-bg);
+}
+
 .channel-value-input {
   width: 6em;
+}
+
+.border-2-start-info-subtle {
+  border-left: 2px solid var(--bs-info-border-subtle);
+}
+.border-2-end-info-subtle {
+  border-right: 2px solid var(--bs-info-border-subtle);
+}
+button.border-2-end-info-subtle:hover {
+  border-right: 2px solid var(--bs-info-border-subtle);
 }
 
 /* Prefer 'CascadiaCode' and 'CascadiaMono' at the highest priority. */

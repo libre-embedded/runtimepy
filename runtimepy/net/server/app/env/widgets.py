@@ -25,7 +25,7 @@ from runtimepy.net.html.bootstrap.elements import (
 def plot_checkbox(parent: Element, name: str) -> None:
     """Add a checkbox for individual channel plot status."""
 
-    container = div(tag="td", parent=parent, class_str="text-center p-0")
+    container = div(tag="td", parent=parent, class_str="text-center p-0 fs-5")
 
     set_tooltip(
         div(
@@ -35,7 +35,7 @@ def plot_checkbox(parent: Element, name: str) -> None:
             id=f"plot-{name}",
             allow_no_end_tag=True,
             parent=container,
-            class_str="form-check-input",
+            class_str="form-check-input rounded-0",
         ),
         f"Enable plotting channel '{name}'.",
         placement="left",
@@ -45,7 +45,10 @@ def plot_checkbox(parent: Element, name: str) -> None:
 def select_element(**kwargs) -> Element:
     """Create a select element."""
 
-    select = div(tag="select", class_str="form-select m-1", **kwargs)
+    select = div(tag="select", **kwargs)
+    select.add_class(
+        "form-select", "rounded-0", "border-top-0", "border-bottom-0"
+    )
     if "title" in kwargs:
         select["aria-label"] = kwargs["title"]
     return select
@@ -53,7 +56,7 @@ def select_element(**kwargs) -> Element:
 
 def enum_dropdown(
     parent: Element, name: str, enum: RuntimeEnum, current: int | bool
-) -> None:
+) -> Element:
     """Implement a drop down for enumeration options."""
 
     select = select_element(
@@ -67,8 +70,10 @@ def enum_dropdown(
         if current == val:
             opt.booleans.add("selected")
 
+    return select
 
-TABLE_BUTTON_CLASSES = ("p-1", "pt-2")
+
+TABLE_BUTTON_CLASSES = ()
 
 
 def channel_table_header(
@@ -111,25 +116,49 @@ def channel_table_header(
         icon="x-lg",
         id="clear-plotted-channels",
         title="button for clearing plotted channels",
-    ).add_class("pb-2")
+    )
 
-    input_box(
-        div(tag="th", parent=ctl_row, class_str="p-0 pb-1"),
+    _, label, box = input_box(
+        div(tag="th", parent=ctl_row, class_str="p-0"),
         description="Channel name filter.",
         id="channel-filter",
     )
+    label.add_class("border-top-0", "border-bottom-0")
+    box.add_class("border-top-0", "border-bottom-0")
+
+    cell = flex(
+        parent=div(tag="th", parent=ctl_row, class_str="p-0")
+    ).add_class("justify-content-evenly")
 
     # Button for clearing plot points.
     toggle_button(
-        div(tag="th", parent=ctl_row, class_str="p-0"),
+        cell,
         icon="trash",
         tooltip="Clear all plot points.",
         id="clear-plotted-points",
         title="button for clearing plot point data",
-    ).add_class("pb-2")
+        icon_classes=["text-secondary-emphasis"],
+    )
 
-    cell = flex(tag="th", parent=ctl_row)
-    cell.add_class("p-0")
+    toggle_button(
+        cell,
+        icon="eye-slash",
+        tooltip="Toggle command channels.",
+        id="toggle-command-channels",
+        title="button for toggling command-channel visibility",
+        icon_classes=["text-info-emphasis"],
+    )
+    toggle_button(
+        cell,
+        icon="eye-slash-fill",
+        tooltip="Toggle regular channels.",
+        id="toggle-regular-channels",
+        title="button for toggling regular-channel visibility",
+    )
+
+    cell = flex(
+        parent=div(tag="th", parent=ctl_row, class_str="p-0")
+    ).add_class("justify-content-evenly")
 
     # Button for 'reset all defaults' if this tab has more than one channel
     # with a default value.
@@ -186,15 +215,16 @@ def value_input_box(name: str, parent: Element) -> Element:
         "rounded-0",
         "font-monospace",
         "form-control",
-        "m-1",
         "p-0",
-        "ps-1",
+        "ps-2",
+        "border-0",
+        "text-secondary-emphasis",
     )
     toggle_button(
         input_container,
         icon="send",
         id=name,
         title=f"Send command value for '{name}'.",
-    ).add_class(*TABLE_BUTTON_CLASSES)
+    ).add_class("pt-0", "pb-0", "ps-1", *TABLE_BUTTON_CLASSES)
 
     return input_container

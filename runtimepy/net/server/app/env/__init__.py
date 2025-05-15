@@ -118,6 +118,7 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
         "border-start",
         "border-bottom",
         "border-end",
+        "bg-body-tertiary",
     )
 
     populate_tabs(app, tabs)
@@ -128,6 +129,12 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
         ".channel-column",
         icon="table",
         id="channels-button",
+    )
+    tabs.add_button(
+        "Open channel table",
+        "",
+        icon="arrow-bar-right",
+        id="open-channels-button",
     )
 
     # Plot settings modal.
@@ -149,11 +156,12 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
         app.config_param("bottom_markdown", "configure `bottom_markdown`"),
         "border-start",
         "border-end",
+        "bg-body-tertiary",
     )
 
     # Add splash screen element.
     div(
         id=f"{PKG_NAME}-splash",
         parent=tabs.container,
-        class_str="bg-success-subtle bg-gradient",
+        class_str="bg-secondary-subtle bg-gradient",
     )

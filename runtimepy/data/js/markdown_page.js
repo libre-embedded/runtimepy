@@ -25,4 +25,14 @@ window.onload = () => {
   }
 
   bootstrap_init();
+
+  /* Hide button column for print mode. */
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("print") == "true") {
+    const elem = document.getElementById("button-column");
+    if (elem) {
+      elem.classList.remove("d-flex");
+      elem.style.display = "none";
+    }
+  }
 };

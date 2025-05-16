@@ -348,6 +348,13 @@ class TabInterface {
   log(message) {
     if (this.logs) {
       this.logs.value += message + "\n";
+
+      const max_length = 4096;
+      if (this.logs.value.length > max_length) {
+        this.logs.value =
+            this.logs.value.substr(this.logs.value.length - max_length);
+      }
+
       if (this.isShown()) {
         this.logs.scrollTo(0, this.logs.scrollHeight);
       }

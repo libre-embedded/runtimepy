@@ -9,6 +9,7 @@ import logging
 import mimetypes
 from pathlib import Path
 from typing import Any, Optional, TextIO, Union
+from urllib.parse import urlencode
 
 # third-party
 from vcorelib import DEFAULT_ENCODING
@@ -359,4 +360,7 @@ class RuntimepyServerConnection(HttpConnection):
                 if populated:
                     result = stream.getvalue().encode()
 
-        return result or self.redirect_to("/404.html", response)
+        return result or self.redirect_to(
+            f"/404.html?{urlencode({'target': request.target.raw})}",
+            response,
+        )

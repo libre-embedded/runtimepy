@@ -44,7 +44,6 @@ class BitFieldBase:
         self.description = description
 
         if controls:
-            assert self.commandable
             controls = normalize_controls(controls)
         self.controls: _Optional[Controls] = controls  # type: ignore
         self.default = default
@@ -142,7 +141,7 @@ class BitField(BitFieldBase, _RegexMixin, _EnumMixin):
     def set_slider(self) -> "BitField":
         """Set slider controls for this bit field."""
 
-        assert self.controls is None and self.commandable
+        assert self.controls is None
         self.controls = make_slider(0, 2**self.width - 1, 2**self.width - 1)
         return self
 

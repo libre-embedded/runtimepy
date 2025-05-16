@@ -98,9 +98,12 @@ class TabbedContent:
         self.tabs.add_class(
             "nav",
             "flex-column",
+            "flex-shrink-0",
+            "flex-nowrap",
             "nav-pills",
             "show",
-            "flex-column-scroll-bodge",
+            "h-100",
+            "overflow-y-scroll",
         )
 
         # Create content container.
@@ -113,9 +116,9 @@ class TabbedContent:
         """Set classes on content element."""
 
         self.content["class"] = ""
-        self.content.add_class("tab-content", "tab-content-bodge")
+        self.content.add_class("tab-content", "w-100", "h-100")
         if scroll:
-            self.content.add_class("scroll")
+            self.content.add_class("overflow-scroll")
 
     def create(self, name: str) -> tuple[Element, Element]:
         """Only the first tab is active."""

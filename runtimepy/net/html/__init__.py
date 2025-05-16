@@ -36,7 +36,7 @@ def create_app_shell(
     """Create a bootstrap-based application shell."""
 
     container = div(parent=parent, **kwargs)
-    container.add_class("d-flex", "align-items-start", "bg-body")
+    container.add_class("d-flex", "align-items-start", "bg-body", "h-100")
 
     # Dark theme.
     container["data-bs-theme"] = bootstrap_theme

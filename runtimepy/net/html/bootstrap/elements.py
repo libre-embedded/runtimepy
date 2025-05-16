@@ -15,7 +15,7 @@ from vcorelib.io.file_writer import IndentedFileWriter
 from runtimepy.net.html.bootstrap import icon_str
 
 TEXT = "font-monospace"
-BOOTSTRAP_BUTTON = f"rounded-0 {TEXT} button-bodge text-nowrap"
+BOOTSTRAP_BUTTON = f"rounded-0 {TEXT} text-start text-nowrap"
 
 
 def flex(kind: str = "row", **kwargs) -> Element:

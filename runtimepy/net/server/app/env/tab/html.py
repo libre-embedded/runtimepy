@@ -147,9 +147,16 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
 
         table = div(
             tag="table",
-            parent=div(parent=parent, class_str="table-container"),
+            parent=div(parent=parent).add_class(
+                "table-container", "overflow-x-scroll"
+            ),
         )
-        table.add_class("table", "table-hover", TEXT)
+        table.add_class(
+            "table",
+            "table-hover",
+            "mb-0",
+            TEXT,
+        )
 
         header = div(tag="thead", parent=table)
         body = div(tag="tbody", parent=table)
@@ -234,7 +241,15 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
             kind="column",
             tag="form",
         )
-        vert_container.add_class("channel-column", "collapse", "show")
+        vert_container.add_class(
+            "channel-column",
+            "flex-grow-0",
+            "flex-shrink-0",
+            "collapse",
+            "show",
+            "overflow-y-scroll",
+            "overflow-x-hidden",
+        )
 
         _, label, box = input_box(
             vert_container,
@@ -278,10 +293,12 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
         )
 
         # Divider.
-        div(
-            id=self.get_id("divider"),
-            parent=container,
-            class_str="vertical-divider border-start bg-dark-subtle",
+        div(id=self.get_id("divider"), parent=container).add_class(
+            "vertical-divider",
+            "flex-grow-0",
+            "flex-shrink-0",
+            "border-start",
+            "bg-dark-subtle",
         )
 
         self._compose_plot(container)

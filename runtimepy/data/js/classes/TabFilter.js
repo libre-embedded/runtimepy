@@ -15,34 +15,59 @@ class TabFilter {
   }
 
   updateStyles(pattern) {
+    pattern = pattern.trim();
     hash.setTabFilter(pattern);
 
     if (!pattern) {
       pattern = ".*";
     }
-    const re = new RegExp(pattern);
+
+    let parts = pattern.split(/(\s+)/)
+                    .filter((x) => x.trim().length > 0)
+                    .map((x) => new RegExp(x));
 
     for (let [name, elem] of Object.entries(this.buttons)) {
-      if (re.test(name)) {
-        elem.style.display = "block";
-      } else if (!elem.classList.contains("active")) {
-        elem.style.display = "none";
+      let found = elem.classList.contains("active");
+
+      if (!found) {
+        for (const re of parts) {
+          if (re.test(name)) {
+            found = true;
+            break;
+          }
+        }
+      }
+
+      if (found) {
+        for (const child of elem.parentElement.children) {
+          child.style.display = "block";
+        }
+      } else {
+        for (const child of elem.parentElement.children) {
+          child.style.display = "none";
+        }
       }
     }
   }
 
   keydown(event) {
+    if (isModifierKeyEvent(event) || event.key == "Tab") {
+      return;
+    }
+
+    let curr = this.input.value;
+
     if (event.key == "Enter") {
-      this.input.value = "";
-      this.updateStyles(this.input.value);
+      curr = "";
+      this.input.value = curr;
     } else {
-      let curr = this.input.value;
       if (event.key == "Backspace") {
         curr = curr.slice(0, -1);
       } else {
         curr += event.key;
       }
-      this.updateStyles(curr);
     }
+
+    this.updateStyles(curr);
   }
 }

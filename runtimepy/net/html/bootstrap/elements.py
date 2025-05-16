@@ -26,21 +26,28 @@ def flex(kind: str = "row", **kwargs) -> Element:
     return container
 
 
-def set_tooltip(element: Element, data: str, placement: str = "right") -> None:
+DEFAULT_PLACEMENT = "right"
+
+
+def set_tooltip(
+    element: Element, data: str, placement: str = DEFAULT_PLACEMENT
+) -> None:
     """Set a tooltip on an element."""
 
     element["data-bs-title"] = data
     element["data-bs-placement"] = placement
-
-    # Should we use another mechanism for this?
-    element["class"] += " has-tooltip"
+    element.add_class("has-tooltip")
 
 
 BUTTON_COLOR = "secondary"
 
 
 def bootstrap_button(
-    text: str, tooltip: str = None, color: str = BUTTON_COLOR, **kwargs
+    text: str,
+    tooltip: str = None,
+    color: str = BUTTON_COLOR,
+    placement: str = DEFAULT_PLACEMENT,
+    **kwargs,
 ) -> Element:
     """Create a bootstrap button."""
 
@@ -52,7 +59,7 @@ def bootstrap_button(
         class_str=f"btn btn-{color} " + BOOTSTRAP_BUTTON,
     )
     if tooltip:
-        set_tooltip(button, tooltip)
+        set_tooltip(button, tooltip, placement=placement)
     return button
 
 
@@ -79,6 +86,7 @@ def toggle_button(
     title: Optional[str] = "toggle value",
     icon_classes: list[str] = None,
     tooltip: str = None,
+    placement: str = "top",
     **kwargs,
 ) -> Element:
     """Add a boolean-toggle button."""
@@ -95,27 +103,32 @@ def toggle_button(
         **kwargs,
     )
     if tooltip:
-        set_tooltip(button, tooltip)
+        set_tooltip(button, tooltip, placement=placement)
 
     return button
 
 
 def input_box(
     parent: Element,
-    label: str = "filter",
+    label: str = "",
     pattern: str = ".*",
     description: str = None,
+    placement: str = "top",
+    icon: str = "",
     **kwargs,
 ) -> tuple[Element, Element, Element]:
     """Create command input box."""
 
     container = div(parent=parent, class_str="input-group")
 
-    label_elem = div(tag="span", parent=container, text=label)
+    label_elem = div(tag="span", parent=container)
     label_elem.add_class("input-group-text", "rounded-0", TEXT)
 
     if description:
-        set_tooltip(label_elem, description)
+        set_tooltip(label_elem, description, placement=placement)
+
+    if icon:
+        div(text=icon_str(icon), parent=label_elem)
 
     box = div(
         tag="input",

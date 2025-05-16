@@ -50,7 +50,7 @@ def create_app_shell(
 
     # Dark/light theme switch button.
     bootstrap_button(
-        icon_str("lightbulb"),
+        icon_str("highlights"),
         tooltip="Toggle light/dark.",
         id="theme-button",
         parent=button_column,

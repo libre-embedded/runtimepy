@@ -38,7 +38,6 @@
 .table {
   margin-bottom: 0;
   width: auto;
-  border-collapse: collapse;
 }
 
 .table-container {
@@ -86,6 +85,10 @@ textarea.text-logs {
   flex-shrink: 0;
 }
 
+.text-code {
+  color: var(--bs-code-color) !important;
+}
+
 pre {
   color: var(--bs-code-color);
 }
@@ -103,6 +106,10 @@ input[type=checkbox]:hover {
   background-color: var(--bs-highlight-bg) !important;
 }
 
+td, th {
+  background: 0 !important;
+}
+
 button:hover {
   background-color: var(--bs-tertiary-bg);
 }
@@ -115,14 +122,14 @@ select:hover {
   width: 6em;
 }
 
-.border-2-start-info-subtle {
-  border-left: 2px solid var(--bs-info-border-subtle);
+.border-start-info-subtle {
+  border-left: var(--bs-border-width) var(--bs-border-style) var(--bs-info-border-subtle);
 }
-.border-2-end-info-subtle {
-  border-right: 2px solid var(--bs-info-border-subtle);
+.border-end-info-subtle {
+  border-right: var(--bs-border-width) var(--bs-border-style) var(--bs-info-border-subtle);
 }
-button.border-2-end-info-subtle:hover {
-  border-right: 2px solid var(--bs-info-border-subtle);
+button.border-end-info-subtle:hover {
+  border-right: var(--bs-border-width) var(--bs-border-style) var(--bs-info-border-subtle);
 }
 
 /* Prefer 'CascadiaCode' and 'CascadiaMono' at the highest priority. */

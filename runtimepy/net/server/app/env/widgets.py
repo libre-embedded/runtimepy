@@ -14,6 +14,7 @@ from runtimepy.channel.environment.command.processor import (
     ChannelCommandProcessor,
 )
 from runtimepy.enum import RuntimeEnum
+from runtimepy.net.html.bootstrap import icon_str
 from runtimepy.net.html.bootstrap.elements import (
     flex,
     input_box,
@@ -73,7 +74,7 @@ def enum_dropdown(
     return select
 
 
-TABLE_BUTTON_CLASSES = ()
+TABLE_BUTTON_CLASSES = ("border-top-0", "border-bottom-0")
 
 
 def channel_table_header(
@@ -83,97 +84,43 @@ def channel_table_header(
 
     env = command.env
 
-    # Add header.
-    header_row = div(
-        tag="tr", parent=parent, class_str="border-start border-end"
-    )
-    for heading, desc in [
-        ("plot", "Toggle plotting for channels."),
-        ("name", "Channel names."),
-        ("value", "Channel values."),
-        ("ctl", "Type-specific channel controls."),
-        ("type", "Channel types."),
-    ]:
-        set_tooltip(
-            div(
-                tag="th",
-                scope="col",
-                parent=header_row,
-                text=heading,
-                class_str="text-secondary p-1",
-            ),
-            desc,
-            placement="left",
-        )
-
     # Add some controls.
-    ctl_row = div(tag="tr", parent=parent, class_str="border-start border-end")
+    ctl_row = div(
+        tag="tr",
+        parent=parent,
+        class_str="bg-body-tertiary border-start border-end",
+    )
 
     # Button for clearing plotted channels.
     toggle_button(
         div(tag="th", parent=ctl_row, class_str="text-center p-0"),
         tooltip="Clear plotted channels.",
         icon="x-lg",
+        placement="left",
         id="clear-plotted-channels",
         title="button for clearing plotted channels",
-    )
+    ).add_class(*TABLE_BUTTON_CLASSES)
 
     _, label, box = input_box(
-        div(tag="th", parent=ctl_row, class_str="p-0"),
+        div(tag="th", parent=ctl_row, colspan="2", class_str="p-0"),
         description="Channel name filter.",
+        label="filter",
         id="channel-filter",
+        icon="funnel",
     )
     label.add_class("border-top-0", "border-bottom-0")
     box.add_class("border-top-0", "border-bottom-0")
 
     cell = flex(
-        parent=div(tag="th", parent=ctl_row, class_str="p-0")
-    ).add_class("justify-content-evenly")
-
-    # Button for clearing plot points.
-    toggle_button(
-        cell,
-        icon="trash",
-        tooltip="Clear all plot points.",
-        id="clear-plotted-points",
-        title="button for clearing plot point data",
-        icon_classes=["text-secondary-emphasis"],
+        parent=div(tag="th", parent=ctl_row, colspan="2", class_str="p-0")
     )
-
-    toggle_button(
-        cell,
-        icon="eye-slash",
-        tooltip="Toggle command channels.",
-        id="toggle-command-channels",
-        title="button for toggling command-channel visibility",
-        icon_classes=["text-info-emphasis"],
-    )
-    toggle_button(
-        cell,
-        icon="eye-slash-fill",
-        tooltip="Toggle regular channels.",
-        id="toggle-regular-channels",
-        title="button for toggling regular-channel visibility",
-    )
-
-    cell = flex(
-        parent=div(tag="th", parent=ctl_row, class_str="p-0")
-    ).add_class("justify-content-evenly")
-
-    # Button for 'reset all defaults' if this tab has more than one channel
-    # with a default value.
-    if env.num_defaults > 1:
-        toggle_button(
-            cell,
-            id="set-defaults",
-            icon="arrow-counterclockwise",
-            tooltip="Reset all channels to their default values.",
-        ).add_class(*TABLE_BUTTON_CLASSES)
 
     # Add a selection menu for custom commands.
     select = select_element(
         parent=cell, id="custom-commands", title="Custom command selector."
     )
+    select.add_class("border-start-0")
+
     if command.custom_commands:
         for key in command.custom_commands:
             opt = div(tag="option", value=key, text=key, parent=select)
@@ -185,7 +132,8 @@ def channel_table_header(
             cell,
             icon="send",
             id="send-custom-commands",
-            title="Send selected command.",
+            title="send selected command button",
+            tooltip="Send selected command (left dropdown).",
         ).add_class(*TABLE_BUTTON_CLASSES)
     else:
         div(
@@ -196,8 +144,79 @@ def channel_table_header(
         )
         select.booleans.add("disabled")
 
-    # Empty for now.
-    div(tag="th", parent=ctl_row, class_str="p-0")
+    # Button for 'reset all defaults' if this tab has more than one channel
+    # with a default value.
+    if env.num_defaults > 1:
+        toggle_button(
+            cell,
+            id="set-defaults",
+            icon="arrow-counterclockwise",
+            tooltip="Reset all channels to their default values.",
+        ).add_class(*TABLE_BUTTON_CLASSES)
+
+    toggle_button(
+        cell,
+        icon="eye-slash",
+        tooltip="Toggle command channels.",
+        id="toggle-command-channels",
+        title="button for toggling command-channel visibility",
+        icon_classes=["text-info-emphasis"],
+    ).add_class(*TABLE_BUTTON_CLASSES)
+    toggle_button(
+        cell,
+        icon="eye-slash-fill",
+        tooltip="Toggle regular channels.",
+        id="toggle-regular-channels",
+        title="button for toggling regular-channel visibility",
+    ).add_class(*TABLE_BUTTON_CLASSES)
+    toggle_button(
+        cell,
+        icon="trash",
+        tooltip="Clear all plot points.",
+        id="clear-plotted-points",
+        title="button for clearing plot point data",
+    ).add_class("me-auto", *TABLE_BUTTON_CLASSES)
+
+    # Add header.
+    header_row = div(
+        tag="tr",
+        parent=parent,
+        class_str="border-end text-center bg-body-tertiary",
+    )
+    icon_classes = ["text-primary-emphasis"]
+    for heading, desc in [
+        (
+            icon_str("activity", classes=icon_classes) + "?",
+            "Toggle plotting for channels.",
+        ),
+        (
+            icon_str("pen", classes=icon_classes) + " name",
+            "Channel names.",
+        ),
+        (
+            icon_str("database", classes=icon_classes) + " value",
+            "Channel values.",
+        ),
+        (
+            icon_str("controller", classes=icon_classes) + " controls",
+            "Type-specific channel controls.",
+        ),
+        (
+            icon_str("braces", classes=icon_classes) + " type",
+            "Channel types.",
+        ),
+    ]:
+        set_tooltip(
+            div(
+                tag="th",
+                scope="col",
+                parent=header_row,
+                text=heading,
+                class_str="text-secondary p-1 border-start text-nowrap",
+            ),
+            "(column) " + desc,
+            placement="left",
+        )
 
 
 def value_input_box(name: str, parent: Element) -> Element:

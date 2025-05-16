@@ -20,7 +20,7 @@ class App {
     worker.addEventListener("message", async (event) => {
       if (event.data == 0) {
         /* Manage settings modal. */
-        let _modal = document.getElementById("runtimepy-plot");
+        let _modal = document.getElementById("runtimepy-settings");
         if (_modal) {
           modalManager = new PlotModalManager(_modal);
         }
@@ -53,11 +53,33 @@ class App {
           this.switchTab(hash.tab);
         }
 
+        hash.updateTabFilter(hash.tabFilter);
+
         /* Handle settings controls. */
         loadSettings();
 
         /* Handle individual settings. */
         this.handleInitialMinTxPeriod();
+
+        /* Handle channel-table expand button. */
+        let _button = document.getElementById("open-channels-button");
+        if (_button) {
+          _button.onclick = () => {
+            /* Ensure channel table is visible. */
+            if (!hash.channelsShown && hash.channelsButton) {
+              hash.channelsButton.click();
+            }
+
+            /* Ensure channel table is at maximum width. */
+            if (shown_tab in tabs) {
+              let elem = tabs[shown_tab].query(".channel-column");
+              if (elem) {
+                elem.style.width = window.innerWidth + "px";
+                tabs[shown_tab].correctVerticalBarPosition();
+              }
+            }
+          };
+        }
 
         startMainLoop();
       }

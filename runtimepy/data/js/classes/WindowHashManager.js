@@ -111,9 +111,10 @@ class WindowHashManager {
     }
 
     /* Click handler for channels hide/show. */
-    let channelsButton = document.getElementById("channels-button");
-    if (channelsButton) {
-      channelsButton.addEventListener("click", this.channelClick.bind(this));
+    this.channelsButton = document.getElementById("channels-button");
+    if (this.channelsButton) {
+      this.channelsButton.addEventListener("click",
+                                           this.channelClick.bind(this));
     }
 
     /* Click handler for light/dark toggle. */
@@ -147,7 +148,7 @@ class WindowHashManager {
     if (this.original) {
       let boolsChannels = this.original.split("/");
       let split = boolsChannels[0].split(",");
-      this.tab = split[0];
+      this.tab = decodeURI(split[0]);
 
       /* Toggle plot-channel check boxes. */
       for (let i = 1; i < boolsChannels.length; i++) {
@@ -155,12 +156,12 @@ class WindowHashManager {
         for (let chan of nameChannels[1].split(",")) {
           if (!chan.includes("=")) {
             /* Handle regular channel names. */
-            this.togglePlotChannel(nameChannels[0], chan);
+            this.togglePlotChannel(nameChannels[0], decodeURI(chan));
           } else {
             /* Handle key-value pairs. */
             let keyVal = chan.split("=");
             if (keyVal.length == 2 && keyVal[0] == "filter" && keyVal[1]) {
-              this.setTabChannelFilter(nameChannels[0], keyVal[1]);
+              this.setTabChannelFilter(nameChannels[0], decodeURI(keyVal[1]));
             }
           }
         }
@@ -172,7 +173,7 @@ class WindowHashManager {
           let keyVal = item.split("=");
           if (keyVal.length == 2) {
             if (keyVal[0] == "filter" && keyVal[1]) {
-              this.updateTabFilter(keyVal[1]);
+              this.updateTabFilter(decodeURI(keyVal[1]));
             }
             if (keyVal[0] == "min-tx-period-ms") {
               this.minTxPeriod = Number(keyVal[1]);
@@ -181,13 +182,13 @@ class WindowHashManager {
         }
       }
 
-      if (split.includes("hide-tabs")) {
+      if (tabButton && split.includes("hide-tabs")) {
         tabButton.click();
       }
-      if (split.includes("hide-channels")) {
-        channelsButton.click();
+      if (this.channelsButton && split.includes("hide-channels")) {
+        this.channelsButton.click();
       }
-      if (split.includes("light-mode")) {
+      if (lightDarkButton && split.includes("light-mode")) {
         lightDarkButton.click();
       }
     }
@@ -210,7 +211,7 @@ class WindowHashManager {
     let hash = this.tab;
 
     if (this.tabFilter) {
-      hash += ",filter=" + this.tabFilter;
+      hash += ",filter=" + encodeURI(this.tabFilter);
     }
     if (!this.tabsShown) {
       hash += ",hide-tabs"
@@ -236,14 +237,14 @@ class WindowHashManager {
         for (let name in channels) {
           if (channels[name]) {
             if (firstChan) {
-              hash += "/" + tab + ":"
+              hash += "/" + encodeURI(tab) + ":"
               firstChan = false;
             }
 
             if (hash.slice(-1) != ":") {
               hash += ",";
             }
-            hash += name;
+            hash += encodeURI(name);
           }
         }
       }
@@ -258,7 +259,7 @@ class WindowHashManager {
         if (hash.slice(-1) != ":") {
           hash += ",";
         }
-        hash += "filter=" + this.filters[tab];
+        hash += "filter=" + encodeURI(this.filters[tab]);
       }
     }
 

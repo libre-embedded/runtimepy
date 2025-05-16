@@ -58,7 +58,7 @@ class RuntimepyServerConnection(HttpConnection):
     # Set these to control meta attributes.
     metadata: dict[str, Optional[str]] = {
         "title": HttpConnection.identity,
-        "description": None,
+        "description": f"({HttpConnection.identity})",
     }
 
     def add_path(self, path: Pathlike, front: bool = False) -> None:
@@ -153,7 +153,6 @@ class RuntimepyServerConnection(HttpConnection):
 
         meta: dict[str, str] = type(self).metadata.copy()  # type: ignore
 
-        meta.setdefault("description", "")
         meta["description"] += (
             " This page was rendered from "
             f"Markdown by {HttpConnection.identity}."

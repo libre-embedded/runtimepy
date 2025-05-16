@@ -44,7 +44,6 @@ def channel_color_button(parent: Element, name: str) -> Element:
         "p-0",
         "ps-2",
         "pe-2",
-        "border-2",
         "border-top-0",
         "border-bottom-0",
         "border-primary-subtle",
@@ -140,7 +139,7 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
             text=kind_str,
             parent=parent,
             title=f"Field position for '{name}' within underlying primitive.",
-            class_str="text-info-emphasis text-nowrap p-0 ps-2 pe-1",
+            class_str="text-code text-nowrap p-0 ps-2 pe-1",
         )
 
     def channel_table(self, parent: Element) -> None:
@@ -237,13 +236,18 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
         )
         vert_container.add_class("channel-column", "collapse", "show")
 
-        input_box(
+        _, label, box = input_box(
             vert_container,
-            label="command",
             pattern="help",
             description="Send a string command via this environment.",
+            placement="bottom",
+            label="command",
             id=self.get_id("command"),
+            icon="terminal",
         )
+
+        label.add_class("border-top-0")
+        box.add_class("border-top-0")
 
         # Text area.
         logs = div(

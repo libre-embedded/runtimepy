@@ -86,7 +86,12 @@ class TabbedContent:
         self.container, self.button_column = create_app_shell(parent, id=name)
 
         # Toggle tabs button.
-        self.add_button("Toggle tabs", f"#{PKG_NAME}-tabs", id="tabs-button")
+        self.add_button(
+            "Toggle tabs",
+            f"#{PKG_NAME}-tabs",
+            id="tabs-button",
+            icon="list-task",
+        )
 
         # Create tab container.
         self.tabs = div(id=f"{PKG_NAME}-tabs", parent=self.container)

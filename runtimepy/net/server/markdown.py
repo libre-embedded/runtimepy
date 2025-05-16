@@ -40,7 +40,7 @@ def markdown_for_dir(
         if curr_dir != Path():
             writer.write(f"* [..](/{curr_dir.parent})")
 
-        for item in path.iterdir():
+        for item in sorted(path.iterdir()):
             curr = rel(item, base=base)
 
             name = f"`{curr.name}`"

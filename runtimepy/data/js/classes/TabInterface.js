@@ -82,15 +82,27 @@ class TabInterface {
   }
 
   updateChannelStyles(pattern) {
+    pattern = pattern.trim();
     hash.handleChannelFilter(this.name, pattern);
 
     if (!pattern) {
       pattern = ".*";
     }
-    const re = new RegExp(pattern);
+
+    let parts = pattern.split(/(\s+)/)
+                    .filter((x) => x.trim().length > 0)
+                    .map((x) => new RegExp(x));
 
     for (let [name, elem] of Object.entries(this.channelRows)) {
-      if (re.test(name)) {
+      let found = false;
+      for (const re of parts) {
+        if (re.test(name)) {
+          found = true;
+          break;
+        }
+      }
+
+      if (found) {
         elem.style.display = "table-row";
       } else {
         elem.style.display = "none";
@@ -99,19 +111,24 @@ class TabInterface {
   }
 
   channelKeydown(event) {
+    if (isModifierKeyEvent(event) || event.key == "Tab") {
+      return;
+    }
+
+    let curr = this.channelFilter.value;
+
     if (event.key == "Enter") {
-      this.channelFilter.value = "";
-      this.updateChannelStyles(this.channelFilter.value);
+      curr = "";
+      this.channelFilter.value = curr;
     } else {
-      let curr = this.channelFilter.value;
       if (event.key == "Backspace") {
         curr = curr.slice(0, -1);
       } else {
         curr += event.key;
       }
-
-      this.updateChannelStyles(curr);
     }
+
+    this.updateChannelStyles(curr);
   }
 
   initControls() {
@@ -224,7 +241,7 @@ class TabInterface {
     setupCursorContext(elem, this.setupVerticalDividerEvents.bind(this));
   }
 
-  correctVerticalBarPosition(elem) {
+  correctVerticalBarPosition() {
     if (shown_tab == this.name && this.divider) {
       let margin =
           window.innerWidth - this.divider.getBoundingClientRect().right;
@@ -384,7 +401,7 @@ class TabInterface {
           this.clearPlotPoints();
           break;
         default:
-          console.log(`Action '${action}' not hangled!`);
+          console.log(`Action '${action}' not handled!`);
           break;
         }
       }

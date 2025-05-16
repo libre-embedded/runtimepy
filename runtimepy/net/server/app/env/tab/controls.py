@@ -75,7 +75,7 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
         control = div(tag="td", parent=parent, class_str="p-0")
 
         if chan.commandable:
-            control.add_class("border-2-start-info-subtle")
+            control.add_class("border-start-info-subtle")
 
         chan_type = div(
             tag="td",
@@ -94,11 +94,12 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
                 enum_dropdown(
                     control, name, enum, cast(int, chan.raw.value)
                 ).add_class(
-                    "border-2-end-info-subtle",
+                    "border-0",
                     "text-secondary-emphasis",
-                    "pt-1",
-                    "pb-1",
+                    "pt-0",
+                    "pb-0",
                 )
+                control.add_class("border-end-info-subtle")
                 control_added = True
 
         if chan.type.is_boolean:
@@ -109,10 +110,10 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
                 )
                 button.add_class(
                     "toggle-value",
-                    "fs-5",
                     "pt-0",
                     "pb-0",
-                    "border-2-end-info-subtle",
+                    "fs-5",
+                    "border-end-info-subtle",
                     *TABLE_BUTTON_CLASSES,
                 )
                 control_added = True
@@ -134,6 +135,8 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
 
         # Input box with send button.
         if not control_added and chan.commandable:
+            control.add_class("border-end-info-subtle")
+
             container = value_input_box(name, control).add_class(
                 "justify-content-start"
             )
@@ -151,7 +154,6 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
                 )
 
             if chan.controls:
-                control.add_class("border-2-end-info-subtle")
 
                 # Determine if a slider should be created.
                 if "slider" in chan.controls:
@@ -179,7 +181,7 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
 
         field = self.command.env.fields[name]
         if field.commandable:
-            control.add_class("border-2-start-info-subtle")
+            control.add_class("border-start-info-subtle")
 
             if is_bit:
                 button = toggle_button(
@@ -187,21 +189,23 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
                 )
                 button.add_class(
                     "toggle-value",
-                    "fs-5",
                     "pt-0",
                     "pb-0",
+                    "fs-5",
                     "border-start-0",
-                    "border-2-end-info-subtle",
+                    "border-end-info-subtle",
                     *TABLE_BUTTON_CLASSES,
                 )
             elif enum:
                 enum_dropdown(control, name, enum, field()).add_class(
-                    "border-2-end-info-subtle",
+                    "border-0",
                     "text-secondary-emphasis",
-                    "pt-1",
-                    "pb-1",
+                    "pt-0",
+                    "pb-0",
                 )
+                control.add_class("border-end-info-subtle")
             else:
                 value_input_box(name, control).add_class(
                     "justify-content-start"
                 )
+                control.add_class("border-end-info-subtle")

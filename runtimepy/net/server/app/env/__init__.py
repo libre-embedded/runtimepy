@@ -109,9 +109,6 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
     # Remove tab-content scrolling.
     tabs.set_scroll(False)
 
-    # Tab name filter.
-    input_box(tabs.tabs, label="tab", description="Tab name filter.")
-
     centered_markdown(
         tabs.tabs,
         app.config_param("top_markdown", "configure `top_markdown`"),
@@ -120,6 +117,17 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
         "border-end",
         "bg-body-tertiary",
     )
+
+    # Tab name filter.
+    _, label, box = input_box(
+        tabs.tabs,
+        label="tab",
+        description="Tab name filter.",
+        placement="bottom",
+        icon="funnel",
+    )
+    label.add_class("border-top-0")
+    box.add_class("border-top-0")
 
     populate_tabs(app, tabs)
 

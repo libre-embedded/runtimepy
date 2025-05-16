@@ -8,8 +8,8 @@ from svgen.element import Element
 from svgen.element.html import div
 
 CDN = "cdn.jsdelivr.net"
-BOOTSTRAP_VERSION = "5.3.3"
-ICONS_VERSION = "1.11.3"
+BOOTSTRAP_VERSION = "5.3.6"
+ICONS_VERSION = "1.13.1"
 
 
 def icon_str(icon: str, classes: list[str] = None) -> str:

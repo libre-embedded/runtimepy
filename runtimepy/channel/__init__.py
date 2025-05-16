@@ -29,10 +29,7 @@ from runtimepy.primitives.int import Uint32 as _Uint32
 from runtimepy.primitives.int import Uint64 as _Uint64
 from runtimepy.primitives.types import AnyPrimitiveType as _AnyPrimitiveType
 from runtimepy.registry.item import RegistryItem as _RegistryItem
-
-Literal = int | float | bool
-Default = _Optional[Literal]
-Controls = dict[str, Literal | dict[str, Literal]]
+from runtimepy.ui.controls import Controls, Default
 
 
 class Channel(_RegistryItem, _EnumMixin, _Generic[_T]):

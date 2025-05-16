@@ -6,9 +6,9 @@ A module implementing UI controls instances for configuring UI widgets.
 import math
 from typing import Optional
 
-# internal
-from runtimepy.channel import Controls
-
+Literal = int | float | bool
+Default = Optional[Literal]
+Controls = dict[str, Literal | dict[str, Literal]]
 DEFAULT_STEPS = 64.0
 
 

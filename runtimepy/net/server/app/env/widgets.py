@@ -244,6 +244,6 @@ def value_input_box(name: str, parent: Element) -> Element:
         icon="send",
         id=name,
         title=f"Send command value for '{name}'.",
-    ).add_class("pt-0", "pb-0", "ps-1", *TABLE_BUTTON_CLASSES)
+    ).add_class("pt-0", "pb-0", *TABLE_BUTTON_CLASSES)
 
     return input_container

@@ -20,6 +20,7 @@ from runtimepy.net.server.app.env.widgets import (
     enum_dropdown,
     value_input_box,
 )
+from runtimepy.ui.controls import Controls, Default
 
 
 def get_channel_kind_str(
@@ -39,7 +40,7 @@ def get_channel_kind_str(
 def default_button(
     parent: Element,
     name: str,
-    chan: AnyChannel,
+    default: Default,
     *classes: str,
     front: bool = True,
 ) -> Element:
@@ -49,12 +50,29 @@ def default_button(
         parent,
         id=name,
         icon="arrow-counterclockwise",
-        title=f"Reset '{name}' to default value '{chan.default}'.",
-        value=chan.default,
+        title=f"Reset '{name}' to default value '{default}'.",
+        value=default,
         front=front,
     )
     button.add_class("default-button", *classes)
     return button
+
+
+def handle_controls(parent: Element, name: str, controls: Controls) -> None:
+    """Add control elements."""
+
+    # Determine if a slider should be created.
+    if "slider" in controls:
+        elem = controls["slider"]
+
+        slider(
+            elem["min"],  # type: ignore
+            elem["max"],  # type: ignore
+            int(elem["step"]),  # type: ignore
+            parent=parent,
+            id=name,
+            title=f"Value control for '{name}'.",
+        ).add_class("bg-body", "rounded-pill", "me-2")
 
 
 class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
@@ -98,9 +116,21 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
                     "text-secondary-emphasis",
                     "pt-0",
                     "pb-0",
+                    "d-inline",
                 )
                 control.add_class("border-end-info-subtle")
                 control_added = True
+
+                if chan.default is not None:
+                    default_button(
+                        control,
+                        name,
+                        chan.default,
+                        "p-0",
+                        "d-inline",
+                        *TABLE_BUTTON_CLASSES,
+                        front=False,
+                    )
 
         if chan.type.is_boolean:
             chan_type.add_class("text-primary")
@@ -122,7 +152,7 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
                     default_button(
                         control,
                         name,
-                        chan,
+                        chan.default,
                         "p-0",
                         *TABLE_BUTTON_CLASSES,
                         front=False,
@@ -146,7 +176,7 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
                 default_button(
                     container,
                     name,
-                    chan,
+                    chan.default,
                     "pt-0",
                     "pb-0",
                     *TABLE_BUTTON_CLASSES,
@@ -154,19 +184,7 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
                 )
 
             if chan.controls:
-
-                # Determine if a slider should be created.
-                if "slider" in chan.controls:
-                    elem = chan.controls["slider"]
-
-                    slider(
-                        elem["min"],  # type: ignore
-                        elem["max"],  # type: ignore
-                        int(elem["step"]),  # type: ignore
-                        parent=container,
-                        id=name,
-                        title=f"Value control for '{name}'.",
-                    ).add_class("bg-body", "rounded-pill", "me-2")
+                handle_controls(container, name, chan.controls)
 
     def _bit_field_controls(
         self,
@@ -183,6 +201,9 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
         if field.commandable:
             control.add_class("border-start-info-subtle")
 
+            if not is_bit:
+                control.add_class("border-end-info-subtle")
+
             if is_bit:
                 button = toggle_button(
                     control, id=name, title=f"Toggle '{name}'."
@@ -196,16 +217,49 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
                     "border-end-info-subtle",
                     *TABLE_BUTTON_CLASSES,
                 )
+                if field.default is not None:
+                    default_button(
+                        control,
+                        name,
+                        field.default,  # type: ignore
+                        "p-0",
+                        *TABLE_BUTTON_CLASSES,
+                        front=False,
+                    )
+
             elif enum:
                 enum_dropdown(control, name, enum, field()).add_class(
                     "border-0",
                     "text-secondary-emphasis",
                     "pt-0",
                     "pb-0",
+                    "d-inline",
                 )
-                control.add_class("border-end-info-subtle")
+                if field.default is not None:
+                    default_button(
+                        control,
+                        name,
+                        field.default,  # type: ignore
+                        "p-0",
+                        "d-inline",
+                        *TABLE_BUTTON_CLASSES,
+                        front=False,
+                    )
             else:
-                value_input_box(name, control).add_class(
+                container = value_input_box(name, control).add_class(
                     "justify-content-start"
                 )
-                control.add_class("border-end-info-subtle")
+
+                if field.default is not None:
+                    default_button(
+                        container,
+                        name,
+                        field.default,  # type: ignore
+                        "pt-0",
+                        "pb-0",
+                        *TABLE_BUTTON_CLASSES,
+                        front=False,
+                    )
+
+                if field.controls:
+                    handle_controls(container, name, field.controls)

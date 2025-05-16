@@ -3,6 +3,7 @@ A module implementing bit flags and fields.
 """
 
 # built-in
+from typing import Optional as _Optional
 from typing import cast as _cast
 
 # third-party
@@ -14,6 +15,12 @@ from runtimepy.mixins.regex import CHANNEL_PATTERN as _CHANNEL_PATTERN
 from runtimepy.mixins.regex import RegexMixin as _RegexMixin
 from runtimepy.primitives.int import UnsignedInt as _UnsignedInt
 from runtimepy.registry.name import RegistryKey as _RegistryKey
+from runtimepy.ui.controls import (
+    Controls,
+    Controlslike,
+    make_slider,
+    normalize_controls,
+)
 
 
 class BitFieldBase:
@@ -26,6 +33,8 @@ class BitFieldBase:
         width: int,
         commandable: bool = False,
         description: str = None,
+        controls: Controlslike = None,
+        default: _Optional[int | bool | str] = None,
     ) -> None:
         """Initialize this bit-field."""
 
@@ -33,6 +42,12 @@ class BitFieldBase:
         self.index = index
         self.commandable = commandable
         self.description = description
+
+        if controls:
+            assert self.commandable
+            controls = normalize_controls(controls)
+        self.controls: _Optional[Controls] = controls  # type: ignore
+        self.default = default
 
         # Compute a bit-mask for this field.
         self.width = width
@@ -96,11 +111,17 @@ class BitField(BitFieldBase, _RegexMixin, _EnumMixin):
         enum: _RegistryKey = None,
         commandable: bool = False,
         description: str = None,
+        **kwargs,
     ) -> None:
         """Initialize this bit-field."""
 
         super().__init__(
-            raw, index, width, commandable=commandable, description=description
+            raw,
+            index,
+            width,
+            commandable=commandable,
+            description=description,
+            **kwargs,
         )
 
         # Verify bit-field parameters.
@@ -118,6 +139,13 @@ class BitField(BitFieldBase, _RegexMixin, _EnumMixin):
         self.name = name
         self._enum = enum
 
+    def set_slider(self) -> "BitField":
+        """Set slider controls for this bit field."""
+
+        assert self.controls is None and self.commandable
+        self.controls = make_slider(0, 2**self.width - 1, 2**self.width - 1)
+        return self
+
     def asdict(self) -> _JsonObject:
         """Get this field as a dictionary."""
 
@@ -131,6 +159,10 @@ class BitField(BitFieldBase, _RegexMixin, _EnumMixin):
             result["enum"] = self.enum
         if self.commandable:
             result["commandable"] = True
+        if self.controls:
+            result["controls"] = self.controls  # type: ignore
+        if self.default is not None:
+            result["default"] = self.default
         return result
 
 
@@ -145,6 +177,7 @@ class BitFlag(BitField):
         enum: _RegistryKey = None,
         commandable: bool = False,
         description: str = None,
+        **kwargs,
     ) -> None:
         """Initialize this bit flag."""
 
@@ -156,6 +189,7 @@ class BitFlag(BitField):
             enum=enum,
             commandable=commandable,
             description=description,
+            **kwargs,
         )
 
     def clear(self) -> None:

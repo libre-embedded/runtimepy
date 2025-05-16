@@ -99,6 +99,7 @@ def sample_fields(env: ChannelEnvironment, enum: str = "SampleEnum") -> None:
                 1,
                 commandable=True,
                 description="Sample bit flag.",
+                default=True,
             )
         )
         env.add_field(
@@ -109,13 +110,19 @@ def sample_fields(env: ChannelEnvironment, enum: str = "SampleEnum") -> None:
                 2,
                 enum=enum if enum else None,
                 commandable=True,
+                default="three" if enum else 3,
                 description="Sample bit field.",
             )
         )
         env.add_field(
             BitField(
-                env.namespace(name="field2"), prim, 4, 4, commandable=True
-            )
+                env.namespace(name="field2"),
+                prim,
+                4,
+                4,
+                default=0,
+                commandable=True,
+            ).set_slider()
         )
 
 

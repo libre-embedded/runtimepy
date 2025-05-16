@@ -73,6 +73,8 @@ class BitFields(_RuntimepyDictCodec):
                     enum=enum,
                     description=desc,
                     commandable=commandable,
+                    controls=item.get("controls"),
+                    default=item.get("default"),
                 )
                 flag(value)
                 item["index"] = flag.index
@@ -84,6 +86,8 @@ class BitFields(_RuntimepyDictCodec):
                     enum=enum,
                     description=desc,
                     commandable=commandable,
+                    controls=item.get("controls"),
+                    default=item.get("default"),
                 )
                 field(value)
                 item["index"] = field.index
@@ -229,10 +233,15 @@ class BitFields(_RuntimepyDictCodec):
 
     @classmethod
     def new(
-        cls: type[T], value: _Primitivelike | _AnyPrimitive = "uint8"
+        cls: type[T], value: _Primitivelike | _AnyPrimitive = "uint8", **kwargs
     ) -> T:
         """Create a new bit-field storage entity."""
 
         return cls.create(
-            {"type": _cast(str, value), "fields": [], "finalized": False}
+            {
+                "type": _cast(str, value),
+                "fields": [],
+                "finalized": False,
+                **kwargs,
+            }
         )

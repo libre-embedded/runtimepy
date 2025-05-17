@@ -5,10 +5,10 @@ A module implementing a channel environment.
 # built-in
 from contextlib import ExitStack as _ExitStack
 from typing import Iterator as _Iterator
+from typing import Optional
 from typing import cast as _cast
 
 # internal
-from runtimepy.channel import Default as _Default
 from runtimepy.channel.environment.array import (
     ArrayChannelEnvironment as _ArrayChannelEnvironment,
 )
@@ -23,6 +23,21 @@ from runtimepy.channel.environment.telemetry import (
 )
 from runtimepy.codec.protocol import Protocol as _Protocol
 from runtimepy.codec.protocol.base import FieldSpec as _FieldSpec
+from runtimepy.primitives import AnyPrimitive
+from runtimepy.ui.controls import Controls, Default, bit_slider
+
+
+def regular_channel_controls(
+    primitive: AnyPrimitive, commandable: bool
+) -> Optional[Controls]:
+    """Get channel controls for a regular primitive."""
+
+    controls = None
+
+    if commandable and primitive.kind.is_integer and primitive.kind.bits <= 32:
+        controls = bit_slider(primitive.kind.bits, primitive.kind.signed)
+
+    return controls
 
 
 class ChannelEnvironment(
@@ -33,11 +48,15 @@ class ChannelEnvironment(
 ):
     """A class integrating channel and enumeration registries."""
 
-    def register_protocol(self, protocol: _Protocol) -> None:
+    def register_protocol(
+        self, protocol: _Protocol, commandable: bool
+    ) -> None:
         """Register protocol elements as named channels and fields."""
 
         # Register any new enumerations.
         self.enums.register_from_other(protocol.enum_registry)
+
+        # need to handle defaults
 
         for item in protocol.build:
             # Handle regular primitive fields.
@@ -46,20 +65,28 @@ class ChannelEnvironment(
                     assert item.array_length is not None
                     with self.names_pushed(item.name):
                         for idx in range(item.array_length):
+                            primitive = protocol.get_primitive(
+                                item.name, index=idx
+                            )
                             self.channel(
                                 str(idx),
-                                kind=protocol.get_primitive(
-                                    item.name, index=idx
-                                ),
-                                commandable=item.commandable,
+                                kind=primitive,
+                                commandable=commandable,
                                 enum=item.enum,
+                                controls=regular_channel_controls(
+                                    primitive, commandable
+                                ),
                             )
                 else:
+                    primitive = protocol.get_primitive(item.name)
                     self.channel(
                         item.name,
-                        kind=protocol.get_primitive(item.name),
-                        commandable=item.commandable,
+                        kind=primitive,
+                        commandable=commandable,
                         enum=item.enum,
+                        controls=regular_channel_controls(
+                            primitive, commandable
+                        ),
                     )
 
             # Handle nested protocols.
@@ -77,12 +104,21 @@ class ChannelEnvironment(
                                     )
 
                                 self.register_protocol(
-                                    _cast(_Protocol, candidate)
+                                    _cast(_Protocol, candidate), commandable
                                 )
 
             # Handle bit fields.
             elif isinstance(item[0], int):
-                self.add_fields(item[1], protocol.get_fields(item[0]))
+                fields = protocol.get_fields(item[0])
+                for field in fields.fields.values():
+                    field.commandable = commandable
+                    # add sliders for non enum non bool (check enum fields too)
+                self.add_fields(
+                    item[1],
+                    fields,
+                    commandable=commandable,
+                    controls=bit_slider(fields.raw.kind.bits, False),
+                )
 
     def search_names(
         self, pattern: str, exact: bool = False
@@ -90,7 +126,7 @@ class ChannelEnvironment(
         """Search for names belonging to this environment."""
         yield from self.channels.names.search(pattern, exact=exact)
 
-    def set_default(self, key: str, default: _Default) -> None:
+    def set_default(self, key: str, default: Default) -> None:
         """Set a new default value for a channel."""
 
         chan, _ = self[key]

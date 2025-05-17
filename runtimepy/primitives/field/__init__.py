@@ -18,7 +18,7 @@ from runtimepy.registry.name import RegistryKey as _RegistryKey
 from runtimepy.ui.controls import (
     Controls,
     Controlslike,
-    make_slider,
+    bit_slider,
     normalize_controls,
 )
 
@@ -142,7 +142,7 @@ class BitField(BitFieldBase, _RegexMixin, _EnumMixin):
         """Set slider controls for this bit field."""
 
         assert self.controls is None
-        self.controls = make_slider(0, 2**self.width - 1, 2**self.width - 1)
+        self.controls = bit_slider(self.width, False)
         return self
 
     def asdict(self) -> _JsonObject:

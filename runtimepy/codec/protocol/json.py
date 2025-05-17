@@ -122,7 +122,6 @@ class JsonProtocol(ProtocolBase):
                     FieldSpec(
                         item["name"],
                         item["kind"],
-                        item["commandable"],
                         enum=item.get("enum"),
                     )
                 )

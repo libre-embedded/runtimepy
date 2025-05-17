@@ -35,7 +35,7 @@ def plot_checkbox(parent: Element, name: str) -> None:
             value="",
             id=f"plot-{name}",
             allow_no_end_tag=True,
-            parent=container,
+            parent=div(tag="label", parent=container),
             class_str="form-check-input rounded-0",
         ),
         f"Enable plotting channel '{name}'.",

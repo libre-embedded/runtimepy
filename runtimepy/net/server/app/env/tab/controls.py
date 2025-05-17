@@ -94,6 +94,9 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
 
         if chan.commandable:
             control.add_class("border-start-info-subtle")
+            parent.add_class("channel-commandable")
+        else:
+            parent.add_class("channel-regular")
 
         chan_type = div(
             tag="td",
@@ -200,6 +203,7 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
         field = self.command.env.fields[name]
         if field.commandable:
             control.add_class("border-start-info-subtle")
+            parent.add_class("channel-commandable")
 
             if not is_bit:
                 control.add_class("border-end-info-subtle")
@@ -263,3 +267,5 @@ class ChannelEnvironmentTabControls(ChannelEnvironmentTabBase):
 
                 if field.controls:
                     handle_controls(container, name, field.controls)
+        else:
+            parent.add_class("channel-regular")

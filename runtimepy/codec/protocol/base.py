@@ -44,7 +44,6 @@ class FieldSpec(NamedTuple):
 
     name: str
     kind: str
-    commandable: bool
     enum: _Optional[_RegistryKey] = None
     array_length: _Optional[int] = None
 
@@ -58,7 +57,6 @@ class FieldSpec(NamedTuple):
         result: _JsonObject = {
             "name": self.name,
             "kind": self.kind,
-            "commandable": self.commandable,
             "array_length": self.array_length,
         }
         if self.enum is not None:
@@ -134,7 +132,6 @@ class ProtocolBase(PrimitiveArray):
                 self.add_field(
                     item.name,
                     item.kind,
-                    commandable=item.commandable,
                     enum=item.enum,
                     array_length=item.array_length,
                 )
@@ -203,7 +200,6 @@ class ProtocolBase(PrimitiveArray):
         serializable: Serializable = None,
         array_length: int = None,
         track: bool = True,
-        commandable: bool = False,
     ) -> None:
         """Add a new field to the protocol."""
 
@@ -242,7 +238,6 @@ class ProtocolBase(PrimitiveArray):
                 FieldSpec(
                     name,
                     inst.kind.name,
-                    commandable,
                     enum,
                     array_length=array_length,
                 )

@@ -53,9 +53,7 @@ def create_nav_container(
 ) -> Element:
     """Create a navigation container element."""
 
-    content = div(
-        id=f"{name}-{item}", role="tabpanel", tabindex="0", parent=parent
-    )
+    content = div(id=f"{name}-{item}", role="tabpanel", parent=parent)
     content["aria-labelledby"] = f"{name}-{item}-tab"
 
     content.add_class("tab-pane", "fade")

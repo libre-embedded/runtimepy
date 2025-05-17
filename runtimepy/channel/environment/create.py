@@ -82,10 +82,12 @@ class CreateChannelEnvironment(_BaseChannelEnvironment):
 
         return self[name]
 
-    def add_fields(self, name: str, fields: _BitFields) -> None:
+    def add_fields(
+        self, name: str, fields: _BitFields, **channel_kwargs
+    ) -> None:
         """Add bit fields to this channel environment."""
 
-        self.channel(name, kind=fields.raw)
+        self.channel(name, kind=fields.raw, **channel_kwargs)
         with self.names_pushed(name):
             self.fields.add(fields, namespace=self._namespace, track=True)
 

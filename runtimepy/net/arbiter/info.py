@@ -59,7 +59,8 @@ class RuntimeStruct(RuntimeStructBase):
 
     app: "AppInfo"
     array: PrimitiveArray
-    protocol: Optional[Protocol]
+    recv: Optional[Protocol]
+    send: Optional[Protocol]
 
     byte_order: ByteOrder = DEFAULT_BYTE_ORDER
 
@@ -88,7 +89,8 @@ class RuntimeStruct(RuntimeStructBase):
 
         byte_order = type(self).byte_order
 
-        self.protocol = None
+        self.recv = None
+        self.send = None
         if "protocol_factory" in self.config:
             module, name = import_str_and_item(
                 cast(str, self.config["protocol_factory"])
@@ -97,9 +99,14 @@ class RuntimeStruct(RuntimeStructBase):
                 import_module(module), name
             )
             if ProtocolFactory in factory.__bases__:
-                self.protocol = factory.singleton()
-                byte_order = self.protocol.byte_order
-                self.env.register_protocol(self.protocol)
+                self.recv = factory.singleton()
+                byte_order = self.recv.byte_order
+                with self.env.names_pushed("rx"):
+                    self.env.register_protocol(self.recv, False)
+
+                self.send = factory.instance()
+                with self.env.names_pushed("tx"):
+                    self.env.register_protocol(self.send, True)
 
         self.init_env()
         self.update_byte_order(byte_order, **kwargs)
@@ -107,12 +114,12 @@ class RuntimeStruct(RuntimeStructBase):
     def update_byte_order(self, byte_order: ByteOrder, **kwargs) -> None:
         """Update the over-the-wire byte order for this struct."""
 
-        if self.protocol is None:
+        if self.recv is None:
             self.array = self.env.array(byte_order=byte_order, **kwargs).array
         else:
             # Can't change byte order at runtime in this configuration.
-            assert byte_order == self.protocol.byte_order
-            self.array = self.protocol
+            assert byte_order == self.recv.byte_order
+            self.array = self.recv
 
 
 W = _TypeVar("W", bound=RuntimeStruct)

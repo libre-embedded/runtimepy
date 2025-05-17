@@ -28,6 +28,8 @@ class TabInterface {
     this.time = 0;
     this.channelTimestamps = {};
     this.channelColorButtons = {};
+    this.commandShown = true;
+    this.regularShown = true;
 
     let table = this.query("tbody");
     if (table) {
@@ -85,20 +87,34 @@ class TabInterface {
     pattern = pattern.trim();
     hash.handleChannelFilter(this.name, pattern);
 
-    if (!pattern) {
-      pattern = ".*";
+    let parts = pattern.split(/(\s+)/).filter((x) => x.trim().length > 0);
+
+    let showRegular = this.regularShown;
+    let special = "!";
+    if (parts.includes(special)) {
+      showRegular = false;
+      parts = parts.filter(e => e != special);
+    }
+    let showCommand = this.commandShown;
+    special = "@";
+    if (parts.includes(special)) {
+      showCommand = false;
+      parts = parts.filter(e => e != special);
     }
 
-    let parts = pattern.split(/(\s+)/)
-                    .filter((x) => x.trim().length > 0)
-                    .map((x) => new RegExp(x));
+    if (!parts.length) {
+      parts.push(".*");
+    }
 
     for (let [name, elem] of Object.entries(this.channelRows)) {
       let found = false;
-      for (const re of parts) {
-        if (re.test(name)) {
-          found = true;
-          break;
+      if ((showRegular && elem.classList.contains("channel-regular")) ||
+          (showCommand && elem.classList.contains("channel-commandable"))) {
+        for (const re of parts.map((x) => new RegExp(x))) {
+          if (re.test(name)) {
+            found = true;
+            break;
+          }
         }
       }
 
@@ -191,6 +207,42 @@ class TabInterface {
     let send = this.query("#send-custom-commands");
     if (selector && send) {
       send.onclick = () => { this.worker.command(`custom ${selector.value}`); };
+    }
+
+    /* Initialize commandable/regular channel visibility toggle. */
+    let commandToggle = this.query("#toggle-command-channels");
+    if (commandToggle) {
+      commandToggle.onclick = () => {
+        this.commandShown = !this.commandShown;
+        let classes = commandToggle.children[0].classList;
+        if (this.commandShown) {
+          classes.toggle("bi-eye-slash");
+          classes.toggle("bi-eye");
+          classes.toggle("stale");
+        } else {
+          classes.toggle("bi-eye");
+          classes.toggle("bi-eye-slash");
+          classes.toggle("stale");
+        }
+        this.updateChannelStyles(this.channelFilter.value);
+      };
+    }
+    let regularToggle = this.query("#toggle-regular-channels");
+    if (regularToggle) {
+      regularToggle.onclick = () => {
+        this.regularShown = !this.regularShown;
+        let classes = regularToggle.children[0].classList;
+        if (this.regularShown) {
+          classes.toggle("bi-eye-slash-fill");
+          classes.toggle("bi-eye-fill");
+          classes.toggle("stale");
+        } else {
+          classes.toggle("bi-eye-slash-fill");
+          classes.toggle("bi-eye-fill");
+          classes.toggle("stale");
+        }
+        this.updateChannelStyles(this.channelFilter.value);
+      };
     }
   }
 

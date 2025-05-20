@@ -104,9 +104,11 @@ def channel_table_header(
     _, label, box = input_box(
         div(tag="th", parent=ctl_row, colspan="2", class_str="p-0"),
         description="Channel name filter.",
+        pattern=".* ! @ $",
         label="filter",
         id="channel-filter",
         icon="funnel",
+        spellcheck="false",
     )
     label.add_class("border-top-0", "border-bottom-0")
     box.add_class("border-top-0", "border-bottom-0")

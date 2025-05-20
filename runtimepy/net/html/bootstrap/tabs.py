@@ -129,9 +129,8 @@ class TabbedContent:
             id=name,
             icon="window-plus",
             title=f"Open '{name}' in a new window.",
-        ).add_class(
-            "border-start", "border-bottom", "window-button", "btn-link"
-        )
+            tabindex="-1",
+        ).add_class("border-bottom", "window-button", "btn-link")
 
         # Navigate to tab button.
         button = create_nav_button(
@@ -139,6 +138,7 @@ class TabbedContent:
             self.name,
             name,
             self.active_tab,
+            tabindex="-1",
             class_str="border-bottom border-end flex-grow-1",
         )
 

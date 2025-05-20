@@ -43,10 +43,22 @@ def create_app_shell(
 
     # Buttons.
     button_column = div(
-        id="button-column", parent=container if use_button_column else None
+        id="button-column",
+        parent=container if use_button_column else None,
+        head_child=div(
+            class_str="flex-grow-1 border-bottom "
+            "bg-gradient-secondary-to-bottom"
+        ),
+        tail_child=div(
+            class_str="flex-grow-1 border-top bg-gradient-secondary-to-top"
+        ),
     )
     button_column.add_class(
-        "d-flex", "flex-column", "h-100", f"bg-{bootstrap_theme}-subtle"
+        "d-flex",
+        "flex-column",
+        "h-100",
+        f"bg-{bootstrap_theme}-subtle",
+        "border-end",
     )
 
     # Dark/light theme switch button.

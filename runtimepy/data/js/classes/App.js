@@ -80,6 +80,27 @@ class App {
             }
           };
         }
+        _button = document.getElementById("dedent-channels-button");
+        if (_button) {
+          _button.onclick = () => {
+            if (!hash.channelsShown) {
+              return;
+            }
+
+            /* Reduce channel table width. */
+            if (shown_tab in tabs) {
+              let elem = tabs[shown_tab].query(".channel-column");
+              if (elem) {
+                let newWidth = elem.getBoundingClientRect().width - 50;
+                if (newWidth > 0) {
+                  elem.style.width = newWidth + "px";
+                } else {
+                  hash.channelsButton.click();
+                }
+              }
+            }
+          };
+        }
 
         startMainLoop();
       }

@@ -112,21 +112,22 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
     centered_markdown(
         tabs.tabs,
         app.config_param("top_markdown", "configure `top_markdown`"),
-        "border-start",
         "border-bottom",
         "border-end",
-        "bg-body-tertiary",
+        "bg-gradient-tertiary-to-top",
     )
 
     # Tab name filter.
     _, label, box = input_box(
-        tabs.tabs,
+        div(tag="form", autocomplete="off", parent=tabs.tabs),
         label="tab",
         description="Tab name filter.",
         placement="bottom",
         icon="funnel",
+        spellcheck="false",
+        pattern=".* $ @",
     )
-    label.add_class("border-top-0")
+    label.add_class("border-start-0", "border-top-0")
     box.add_class("border-top-0")
 
     populate_tabs(app, tabs)
@@ -143,6 +144,12 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
         "",
         icon="arrow-bar-right",
         id="open-channels-button",
+    )
+    tabs.add_button(
+        "Dedent channel table",
+        "",
+        icon="arrow-bar-left",
+        id="dedent-channels-button",
     )
 
     # Plot settings modal.
@@ -162,9 +169,8 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
     centered_markdown(
         tabs.tabs,
         app.config_param("bottom_markdown", "configure `bottom_markdown`"),
-        "border-start",
         "border-end",
-        "bg-body-tertiary",
+        "bg-gradient-tertiary-to-bottom",
     )
 
     # Add splash screen element.

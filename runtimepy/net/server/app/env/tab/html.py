@@ -240,6 +240,7 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
             parent=container,
             kind="column",
             tag="form",
+            autocomplete="off",
         )
         vert_container.add_class(
             "channel-column",
@@ -259,6 +260,7 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
             label="command",
             id=self.get_id("command"),
             icon="terminal",
+            spellcheck="false",
         )
 
         label.add_class("border-top-0")
@@ -276,7 +278,6 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
             "rounded-0",
             "text-logs",
             "border-top-0",
-            "bg-body-secondary",
             "p-2",
         )
         logs.booleans.add("readonly")
@@ -289,7 +290,7 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
             "border-start",
             "border-top",
             "border-end",
-            "bg-body-tertiary",
+            "bg-gradient-tertiary-to-bottom",
         )
 
         # Divider.

@@ -57,9 +57,14 @@ class TabFilter {
 
     let curr = this.input.value;
 
+    // new features: make '$' either auto-complete (one character per press)
+    // to the first non-selected tab currently appearing in filter and presses
+    // the nav button when it's the only button left
+    //
+    // tbd need another button for opening new tab, '@'?
+
     if (event.key == "Enter") {
       curr = "";
-      this.input.value = curr;
     } else {
       if (event.key == "Backspace") {
         curr = curr.slice(0, -1);
@@ -68,6 +73,12 @@ class TabFilter {
       }
     }
 
+    if (!curr) {
+      this.input.value = curr;
+    }
+
     this.updateStyles(curr);
+
+    this.input.focus();
   }
 }

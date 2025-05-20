@@ -46,6 +46,7 @@ select.form-select:hover {
 textarea.text-logs {
   min-height: 6em !important;
   font-size: 14px;
+  background-image: linear-gradient(var(--bs-secondary-bg), var(--bs-tertiary-bg), var(--bs-secondary-bg));
 }
 
 .vertical-divider {
@@ -87,6 +88,22 @@ select:hover {
 
 .channel-value-input {
   width: 6em;
+}
+
+.bg-gradient-secondary-to-bottom {
+  background-image: linear-gradient(to bottom right, rgba(var(--bs-secondary-bg-rgb), 0), var(--bs-secondary-bg));
+}
+
+.bg-gradient-tertiary-to-bottom {
+  background-image: linear-gradient(to bottom, rgba(var(--bs-tertiary-bg-rgb), 0), var(--bs-tertiary-bg));
+}
+
+.bg-gradient-secondary-to-top {
+  background-image: linear-gradient(to top right, rgba(var(--bs-secondary-bg-rgb), 0), var(--bs-secondary-bg));
+}
+
+.bg-gradient-tertiary-to-top {
+  background-image: linear-gradient(to top, rgba(var(--bs-tertiary-bg-rgb), 0), var(--bs-tertiary-bg));
 }
 
 .border-start-info-subtle {

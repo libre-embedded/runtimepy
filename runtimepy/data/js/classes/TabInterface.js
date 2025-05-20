@@ -133,9 +133,12 @@ class TabInterface {
 
     let curr = this.channelFilter.value;
 
+    // new feature: make '$' toggle the state of all telemetry channels visible
+    // if any are already selected, enable all, if they're all already enabled
+    // disable them
+
     if (event.key == "Enter") {
       curr = "";
-      this.channelFilter.value = curr;
     } else {
       if (event.key == "Backspace") {
         curr = curr.slice(0, -1);
@@ -144,7 +147,13 @@ class TabInterface {
       }
     }
 
+    if (!curr) {
+      this.channelFilter.value = curr;
+    }
+
     this.updateChannelStyles(curr);
+
+    this.channelFilter.focus();
   }
 
   initControls() {

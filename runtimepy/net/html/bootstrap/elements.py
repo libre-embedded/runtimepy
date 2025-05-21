@@ -196,17 +196,19 @@ def centered_markdown(
     container.add_class(
         "flex-grow-1",
         "d-flex",
-        "flex-column",
+        "flex-row",
         "justify-content-between",
         *container_classes,
     )
 
-    div(parent=container)
+    div(parent=container, class_str="flex-grow-1 bg-gradient-tertiary-to-left")
 
     horiz_container = div(parent=container)
-    horiz_container.add_class("d-flex", "flex-row", "justify-content-between")
+    horiz_container.add_class(
+        "d-flex", "flex-column", "justify-content-between"
+    )
 
-    div(parent=horiz_container)
+    div(parent=horiz_container, class_str="flex-grow-1")
 
     with StringIO() as stream:
         writer = IndentedFileWriter(stream)
@@ -232,8 +234,10 @@ def centered_markdown(
             preformatted=True,
         )
 
-    div(parent=horiz_container)
+    div(parent=horiz_container, class_str="flex-grow-1")
 
-    div(parent=container)
+    div(
+        parent=container, class_str="flex-grow-1 bg-gradient-tertiary-to-right"
+    )
 
     return container

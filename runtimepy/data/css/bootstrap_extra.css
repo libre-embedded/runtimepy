@@ -106,6 +106,14 @@ select:hover {
   background-image: linear-gradient(to top, rgba(var(--bs-tertiary-bg-rgb), 0), var(--bs-tertiary-bg));
 }
 
+.bg-gradient-tertiary-to-left {
+  background-image: linear-gradient(to left, rgba(var(--bs-tertiary-bg-rgb), 0), var(--bs-tertiary-bg));
+}
+
+.bg-gradient-tertiary-to-right {
+  background-image: linear-gradient(to right, rgba(var(--bs-tertiary-bg-rgb), 0), var(--bs-tertiary-bg));
+}
+
 .border-start-info-subtle {
   border-left: var(--bs-border-width) var(--bs-border-style) var(--bs-info-border-subtle);
 }

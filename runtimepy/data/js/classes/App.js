@@ -105,7 +105,8 @@ class App {
         /* Set initial focus. */
         if (hash.tabsShown && tabFilter) {
           tabFilter.input.focus();
-        } else if (shown_tab in tabs && tabs[shown_tab].channelFilter) {
+        } else if (hash.channelsShown && shown_tab in tabs &&
+                   tabs[shown_tab].channelFilter) {
           tabs[shown_tab].channelFilter.focus();
         }
 

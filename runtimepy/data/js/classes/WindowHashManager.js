@@ -16,6 +16,12 @@ class WindowHashManager {
   tabClick(event) {
     this.tabsShown = !this.tabsShown;
     this.update();
+
+    /* Focus channel table. */
+    if (!this.tabsShown && this.channelsShown && shown_tab in tabs &&
+        tabs[shown_tab].channelFilter) {
+      tabs[shown_tab].channelFilter.focus();
+    }
   }
 
   lightDarkClick(event) {

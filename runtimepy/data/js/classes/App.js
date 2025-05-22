@@ -76,6 +76,7 @@ class App {
               if (elem) {
                 elem.style.width = window.innerWidth + "px";
                 tabs[shown_tab].correctVerticalBarPosition();
+                tabs[shown_tab].focus();
               }
             }
           };
@@ -94,6 +95,7 @@ class App {
                 let newWidth = elem.getBoundingClientRect().width - 50;
                 if (newWidth > 0) {
                   elem.style.width = newWidth + "px";
+                  tabs[shown_tab].focus();
                 } else {
                   hash.channelsButton.click();
                 }
@@ -105,9 +107,8 @@ class App {
         /* Set initial focus. */
         if (hash.tabsShown && tabFilter) {
           tabFilter.input.focus();
-        } else if (hash.channelsShown && shown_tab in tabs &&
-                   tabs[shown_tab].channelFilter) {
-          tabs[shown_tab].channelFilter.focus();
+        } else if (hash.channelsShown && shown_tab in tabs) {
+          tabs[shown_tab].focus();
         }
 
         startMainLoop();

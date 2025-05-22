@@ -18,9 +18,8 @@ class WindowHashManager {
     this.update();
 
     /* Handle focus. */
-    if (!this.tabsShown && this.channelsShown && shown_tab in tabs &&
-        tabs[shown_tab].channelFilter) {
-      tabs[shown_tab].channelFilter.focus();
+    if (!this.tabsShown && this.channelsShown && shown_tab in tabs) {
+      tabs[shown_tab].focus();
     } else if (this.tabsShown && tabFilter) {
       tabFilter.input.focus();
     }
@@ -48,6 +47,13 @@ class WindowHashManager {
     }
 
     this.update();
+
+    /* Handle focus. */
+    if (this.channelsShown && shown_tab in tabs) {
+      tabs[shown_tab].focus();
+    } else if (this.tabsShown && tabFilter) {
+      tabFilter.input.focus();
+    }
   }
 
   handleChannelFilter(tabName, value) {

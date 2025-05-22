@@ -50,9 +50,7 @@ class TabInterface {
         this.correctVerticalBarPosition();
 
         /* Focus channel filter if it exists. */
-        if (this.channelFilter) {
-          this.channelFilter.focus();
-        }
+        this.focus();
       }
       this.worker.send({kind : msg});
     } ];
@@ -66,6 +64,12 @@ class TabInterface {
     window.addEventListener(
         "resize",
         ((event) => { this.correctVerticalBarPosition(); }).bind(this));
+  }
+
+  focus() {
+    if (this.channelFilter) {
+      this.channelFilter.focus();
+    }
   }
 
   initCommand() {
@@ -160,7 +164,7 @@ class TabInterface {
 
     this.updateChannelStyles(curr);
 
-    this.channelFilter.focus();
+    this.focus();
   }
 
   initControls() {

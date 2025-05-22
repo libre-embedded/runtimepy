@@ -17,10 +17,12 @@ class WindowHashManager {
     this.tabsShown = !this.tabsShown;
     this.update();
 
-    /* Focus channel table. */
+    /* Handle focus. */
     if (!this.tabsShown && this.channelsShown && shown_tab in tabs &&
         tabs[shown_tab].channelFilter) {
       tabs[shown_tab].channelFilter.focus();
+    } else if (this.tabsShown && tabFilter) {
+      tabFilter.input.focus();
     }
   }
 

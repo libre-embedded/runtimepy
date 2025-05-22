@@ -40,7 +40,7 @@ function setupCursorMove(elem, down, move, up, handleMove) {
       document.removeEventListener(move, handleMove);
       elem.classList.remove("moving");
     }, {once : true});
-  });
+  }, {passive : true});
 }
 
 function randomHexColor() {

@@ -20,11 +20,16 @@ class Plot {
     /* Handle overlay events. */
     if (this.overlay) {
       /* Scroll, click and keyboard. */
-      this.overlay.onwheel = this.createEventSender(scrollEventKeys);
-      this.overlay.onclick = this.createEventSender(pointerEventKeys);
+      const options = {passive : true};
+
+      this.overlay.addEventListener(
+          "wheel", this.createEventSender(scrollEventKeys), options);
+      this.overlay.addEventListener(
+          "click", this.createEventSender(pointerEventKeys), options);
+
       let eventHandler = this.createEventSender(keyboardEventKeys);
-      this.overlay.addEventListener("keydown", eventHandler);
-      this.overlay.addEventListener("keyup", eventHandler);
+      this.overlay.addEventListener("keydown", eventHandler, options);
+      this.overlay.addEventListener("keyup", eventHandler, options);
 
       /* Should there be a keybind that opens this? */
       // let plotButton = document.getElementById("runtimepy-plot-button");

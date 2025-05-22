@@ -306,7 +306,7 @@ class TabInterface {
       document.addEventListener(
           up, (event) => { document.removeEventListener(move, handleMouse); },
           {once : true});
-    });
+    }, {passive : true});
   }
 
   setupVerticalDivider(elem) {

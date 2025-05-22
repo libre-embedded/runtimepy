@@ -65,6 +65,7 @@ class TabFilter {
 
     if (event.key == "Enter") {
       curr = "";
+      event.preventDefault();
     } else {
       if (event.key == "Backspace") {
         curr = curr.slice(0, -1);

@@ -136,6 +136,8 @@ class TabInterface {
     // new feature: make '$' toggle the state of all telemetry channels visible
     // if any are already selected, enable all, if they're all already enabled
     // disable them
+    //
+    // keybind for dedent
 
     if (event.key == "Enter") {
       curr = "";

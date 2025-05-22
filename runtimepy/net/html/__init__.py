@@ -54,11 +54,7 @@ def create_app_shell(
         ),
     )
     button_column.add_class(
-        "d-flex",
-        "flex-column",
-        "h-100",
-        f"bg-{bootstrap_theme}-subtle",
-        "border-end",
+        "d-flex", "flex-column", "h-100", f"bg-{bootstrap_theme}-subtle"
     )
 
     # Dark/light theme switch button.
@@ -125,6 +121,7 @@ def full_markdown_page(
     _, button_column = markdown_page(
         document.body, markdown, **markdown_kwargs
     )
+    button_column.add_class("border-end")
 
     bootstrap_button(
         icon_str("printer"),

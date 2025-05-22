@@ -121,7 +121,7 @@ class TabbedContent:
     def create(self, name: str) -> tuple[Element, Element]:
         """Only the first tab is active."""
 
-        container = flex(parent=self.tabs)
+        container = flex(parent=self.tabs).add_class("border-start")
 
         # Open in new window button.
         toggle_button(

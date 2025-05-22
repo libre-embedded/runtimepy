@@ -112,6 +112,7 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
     centered_markdown(
         tabs.tabs,
         app.config_param("top_markdown", "configure `top_markdown`"),
+        "border-start",
         "border-bottom",
         "border-end",
         "bg-gradient-tertiary-to-top",
@@ -127,7 +128,7 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
         spellcheck="false",
         pattern=".* $ @",
     )
-    label.add_class("border-start-0", "border-top-0")
+    label.add_class("border-top-0")
     box.add_class("border-top-0")
 
     populate_tabs(app, tabs)
@@ -169,6 +170,7 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
     centered_markdown(
         tabs.tabs,
         app.config_param("bottom_markdown", "configure `bottom_markdown`"),
+        "border-start",
         "border-end",
         "bg-gradient-tertiary-to-bottom",
     )

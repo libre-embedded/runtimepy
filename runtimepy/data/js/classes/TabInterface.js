@@ -48,6 +48,11 @@ class TabInterface {
 
         /* Audit vertical bar position. */
         this.correctVerticalBarPosition();
+
+        /* Focus channel filter if it exists. */
+        if (this.channelFilter) {
+          this.channelFilter.focus();
+        }
       }
       this.worker.send({kind : msg});
     } ];

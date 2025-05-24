@@ -4,7 +4,6 @@ A module for creating various bootstrap-related elements.
 
 # built-in
 from io import StringIO
-from typing import Optional
 
 # third-party
 from svgen.element import Element
@@ -83,7 +82,7 @@ def collapse_button(
 def toggle_button(
     parent: Element,
     icon: str = "toggles",
-    title: Optional[str] = "toggle value",
+    title: str = None,
     icon_classes: list[str] = None,
     tooltip: str = None,
     placement: str = "top",
@@ -91,7 +90,10 @@ def toggle_button(
 ) -> Element:
     """Add a boolean-toggle button."""
 
-    if title and not tooltip:
+    # if title and not tooltip:
+    if not title and tooltip:
+        kwargs["title"] = "see tooltip"
+    elif title:
         kwargs["title"] = title
 
     button = div(

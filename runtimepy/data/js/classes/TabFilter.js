@@ -51,7 +51,9 @@ class TabFilter {
   }
 
   keydown(event) {
-    if (isModifierKeyEvent(event) || event.key == "Tab") {
+    // ctrl-l - go to channel table (open if needed) then close tabs
+
+    if (globalKeyEvent(event) || ignoreFilterKeyEvent(event)) {
       return;
     }
 
@@ -62,7 +64,6 @@ class TabFilter {
     // the nav button when it's the only button left
     //
     // tbd need another button for opening new tab, '@'?
-
     if (event.key == "Enter") {
       curr = "";
       event.preventDefault();

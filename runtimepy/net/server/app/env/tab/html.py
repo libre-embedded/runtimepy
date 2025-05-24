@@ -200,9 +200,12 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
     def _compose_plot(self, parent: Element) -> None:
         """Compose plot elements."""
 
-        plot_container = div(
-            parent=parent,
-            class_str="w-100 h-100 border-start position-relative",
+        plot_container = div(parent=parent).add_class(
+            "w-100",
+            "h-100",
+            "border-start",
+            "position-relative",
+            "logo-outline-background",
         )
 
         # Plot.

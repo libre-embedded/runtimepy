@@ -52,6 +52,18 @@ function isModifierKeyEvent(event) {
          event.key == "Meta" || event.key == "Alt";
 }
 
+function ignoreFilterKeyEvent(event) {
+  // home end pg up pg down delete
+  return isModifierKeyEvent(event) || event.key == "Tab";
+}
+
+function globalKeyEvent(event) {
+  // (common)
+  // keybind for dedent (ctrl-d?) + expand (ctrl-e?)
+  // toggle tabs + toggle channel table
+  return false;
+}
+
 /* Load settings control mappings. */
 let settings = {};
 

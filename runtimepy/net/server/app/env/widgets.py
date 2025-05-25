@@ -28,6 +28,8 @@ def plot_checkbox(parent: Element, name: str) -> None:
 
     container = div(tag="td", parent=parent, class_str="text-center p-0 fs-5")
 
+    title = f"Enable plotting channel '{name}'."
+
     set_tooltip(
         div(
             tag="input",
@@ -37,8 +39,9 @@ def plot_checkbox(parent: Element, name: str) -> None:
             allow_no_end_tag=True,
             parent=div(tag="label", parent=container),
             class_str="form-check-input rounded-0",
+            title=title,
         ),
-        f"Enable plotting channel '{name}'.",
+        title,
         placement="left",
     )
 

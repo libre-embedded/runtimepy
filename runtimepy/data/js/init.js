@@ -53,7 +53,7 @@ function isModifierKeyEvent(event) {
 }
 
 function ignoreFilterKeyEvent(event) {
-  // home end pg up pg down delete
+  // home end pg up pg down delete f keys
   return isModifierKeyEvent(event) || event.key == "Tab";
 }
 

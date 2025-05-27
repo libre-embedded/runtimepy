@@ -26,6 +26,7 @@ from runtimepy.net.http.response import AsyncResponse, ResponseHeader
 from runtimepy.net.server.html import HtmlApp, HtmlApps, get_html, html_handler
 from runtimepy.net.server.json import encode_json, json_handler
 from runtimepy.net.server.markdown import markdown_for_dir
+from runtimepy.net.server.mux import mux_app
 from runtimepy.net.tcp.http import HttpConnection, HttpResult
 from runtimepy.util import normalize_root, path_has_part, read_binary
 
@@ -44,7 +45,7 @@ class RuntimepyServerConnection(HttpConnection):
     """A class implementing a server-connection interface for this package."""
 
     # Can register application methods to URL paths.
-    apps: HtmlApps = {}
+    apps: HtmlApps = {"/mux.html": mux_app}
     default_app: Optional[HtmlApp] = None
 
     # Can load additional data into this dictionary for easy HTTP access.

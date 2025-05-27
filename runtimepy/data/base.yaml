@@ -9,7 +9,7 @@ config:
   # Default redirects.
   http_redirects:
     "/": "/index.html"
-    "/index.html": "/app.html"
+    "/index.html": "/mux.html"
 
   # Serve these applications by default at these paths.
   http_app_paths: ["/app.html"]

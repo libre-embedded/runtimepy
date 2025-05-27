@@ -74,6 +74,7 @@ async def setup(app: AppInfo) -> int:
     html_app = create_app(app, getattr(_import_module(module), method))
     target: str
     for target in app.config_param("http_app_paths", []):
+        assert target not in RuntimepyServerConnection.apps, target
         RuntimepyServerConnection.apps[target] = html_app
 
     # Register redirects.

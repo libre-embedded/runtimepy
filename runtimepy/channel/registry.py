@@ -16,7 +16,6 @@ from vcorelib.io.types import JsonObject as _JsonObject
 # internal
 from runtimepy.channel import AnyChannel as _AnyChannel
 from runtimepy.channel import Channel as _Channel
-from runtimepy.channel import Default as _Default
 from runtimepy.channel.event.header import PrimitiveEventHeader
 from runtimepy.codec.protocol import Protocol
 from runtimepy.mapping import DEFAULT_PATTERN
@@ -29,7 +28,7 @@ from runtimepy.primitives.types.base import PythonPrimitive
 from runtimepy.registry import Registry as _Registry
 from runtimepy.registry.name import NameRegistry as _NameRegistry
 from runtimepy.registry.name import RegistryKey as _RegistryKey
-from runtimepy.ui.controls import Controlslike, normalize_controls
+from runtimepy.ui.controls import Controlslike, Default, normalize_controls
 
 
 class ChannelNameRegistry(_NameRegistry):
@@ -92,7 +91,7 @@ class ChannelRegistry(_Registry[_Channel[_Any]]):
         enum: _RegistryKey = None,
         scaling: ChannelScaling = None,
         description: str = None,
-        default: _Default = None,
+        default: Default = None,
         controls: Controlslike = None,
         **kwargs,
     ) -> _Optional[_AnyChannel]:

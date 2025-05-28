@@ -148,7 +148,9 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
         table = div(
             tag="table",
             parent=div(parent=parent).add_class(
-                "table-container", "overflow-x-scroll"
+                "flex-shrink-0",
+                "overflow-x-scroll",
+                "overscroll-behavior-none",
             ),
         )
         table.add_class(
@@ -253,6 +255,7 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
             "show",
             "overflow-y-scroll",
             "overflow-x-hidden",
+            "overscroll-behavior-none",
         )
 
         _, label, box = input_box(
@@ -282,6 +285,7 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
             "text-logs",
             "border-top-0",
             "p-2",
+            "overscroll-behavior-none",
         )
         logs.booleans.add("readonly")
 

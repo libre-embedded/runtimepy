@@ -15,10 +15,6 @@
   max-width: 80%;
 }
 
-.table-container {
-  min-height: fit-content;
-}
-
 .channel-column {
   /* Don't allow plot area to become too hidden. */
   max-width: min-content;

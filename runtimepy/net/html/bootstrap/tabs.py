@@ -102,6 +102,7 @@ class TabbedContent:
             "show",
             "h-100",
             "overflow-y-scroll",
+            "overscroll-behavior-none",
         )
 
         # Create content container.

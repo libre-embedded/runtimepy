@@ -67,6 +67,10 @@ body > :first-child {
   outline: none;
 }
 
+.overscroll-behavior-x-none {
+  overscroll-behavior-x: none;
+}
+
 .overscroll-behavior-none {
   overscroll-behavior: none;
 }

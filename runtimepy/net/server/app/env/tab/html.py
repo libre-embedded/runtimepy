@@ -150,7 +150,7 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
             parent=div(parent=parent).add_class(
                 "flex-shrink-0",
                 "overflow-x-scroll",
-                "overscroll-behavior-none",
+                "overscroll-behavior-x-none",
             ),
         )
         table.add_class(

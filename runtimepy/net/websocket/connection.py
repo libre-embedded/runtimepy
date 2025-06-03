@@ -20,6 +20,7 @@ from typing import Union as _Union
 
 # third-party
 from vcorelib.asyncio import log_exceptions as _log_exceptions
+from vcorelib.io import BinaryMessage
 import websockets
 from websockets.asyncio.client import ClientConnection as _ClientConnection
 from websockets.asyncio.server import Server as _Server
@@ -29,7 +30,7 @@ from websockets.exceptions import ConnectionClosed as _ConnectionClosed
 
 # internal
 from runtimepy.net import sockname as _sockname
-from runtimepy.net.connection import BinaryMessage, Connection
+from runtimepy.net.connection import Connection
 from runtimepy.net.connection import EchoConnection as _EchoConnection
 from runtimepy.net.connection import NullConnection as _NullConnection
 from runtimepy.net.manager import ConnectionManager as _ConnectionManager
@@ -81,7 +82,11 @@ class WebsocketConnection(Connection):
 
     async def _send_binay_message(self, data: BinaryMessage) -> None:
         """Send a binary message."""
-        await self._handle_connection_closed(self.protocol.send(data))
+        await self._handle_connection_closed(
+            self.protocol.send(
+                data,  # type: ignore
+            )
+        )
         self.metrics.tx.increment(len(data))
 
     async def close(self) -> None:

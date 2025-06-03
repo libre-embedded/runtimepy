@@ -286,7 +286,7 @@ class RuntimepyServerConnection(HttpConnection):
         self,
         response: ResponseHeader,
         request: RequestHeader,
-        request_data: Optional[bytes],
+        request_data: Optional[bytearray],
     ) -> HttpResult:
         """Handle POST requests."""
 
@@ -308,7 +308,7 @@ class RuntimepyServerConnection(HttpConnection):
         self,
         response: ResponseHeader,
         request: RequestHeader,
-        request_data: Optional[bytes],
+        request_data: Optional[bytearray],
     ) -> HttpResult:
         """Handle GET requests."""
 

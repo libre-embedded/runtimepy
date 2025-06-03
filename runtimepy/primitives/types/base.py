@@ -14,6 +14,9 @@ from typing import TypeVar as _TypeVar
 from typing import Union as _Union
 from typing import cast as _cast
 
+# third-party
+from vcorelib.io import BinaryMessage
+
 # internal
 from runtimepy.primitives.byte_order import (
     DEFAULT_BYTE_ORDER as _DEFAULT_BYTE_ORDER,
@@ -134,7 +137,7 @@ class PrimitiveType(_Generic[T]):
         return _pack(byte_order.fmt + self.format, value)
 
     def decode(
-        self, data: bytes, byte_order: _ByteOrder = _DEFAULT_BYTE_ORDER
+        self, data: BinaryMessage, byte_order: _ByteOrder = _DEFAULT_BYTE_ORDER
     ) -> PythonPrimitive:
         """Decode primitive based on this type."""
         return _unpack(byte_order.fmt + self.format, data)[0]  # type: ignore

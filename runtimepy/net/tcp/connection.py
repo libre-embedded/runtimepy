@@ -17,10 +17,12 @@ from typing import Optional as _Optional
 from typing import TypeVar as _TypeVar
 from typing import Union as _Union
 
+# third-party
+from vcorelib.io import BinaryMessage
+
 # internal
 from runtimepy.net import sockname as _sockname
 from runtimepy.net.backoff import ExponentialBackoff
-from runtimepy.net.connection import BinaryMessage as _BinaryMessage
 from runtimepy.net.connection import Connection as _Connection
 from runtimepy.net.connection import EchoConnection as _EchoConnection
 from runtimepy.net.connection import NullConnection as _NullConnection
@@ -91,7 +93,7 @@ class TcpConnection(_Connection, _TransportMixin):
         """Determine if this connection uses SSL."""
         return self._transport.get_extra_info("sslcontext") is not None
 
-    async def _await_message(self) -> _Optional[_Union[_BinaryMessage, str]]:
+    async def _await_message(self) -> _Optional[_Union[BinaryMessage, str]]:
         """Await the next message. Return None on error or failure."""
 
         data = await self._protocol.queue.get()
@@ -103,7 +105,7 @@ class TcpConnection(_Connection, _TransportMixin):
         """Enqueue a text message to send."""
         self.send_binary(data.encode())
 
-    def send_binary(self, data: _BinaryMessage) -> None:
+    def send_binary(self, data: BinaryMessage) -> None:
         """Enqueue a binary message tos end."""
         self._transport.write(data)
         self.metrics.tx.increment(len(data))

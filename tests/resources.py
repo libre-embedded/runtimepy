@@ -6,10 +6,11 @@ A module for working with test data.
 import asyncio
 from pathlib import Path
 from sys import version_info
-from typing import Awaitable, List, Optional, Tuple, TypeVar
+from typing import Awaitable, Optional, TypeVar
 
 # third-party
 from vcorelib.asyncio import new_eloop, run_handle_interrupt
+from vcorelib.io import BinaryMessage
 from vcorelib.platform import is_windows
 
 # internal
@@ -59,16 +60,16 @@ class SampleConnectionMixin(Connection):
 
         return not stop_found
 
-    async def process_binary(self, data: bytes) -> bool:
+    async def process_binary(self, data: BinaryMessage) -> bool:
         """Process a binary frame."""
-        return await self.process_text(data.decode())
+        return await self.process_text(bytes(data).decode())
 
 
 class SampleUdpConnection(UdpConnection, SampleConnectionMixin):
     """A sample connection class."""
 
     async def process_datagram(
-        self, data: bytes, addr: Tuple[str, int]
+        self, data: BinaryMessage, addr: tuple[str, int]
     ) -> bool:
         """Process a datagram."""
         return await self.process_binary(data)
@@ -121,7 +122,7 @@ def can_use_uvloop() -> bool:
     )
 
 
-def base_args(*commands: str) -> List[str]:
+def base_args(*commands: str) -> list[str]:
     """Get base command-line arguments."""
 
     base = [PKG_NAME]

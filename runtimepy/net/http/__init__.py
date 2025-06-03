@@ -6,7 +6,7 @@ A module implementing an HTTP-message processing interface.
 from typing import Iterator, Optional, cast
 
 # third-party
-from vcorelib.io import ByteFifo
+from vcorelib.io import BinaryMessage, ByteFifo
 
 # internal
 from runtimepy.net.http.common import HeadersMixin
@@ -29,8 +29,8 @@ class HttpMessageProcessor:
         self.current_header: Optional[HeadersMixin] = None
 
     def ingest(
-        self, data: bytes, kind: type[T]
-    ) -> Iterator[tuple[T, Optional[bytes]]]:
+        self, data: BinaryMessage, kind: type[T]
+    ) -> Iterator[tuple[T, Optional[bytearray]]]:
         """Process a binary frame."""
 
         self.buffer.ingest(data)

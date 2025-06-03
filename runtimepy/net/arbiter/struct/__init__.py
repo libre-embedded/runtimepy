@@ -7,6 +7,7 @@ from io import BytesIO
 from typing import Generic, Iterator, Optional, TypeVar
 
 # third-party
+from vcorelib.io import BinaryMessage
 from vcorelib.math import default_time_ns
 from vcorelib.math.keeper import TimeSource
 
@@ -67,7 +68,7 @@ class TimestampedStruct(RuntimeStruct):
         self.array.update(data, timestamp_ns=timestamp_ns)
         return timestamp_ns
 
-    def process_datagram(self, data: bytes) -> Iterator[int]:
+    def process_datagram(self, data: BinaryMessage) -> Iterator[int]:
         """Process an array message."""
 
         size = self.array.size
@@ -190,7 +191,7 @@ class UdpStructTransceiver(UdpConnection, Generic[T]):
         """Handle individual struct updates."""
 
     async def process_datagram(
-        self, data: bytes, addr: tuple[str, int]
+        self, data: BinaryMessage, addr: tuple[str, int]
     ) -> bool:
         """Process an array of struct instances."""
 

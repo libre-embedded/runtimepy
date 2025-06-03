@@ -16,7 +16,7 @@ from runtimepy.net.http.response import ResponseHeader
 from runtimepy.net.tcp.http import HttpConnection
 
 HtmlApp = Callable[
-    [Html, RequestHeader, ResponseHeader, Optional[bytes]], Awaitable[Html]
+    [Html, RequestHeader, ResponseHeader, Optional[bytearray]], Awaitable[Html]
 ]
 HtmlApps = dict[str, HtmlApp]
 
@@ -58,7 +58,7 @@ async def html_handler(
     stream: TextIO,
     request: RequestHeader,
     response: ResponseHeader,
-    request_data: Optional[bytes],
+    request_data: Optional[bytearray],
     default_app: HtmlApp = None,
     **kwargs,
 ) -> bool:

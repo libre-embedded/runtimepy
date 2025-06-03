@@ -5,6 +5,9 @@ A module implementing a fixed-size bytes serializable.
 # built-in
 from copy import copy as _copy
 
+# third-party
+from vcorelib.io import BinaryMessage
+
 # internal
 from runtimepy.primitives.serializable.base import Serializable
 
@@ -31,11 +34,11 @@ class FixedChunk(Serializable):
         """Get this serializable as a bytes instance."""
         return self.data
 
-    def update(self, data: bytes, timestamp_ns: int = None) -> int:
+    def update(self, data: BinaryMessage, timestamp_ns: int = None) -> int:
         """Update this serializable from a bytes instance."""
 
         del timestamp_ns
 
-        self.data = data
+        self.data = bytes(data)
         self.size = len(self.data)
         return self.size

@@ -18,7 +18,7 @@ async def mux_app(
     document: Html,
     request: RequestHeader,
     response: ResponseHeader,
-    request_data: Optional[bytes],
+    request_data: Optional[bytearray],
 ) -> Html:
     """An iframe multiplexing application."""
 

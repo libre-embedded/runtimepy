@@ -29,7 +29,7 @@ def config_param(
 
 
 HtmlAppComposer = Callable[
-    [AppInfo, Html, RequestHeader, ResponseHeader, Optional[bytes]], Html
+    [AppInfo, Html, RequestHeader, ResponseHeader, Optional[bytearray]], Html
 ]
 
 
@@ -43,7 +43,7 @@ def create_cacheable_app(app: AppInfo, compose: HtmlAppComposer) -> HtmlApp:
         document: Html,
         request: RequestHeader,
         response: ResponseHeader,
-        request_data: Optional[bytes],
+        request_data: Optional[bytearray],
     ) -> Html:
         """A simple 'Hello, world!' application."""
 
@@ -82,7 +82,7 @@ def create_app(
         document: Html,
         request: RequestHeader,
         response: ResponseHeader,
-        request_data: Optional[bytes],
+        request_data: Optional[bytearray],
     ) -> Html:
         """Main package web application."""
 

@@ -6,9 +6,11 @@ A module implementing a base, stream-oriented connection interface.
 from io import BytesIO as _BytesIO
 from typing import BinaryIO as _BinaryIO
 
+# third-party
+from vcorelib.io import BinaryMessage
+
 # internal
 from runtimepy.message import MessageProcessor
-from runtimepy.net.connection import BinaryMessage
 from runtimepy.net.connection import Connection as _Connection
 
 
@@ -58,7 +60,7 @@ class PrefixedMessageConnection(_Connection):
         return True
 
     async def process_binary(
-        self, data: bytes, addr: tuple[str, int] = None
+        self, data: BinaryMessage, addr: tuple[str, int] = None
     ) -> bool:
         """Process an incoming message."""
 

@@ -9,6 +9,9 @@ from struct import unpack as _unpack
 from typing import NamedTuple
 from typing import cast as _cast
 
+# third-party
+from vcorelib.io import BinaryMessage
+
 # internal
 from runtimepy.primitives import AnyPrimitive as _AnyPrimitive
 from runtimepy.primitives import Primitivelike as _Primitivelike
@@ -235,7 +238,7 @@ class PrimitiveArray(Serializable):
         """Get bytes from a fragment."""
         return bytes(self._fragments[index])
 
-    def update(self, data: bytes, timestamp_ns: int = None) -> int:
+    def update(self, data: BinaryMessage, timestamp_ns: int = None) -> int:
         """Update primitive values from a bytes instance."""
 
         for primitive, item in zip(

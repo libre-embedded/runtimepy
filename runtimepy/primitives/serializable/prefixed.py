@@ -7,6 +7,9 @@ primitive prefix to determine the size of the chunk portion.
 from typing import BinaryIO as _BinaryIO
 from typing import TypeVar
 
+# third-party
+from vcorelib.io import BinaryMessage
+
 # internal
 from runtimepy.primitives import Primitivelike, UnsignedInt, create
 from runtimepy.primitives.byte_order import (
@@ -44,7 +47,7 @@ class PrefixedChunk(Serializable):
         """Get this chunk as a string."""
         return str(self.chunk)
 
-    def update(self, data: bytes, timestamp_ns: int = None) -> int:
+    def update(self, data: BinaryMessage, timestamp_ns: int = None) -> int:
         """Update this serializable from a bytes instance."""
 
         size = self.chunk.update(data, timestamp_ns=timestamp_ns)

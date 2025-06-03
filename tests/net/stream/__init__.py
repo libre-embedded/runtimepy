@@ -36,7 +36,7 @@ from tests.resources import SampleArbiterTask
 async def sample_handler(
     response: ResponseHeader,
     request: RequestHeader,
-    request_data: Optional[bytes],
+    request_data: Optional[bytearray],
 ) -> Optional[bytes]:
     """Sample handler."""
 

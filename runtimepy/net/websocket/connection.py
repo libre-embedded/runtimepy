@@ -42,6 +42,17 @@ V = _TypeVar("V")
 LOG = _getLogger(__name__)
 
 
+async def websocket_connect(uri: str, **kwargs) -> _ClientConnection:
+    """Attempt to connect a websocket interface."""
+
+    # Defaults.
+    kwargs.setdefault("use_ssl", uri.startswith("wss"))
+
+    return await getattr(websockets, "connect")(  # type: ignore
+        uri, **handle_possible_ssl(**kwargs)
+    )
+
+
 class WebsocketConnection(Connection):
     """A simple websocket connection interface."""
 
@@ -54,6 +65,10 @@ class WebsocketConnection(Connection):
 
         self.protocol = protocol
         super().__init__(self.protocol.logger, **kwargs)
+
+        # Store connection-instantiation arguments (for connection restarting).
+        self._uri: str = ""
+        self._conn_kwargs: dict[str, _Any] = {}
 
     async def _handle_connection_closed(
         self, task: _Awaitable[V]
@@ -99,12 +114,30 @@ class WebsocketConnection(Connection):
     ) -> T:
         """Connect a client to an endpoint."""
 
-        kwargs.setdefault("use_ssl", uri.startswith("wss"))
+        inst = cls(await websocket_connect(uri, **kwargs), markdown=markdown)
 
-        protocol = await getattr(websockets, "connect")(
-            uri, **handle_possible_ssl(**kwargs)
-        )
-        return cls(protocol, markdown=markdown)
+        # Stored for connection restart capability.
+        inst._uri = uri
+        inst._conn_kwargs = {**kwargs}
+
+        return inst
+
+    async def restart(self) -> bool:
+        """
+        Reset necessary underlying state for this connection to 'process'
+        again.
+        """
+
+        result = False
+
+        if self._uri:
+            with _suppress(TimeoutError, OSError):
+                self.protocol = await websocket_connect(
+                    self._uri, **self._conn_kwargs
+                )
+                result = True
+
+        return result
 
     @classmethod
     @_asynccontextmanager
@@ -118,7 +151,13 @@ class WebsocketConnection(Connection):
         async with getattr(websockets, "connect")(
             uri, **handle_possible_ssl(**kwargs)
         ) as protocol:
-            yield cls(protocol, markdown=markdown)
+            inst = cls(protocol, markdown=markdown)
+
+            # Stored for connection restart capability.
+            inst._uri = uri
+            inst._conn_kwargs = {**kwargs}
+
+            yield inst
 
     @classmethod
     def server_handler(

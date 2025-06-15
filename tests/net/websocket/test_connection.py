@@ -34,13 +34,22 @@ async def test_websocket_server_basic():
     ) as server:
         host = list(server.sockets)[0].getsockname()
 
-        for _ in range(5):
+        for _ in range(3):
             async with SampleWebsocketConnection.client(
                 f"ws://localhost:{host[1]}"
             ) as client:
                 # Confirm that we receive two messages.
                 await client.protocol.send(await client.protocol.recv())
                 await client.protocol.send(await client.protocol.recv())
+
+                # Run the connection for a bit.
+                await client.process(disable_time=0.1)
+
+                # Run the connection again (triggering a restart).
+                await client.process(disable_time=0.1)
+
+                # Confirm the connection did restart.
+                assert client.env.value("restarts") == 1
 
 
 @mark.asyncio

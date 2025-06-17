@@ -200,7 +200,6 @@ def centered_markdown(
         "d-flex",
         "flex-row",
         "justify-content-between",
-        "bg-gradient-tertiary-top-bottom",
         *container_classes,
     )
 

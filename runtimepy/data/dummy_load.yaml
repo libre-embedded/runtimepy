@@ -75,7 +75,7 @@ structs:
 
         Should be shown for peer process as well?
 
-  - name: struct2
+  - name: example.struct2
     factory: sample_struct
     config:
       markdown: |
@@ -83,7 +83,7 @@ structs:
 
         One of the structs of all time.
 
-  - name: struct3
+  - name: example.struct3
     factory: sample_struct
 
 # Sample peer processes.

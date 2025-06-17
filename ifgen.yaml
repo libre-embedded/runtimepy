@@ -1,0 +1,9 @@
+---
+includes:
+  - config/python/ifgen/settings.yaml
+  - config/python/ifgen/sample.yaml
+  - package://ifgen/plugins/struct_receiver.yaml
+
+cpp_dir: []
+python_dir: [tests]
+namespace: [tests]

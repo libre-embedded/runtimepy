@@ -33,6 +33,7 @@ def sample_int_enum(
             "nine": 9,
             "ten": 10,
         },
+        default="three",
     )
 
 

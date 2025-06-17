@@ -97,11 +97,7 @@ class WebsocketConnection(Connection):
 
     async def _send_binay_message(self, data: BinaryMessage) -> None:
         """Send a binary message."""
-        await self._handle_connection_closed(
-            self.protocol.send(
-                data,  # type: ignore
-            )
-        )
+        await self._handle_connection_closed(self.protocol.send(data))
         self.metrics.tx.increment(len(data))
 
     async def close(self) -> None:

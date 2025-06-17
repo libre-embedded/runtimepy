@@ -184,6 +184,7 @@ class CreateChannelEnvironment(_BaseChannelEnvironment):
         items: _EnumMappingData = None,
         namespace: _Namespace = None,
         primitive: str = DEFAULT_ENUM_PRIMITIVE,
+        **kwargs,
     ) -> _RuntimeEnum:
         """Create a new enum from the environment."""
 
@@ -192,6 +193,7 @@ class CreateChannelEnvironment(_BaseChannelEnvironment):
             kind=kind,
             items=items,
             primitive=primitive,
+            **kwargs,
         )
         assert result is not None, f"Can't create enum '{name}'!"
         return result

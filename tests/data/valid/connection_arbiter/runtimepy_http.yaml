@@ -4,6 +4,7 @@ includes_left:
 includes:
   - test_ssl.yaml
   - landing_page.yaml
+  - ../../../generated/custom/struct_receiver.yaml
 
 app:
   - tests.net.stream.runtimepy_http_test

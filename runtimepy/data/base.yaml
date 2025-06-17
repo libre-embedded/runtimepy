@@ -9,6 +9,9 @@ config:
   # Default redirects.
   http_redirects:
     "/": "/index.html"
+
+    # wait for #326
+    # "/index.html": "/mux.html"
     "/index.html": "/app.html"
 
   # Serve these applications by default at these paths.

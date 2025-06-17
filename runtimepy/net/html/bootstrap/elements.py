@@ -4,7 +4,6 @@ A module for creating various bootstrap-related elements.
 
 # built-in
 from io import StringIO
-from typing import Optional
 
 # third-party
 from svgen.element import Element
@@ -15,7 +14,7 @@ from vcorelib.io.file_writer import IndentedFileWriter
 from runtimepy.net.html.bootstrap import icon_str
 
 TEXT = "font-monospace"
-BOOTSTRAP_BUTTON = f"rounded-0 {TEXT} button-bodge text-nowrap"
+BOOTSTRAP_BUTTON = f"rounded-0 {TEXT} text-start text-nowrap"
 
 
 def flex(kind: str = "row", **kwargs) -> Element:
@@ -26,21 +25,28 @@ def flex(kind: str = "row", **kwargs) -> Element:
     return container
 
 
-def set_tooltip(element: Element, data: str, placement: str = "right") -> None:
+DEFAULT_PLACEMENT = "right"
+
+
+def set_tooltip(
+    element: Element, data: str, placement: str = DEFAULT_PLACEMENT
+) -> None:
     """Set a tooltip on an element."""
 
     element["data-bs-title"] = data
     element["data-bs-placement"] = placement
-
-    # Should we use another mechanism for this?
-    element["class"] += " has-tooltip"
+    element.add_class("has-tooltip")
 
 
 BUTTON_COLOR = "secondary"
 
 
 def bootstrap_button(
-    text: str, tooltip: str = None, color: str = BUTTON_COLOR, **kwargs
+    text: str,
+    tooltip: str = None,
+    color: str = BUTTON_COLOR,
+    placement: str = DEFAULT_PLACEMENT,
+    **kwargs,
 ) -> Element:
     """Create a bootstrap button."""
 
@@ -52,7 +58,7 @@ def bootstrap_button(
         class_str=f"btn btn-{color} " + BOOTSTRAP_BUTTON,
     )
     if tooltip:
-        set_tooltip(button, tooltip)
+        set_tooltip(button, tooltip, placement=placement)
     return button
 
 
@@ -66,8 +72,9 @@ def collapse_button(
     """Create a collapse button."""
 
     collapse = bootstrap_button(icon_str(icon), tooltip=tooltip, **kwargs)
-    collapse["data-bs-toggle"] = toggle
-    collapse["data-bs-target"] = target
+    if target:
+        collapse["data-bs-toggle"] = toggle
+        collapse["data-bs-target"] = target
 
     return collapse
 
@@ -75,14 +82,18 @@ def collapse_button(
 def toggle_button(
     parent: Element,
     icon: str = "toggles",
-    title: Optional[str] = "toggle value",
+    title: str = None,
     icon_classes: list[str] = None,
     tooltip: str = None,
+    placement: str = "top",
     **kwargs,
 ) -> Element:
     """Add a boolean-toggle button."""
 
-    if title and not tooltip:
+    # if title and not tooltip:
+    if not title and tooltip:
+        kwargs["title"] = "see tooltip"
+    elif title:
         kwargs["title"] = title
 
     button = div(
@@ -90,31 +101,36 @@ def toggle_button(
         type="button",
         text=icon_str(icon, classes=icon_classes),
         parent=parent,
-        class_str="btn " + BOOTSTRAP_BUTTON,
+        class_str=f"btn {BOOTSTRAP_BUTTON}",
         **kwargs,
     )
     if tooltip:
-        set_tooltip(button, tooltip)
+        set_tooltip(button, tooltip, placement=placement)
 
     return button
 
 
 def input_box(
     parent: Element,
-    label: str = "filter",
+    label: str = "",
     pattern: str = ".*",
     description: str = None,
+    placement: str = "top",
+    icon: str = "",
     **kwargs,
-) -> None:
+) -> tuple[Element, Element, Element]:
     """Create command input box."""
 
     container = div(parent=parent, class_str="input-group")
 
-    label_elem = div(tag="span", parent=container, text=label)
+    label_elem = div(tag="span", parent=container)
     label_elem.add_class("input-group-text", "rounded-0", TEXT)
 
     if description:
-        set_tooltip(label_elem, description)
+        set_tooltip(label_elem, description, placement=placement)
+
+    if icon:
+        div(text=icon_str(icon), parent=label_elem)
 
     box = div(
         tag="input",
@@ -126,6 +142,8 @@ def input_box(
         **kwargs,
     )
     box.add_class("form-control", "rounded-0", TEXT)
+
+    return container, label_elem, box
 
 
 def slider(
@@ -180,17 +198,19 @@ def centered_markdown(
     container.add_class(
         "flex-grow-1",
         "d-flex",
-        "flex-column",
+        "flex-row",
         "justify-content-between",
         *container_classes,
     )
 
-    div(parent=container)
+    div(parent=container, class_str="flex-grow-1")
 
     horiz_container = div(parent=container)
-    horiz_container.add_class("d-flex", "flex-row", "justify-content-between")
+    horiz_container.add_class(
+        "d-flex", "flex-column", "justify-content-between"
+    )
 
-    div(parent=horiz_container)
+    div(parent=horiz_container, class_str="flex-grow-1")
 
     with StringIO() as stream:
         writer = IndentedFileWriter(stream)
@@ -216,8 +236,8 @@ def centered_markdown(
             preformatted=True,
         )
 
-    div(parent=horiz_container)
+    div(parent=horiz_container, class_str="flex-grow-1")
 
-    div(parent=container)
+    div(parent=container, class_str="flex-grow-1")
 
     return container

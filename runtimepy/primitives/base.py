@@ -13,6 +13,7 @@ from typing import Iterator as _Iterator
 from typing import TypeVar as _TypeVar
 
 # third-party
+from vcorelib.io import BinaryMessage
 from vcorelib.math import default_time_ns, nano_str
 from vcorelib.math.keeper import TimeSource
 
@@ -243,7 +244,7 @@ class Primitive(_Generic[T]):
         stream.write(self.binary(byte_order=byte_order))
         return self.kind.size
 
-    def update(self, data: bytes, byte_order: _ByteOrder = None) -> T:
+    def update(self, data: BinaryMessage, byte_order: _ByteOrder = None) -> T:
         """Update this primitive from a bytes object."""
 
         if byte_order is None:
@@ -269,7 +270,7 @@ class Primitive(_Generic[T]):
         return cls.kind.encode(value, byte_order=byte_order)
 
     @classmethod
-    def decode(cls, data: bytes, byte_order: _ByteOrder = None) -> T:
+    def decode(cls, data: BinaryMessage, byte_order: _ByteOrder = None) -> T:
         """Decode a primitive of this type from provided data."""
 
         if byte_order is None:

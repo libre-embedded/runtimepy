@@ -14,6 +14,7 @@ from runtimepy.channel.environment.command.processor import (
     ChannelCommandProcessor,
 )
 from runtimepy.enum import RuntimeEnum
+from runtimepy.net.html.bootstrap import icon_str
 from runtimepy.net.html.bootstrap.elements import (
     flex,
     input_box,
@@ -25,7 +26,9 @@ from runtimepy.net.html.bootstrap.elements import (
 def plot_checkbox(parent: Element, name: str) -> None:
     """Add a checkbox for individual channel plot status."""
 
-    container = div(tag="td", parent=parent, class_str="text-center p-0")
+    container = div(tag="td", parent=parent, class_str="text-center p-0 fs-5")
+
+    title = f"Enable plotting channel '{name}'."
 
     set_tooltip(
         div(
@@ -34,10 +37,11 @@ def plot_checkbox(parent: Element, name: str) -> None:
             value="",
             id=f"plot-{name}",
             allow_no_end_tag=True,
-            parent=container,
-            class_str="form-check-input",
+            parent=div(tag="label", parent=container),
+            class_str="form-check-input rounded-0",
+            title=title,
         ),
-        f"Enable plotting channel '{name}'.",
+        title,
         placement="left",
     )
 
@@ -45,7 +49,10 @@ def plot_checkbox(parent: Element, name: str) -> None:
 def select_element(**kwargs) -> Element:
     """Create a select element."""
 
-    select = div(tag="select", class_str="form-select m-1", **kwargs)
+    select = div(tag="select", **kwargs)
+    select.add_class(
+        "form-select", "rounded-0", "border-top-0", "border-bottom-0"
+    )
     if "title" in kwargs:
         select["aria-label"] = kwargs["title"]
     return select
@@ -53,7 +60,7 @@ def select_element(**kwargs) -> Element:
 
 def enum_dropdown(
     parent: Element, name: str, enum: RuntimeEnum, current: int | bool
-) -> None:
+) -> Element:
     """Implement a drop down for enumeration options."""
 
     select = select_element(
@@ -67,8 +74,10 @@ def enum_dropdown(
         if current == val:
             opt.booleans.add("selected")
 
+    return select
 
-TABLE_BUTTON_CLASSES = ("p-1", "pt-2")
+
+TABLE_BUTTON_CLASSES = ("border-top-0", "border-bottom-0")
 
 
 def channel_table_header(
@@ -78,73 +87,45 @@ def channel_table_header(
 
     env = command.env
 
-    # Add header.
-    header_row = div(
-        tag="tr", parent=parent, class_str="border-start border-end"
-    )
-    for heading, desc in [
-        ("plot", "Toggle plotting for channels."),
-        ("name", "Channel names."),
-        ("value", "Channel values."),
-        ("ctl", "Type-specific channel controls."),
-        ("type", "Channel types."),
-    ]:
-        set_tooltip(
-            div(
-                tag="th",
-                scope="col",
-                parent=header_row,
-                text=heading,
-                class_str="text-secondary p-1",
-            ),
-            desc,
-            placement="left",
-        )
-
     # Add some controls.
-    ctl_row = div(tag="tr", parent=parent, class_str="border-start border-end")
+    ctl_row = div(
+        tag="tr",
+        parent=parent,
+        class_str="bg-body-tertiary border-start border-end",
+    )
 
     # Button for clearing plotted channels.
     toggle_button(
         div(tag="th", parent=ctl_row, class_str="text-center p-0"),
         tooltip="Clear plotted channels.",
         icon="x-lg",
+        placement="left",
         id="clear-plotted-channels",
         title="button for clearing plotted channels",
-    ).add_class("pb-2")
+    ).add_class(*TABLE_BUTTON_CLASSES)
 
-    input_box(
-        div(tag="th", parent=ctl_row, class_str="p-0 pb-1"),
+    _, label, box = input_box(
+        div(tag="th", parent=ctl_row, colspan="2", class_str="p-0"),
         description="Channel name filter.",
+        pattern=".* ! @ $",
+        label="filter",
         id="channel-filter",
+        icon="funnel",
+        spellcheck="false",
     )
+    label.add_class("border-top-0", "border-bottom-0")
+    box.add_class("border-top-0", "border-bottom-0")
 
-    # Button for clearing plot points.
-    toggle_button(
-        div(tag="th", parent=ctl_row, class_str="p-0"),
-        icon="trash",
-        tooltip="Clear all plot points.",
-        id="clear-plotted-points",
-        title="button for clearing plot point data",
-    ).add_class("pb-2")
-
-    cell = flex(tag="th", parent=ctl_row)
-    cell.add_class("p-0")
-
-    # Button for 'reset all defaults' if this tab has more than one channel
-    # with a default value.
-    if env.num_defaults > 1:
-        toggle_button(
-            cell,
-            id="set-defaults",
-            icon="arrow-counterclockwise",
-            tooltip="Reset all channels to their default values.",
-        ).add_class(*TABLE_BUTTON_CLASSES)
+    cell = flex(
+        parent=div(tag="th", parent=ctl_row, colspan="2", class_str="p-0")
+    )
 
     # Add a selection menu for custom commands.
     select = select_element(
         parent=cell, id="custom-commands", title="Custom command selector."
     )
+    select.add_class("border-start-0")
+
     if command.custom_commands:
         for key in command.custom_commands:
             opt = div(tag="option", value=key, text=key, parent=select)
@@ -156,7 +137,8 @@ def channel_table_header(
             cell,
             icon="send",
             id="send-custom-commands",
-            title="Send selected command.",
+            title="send selected command button",
+            tooltip="Send selected command (left dropdown).",
         ).add_class(*TABLE_BUTTON_CLASSES)
     else:
         div(
@@ -167,8 +149,79 @@ def channel_table_header(
         )
         select.booleans.add("disabled")
 
-    # Empty for now.
-    div(tag="th", parent=ctl_row, class_str="p-0")
+    # Button for 'reset all defaults' if this tab has more than one channel
+    # with a default value.
+    if env.num_defaults > 1:
+        toggle_button(
+            cell,
+            id="set-defaults",
+            icon="arrow-counterclockwise",
+            tooltip="Reset all channels to their default values.",
+        ).add_class(*TABLE_BUTTON_CLASSES)
+
+    toggle_button(
+        cell,
+        icon="eye-slash",
+        tooltip="Toggle command channels.",
+        id="toggle-command-channels",
+        title="button for toggling command-channel visibility",
+        icon_classes=["text-info-emphasis"],
+    ).add_class(*TABLE_BUTTON_CLASSES)
+    toggle_button(
+        cell,
+        icon="eye-slash-fill",
+        tooltip="Toggle regular channels.",
+        id="toggle-regular-channels",
+        title="button for toggling regular-channel visibility",
+    ).add_class(*TABLE_BUTTON_CLASSES)
+    toggle_button(
+        cell,
+        icon="trash",
+        tooltip="Clear all plot points.",
+        id="clear-plotted-points",
+        title="button for clearing plot point data",
+    ).add_class("me-auto", *TABLE_BUTTON_CLASSES)
+
+    # Add header.
+    header_row = div(
+        tag="tr",
+        parent=parent,
+        class_str="border-end text-center bg-body-tertiary",
+    )
+    icon_classes = ["text-primary-emphasis"]
+    for heading, desc in [
+        (
+            icon_str("activity", classes=icon_classes) + "?",
+            "Toggle plotting for channels.",
+        ),
+        (
+            icon_str("pen", classes=icon_classes) + " name",
+            "Channel names.",
+        ),
+        (
+            icon_str("database", classes=icon_classes) + " value",
+            "Channel values.",
+        ),
+        (
+            icon_str("controller", classes=icon_classes) + " controls",
+            "Type-specific channel controls.",
+        ),
+        (
+            icon_str("braces", classes=icon_classes) + " type",
+            "Channel types.",
+        ),
+    ]:
+        set_tooltip(
+            div(
+                tag="th",
+                scope="col",
+                parent=header_row,
+                text=heading,
+                class_str="text-secondary p-1 border-start text-nowrap",
+            ),
+            "(column) " + desc,
+            placement="left",
+        )
 
 
 def value_input_box(name: str, parent: Element) -> Element:
@@ -186,15 +239,16 @@ def value_input_box(name: str, parent: Element) -> Element:
         "rounded-0",
         "font-monospace",
         "form-control",
-        "m-1",
         "p-0",
-        "ps-1",
+        "ps-2",
+        "border-0",
+        "text-secondary-emphasis",
     )
     toggle_button(
         input_container,
         icon="send",
         id=name,
         title=f"Send command value for '{name}'.",
-    ).add_class(*TABLE_BUTTON_CLASSES)
+    ).add_class("pt-0", "pb-0", *TABLE_BUTTON_CLASSES)
 
     return input_container

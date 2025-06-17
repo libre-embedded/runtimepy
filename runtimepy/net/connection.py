@@ -13,6 +13,7 @@ from typing import Union as _Union
 
 # third-party
 from vcorelib.asyncio import log_exceptions as _log_exceptions
+from vcorelib.io import BinaryMessage
 from vcorelib.io.markdown import MarkdownMixin
 from vcorelib.logging import LoggerType as _LoggerType
 
@@ -28,8 +29,6 @@ from runtimepy.mixins.logging import LoggerMixinLevelControl
 from runtimepy.net.backoff import ExponentialBackoff
 from runtimepy.primitives import Bool, Uint8
 from runtimepy.primitives.byte_order import DEFAULT_BYTE_ORDER, ByteOrder
-
-BinaryMessage = _Union[bytes, bytearray, memoryview]
 
 
 class Connection(
@@ -142,7 +141,7 @@ class Connection(
         """Process a text frame."""
         raise NotImplementedError
 
-    async def process_binary(self, data: bytes) -> bool:
+    async def process_binary(self, data: BinaryMessage) -> bool:
         """Process a binary frame."""
         raise NotImplementedError
 
@@ -391,7 +390,7 @@ class EchoConnection(Connection):
         self.send_text(data)
         return True
 
-    async def process_binary(self, data: bytes) -> bool:
+    async def process_binary(self, data: BinaryMessage) -> bool:
         """Process a binary frame."""
         self.send_binary(data)
         return True
@@ -404,6 +403,6 @@ class NullConnection(Connection):
         """Process a text frame."""
         return True
 
-    async def process_binary(self, data: bytes) -> bool:
+    async def process_binary(self, data: BinaryMessage) -> bool:
         """Process a binary frame."""
         return True

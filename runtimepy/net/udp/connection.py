@@ -12,9 +12,11 @@ from typing import Any as _Any
 from typing import Optional as _Optional
 from typing import TypeVar as _TypeVar
 
+# third-party
+from vcorelib.io import BinaryMessage
+
 # internal
 from runtimepy.net import IpHost, get_free_socket, normalize_host
-from runtimepy.net.connection import BinaryMessage as _BinaryMessage
 from runtimepy.net.connection import Connection as _Connection
 from runtimepy.net.connection import EchoConnection as _EchoConnection
 from runtimepy.net.connection import NullConnection as _NullConnection
@@ -86,11 +88,13 @@ class UdpConnection(_Connection, _TransportMixin):
 
     @_abstractmethod
     async def process_datagram(
-        self, data: bytes, addr: tuple[str, int]
+        self, data: BinaryMessage, addr: tuple[str, int]
     ) -> bool:
         """Process a datagram."""
 
-    def sendto(self, data: bytes, addr: IpHostTuplelike = None) -> None:
+    def sendto(
+        self, data: BinaryMessage, addr: IpHostTuplelike = None
+    ) -> None:
         """Send to a specific address."""
 
         try:
@@ -108,7 +112,7 @@ class UdpConnection(_Connection, _TransportMixin):
         """Enqueue a text message to send."""
         self.sendto(data.encode(), addr=self.remote_address)
 
-    def send_binary(self, data: _BinaryMessage) -> None:
+    def send_binary(self, data: BinaryMessage) -> None:
         """Enqueue a binary message to send."""
         self.sendto(data, addr=self.remote_address)
 
@@ -216,7 +220,7 @@ class EchoUdpConnection(UdpConnection, _EchoConnection):
     """An echo connection for UDP."""
 
     async def process_datagram(
-        self, data: bytes, addr: tuple[str, int]
+        self, data: BinaryMessage, addr: tuple[str, int]
     ) -> bool:
         """Process a datagram."""
 
@@ -228,7 +232,7 @@ class NullUdpConnection(UdpConnection, _NullConnection):
     """A null UDP connection."""
 
     async def process_datagram(
-        self, data: bytes, addr: tuple[str, int]
+        self, data: BinaryMessage, addr: tuple[str, int]
     ) -> bool:
         """Process a datagram."""
         return True

@@ -51,11 +51,11 @@ async def test_primitive_scaling():
     assert await prim.wait_for_value(5.0, 0.0)
 
     int_prim = Int32(scaling=[2.0, 3.0])
-    int_prim.scaled = -1.0
+    int_prim.scaled = -1
     assert isclose(int_prim.scaled, -1)
 
     int_prim = Int32()
-    int_prim.scaled = -2.0
+    int_prim.scaled = -2
     assert isclose(int_prim.scaled, -2)
 
 

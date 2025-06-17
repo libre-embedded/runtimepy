@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import BinaryIO, Callable
 
 # third-party
+from vcorelib.io import BinaryMessage
 from vcorelib.math import metrics_time_ns
 
 # internal
@@ -353,7 +354,7 @@ class BaseTftpConnection(UdpConnection):
         self.endpoint(addr).handle_error(error_code, message)
 
     async def process_datagram(
-        self, data: bytes, addr: tuple[str, int]
+        self, data: BinaryMessage, addr: tuple[str, int]
     ) -> bool:
         """Process a datagram."""
 

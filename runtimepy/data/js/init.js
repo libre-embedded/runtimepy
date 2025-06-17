@@ -40,11 +40,28 @@ function setupCursorMove(elem, down, move, up, handleMove) {
       document.removeEventListener(move, handleMove);
       elem.classList.remove("moving");
     }, {once : true});
-  });
+  }, {passive : true});
 }
 
 function randomHexColor() {
   return "#" + (Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, "0");
+}
+
+function isModifierKeyEvent(event) {
+  return event.key == "Shift" || event.key == "Control" ||
+         event.key == "Meta" || event.key == "Alt";
+}
+
+function ignoreFilterKeyEvent(event) {
+  // home end pg up pg down delete f keys
+  return isModifierKeyEvent(event) || event.key == "Tab";
+}
+
+function globalKeyEvent(event) {
+  // (common)
+  // keybind for dedent (ctrl-d?) + expand (ctrl-e?)
+  // toggle tabs + toggle channel table
+  return false;
 }
 
 /* Load settings control mappings. */

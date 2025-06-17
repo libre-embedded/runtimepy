@@ -10,6 +10,7 @@ from typing import BinaryIO as _BinaryIO
 
 # third-party
 from vcorelib import DEFAULT_ENCODING
+from vcorelib.io import BinaryMessage
 
 # internal
 from runtimepy.net.tcp.connection import TcpConnection as _TcpConnection
@@ -65,7 +66,7 @@ class Telnet(_TcpConnection):
     ) -> None:
         """Process a telnet option."""
 
-    async def process_binary(self, data: bytes) -> bool:
+    async def process_binary(self, data: BinaryMessage) -> bool:
         """Process a binary frame."""
 
         result = True

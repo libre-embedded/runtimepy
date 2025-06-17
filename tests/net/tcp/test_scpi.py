@@ -7,6 +7,7 @@ import asyncio
 
 # third-party
 from pytest import mark
+from vcorelib.io import BinaryMessage
 
 # module under test
 from runtimepy.net.tcp import TcpConnection
@@ -16,9 +17,9 @@ from runtimepy.net.tcp.scpi import ScpiConnection
 class MockScpiConnection(TcpConnection):
     """A sample connection class."""
 
-    async def process_binary(self, data: bytes) -> bool:
+    async def process_binary(self, data: BinaryMessage) -> bool:
         """Process a binary frame."""
-        return await self.process_text(data.decode())
+        return await self.process_text(bytes(data).decode())
 
     async def process_text(self, data: str) -> bool:
         """Process a text frame."""

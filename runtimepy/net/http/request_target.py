@@ -4,9 +4,9 @@ A module implementing a simple request-target (3.2) interface.
 
 # built-in
 import http
-from typing import Optional, Tuple
+from typing import Optional
 
-PathMaybeQuery = Tuple[str, Optional[str]]
+PathMaybeQuery = tuple[str, Optional[str]]
 
 
 class RequestTarget:
@@ -20,7 +20,7 @@ class RequestTarget:
         self.raw = request_target_raw
 
         # Host and port.
-        self.authority_form: Optional[Tuple[str, int]] = None
+        self.authority_form: Optional[tuple[str, int]] = None
 
         # Path and optional query.
         self.origin_form: Optional[PathMaybeQuery] = None

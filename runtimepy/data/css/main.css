@@ -1,6 +1,8 @@
 html {
   height: 100%;
+  max-height: 100%;
   width: 100%;
+  max-width: 100%;
   position: fixed;
 }
 
@@ -12,10 +14,6 @@ body {
 
 /* This is the application container. */
 body > :first-child {
-  height: 100%;
-}
-
-#runtimepy {
   height: 100%;
 }
 
@@ -46,12 +44,33 @@ body > :first-child {
 
 .toggle-value {
   /* placeholder */
+  background-color: var(--bs-body-bg);
 }
 
 .window-button {
   border-right: var(--bs-border-width) var(--bs-border-style) var(--bs-link-hover-color) !important;
 }
 
+.logo-outline-background {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: auto 66.67%;
+}
+[data-bs-theme=dark] .logo-outline-background {
+  background-image: url(/static/svg/outline-dark.svg);
+}
+[data-bs-theme=light] .logo-outline-background {
+  background-image: url(/static/svg/outline-light.svg);
+}
+
 :focus {
   outline: none;
+}
+
+.overscroll-behavior-x-none {
+  overscroll-behavior-x: none;
+}
+
+.overscroll-behavior-none {
+  overscroll-behavior: none;
 }

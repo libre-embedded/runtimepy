@@ -28,6 +28,8 @@ class TabInterface {
     this.time = 0;
     this.channelTimestamps = {};
     this.channelColorButtons = {};
+    this.commandShown = true;
+    this.regularShown = true;
 
     let table = this.query("tbody");
     if (table) {
@@ -46,6 +48,9 @@ class TabInterface {
 
         /* Audit vertical bar position. */
         this.correctVerticalBarPosition();
+
+        /* Focus channel filter if it exists. */
+        this.focus();
       }
       this.worker.send({kind : msg});
     } ];
@@ -59,6 +64,12 @@ class TabInterface {
     window.addEventListener(
         "resize",
         ((event) => { this.correctVerticalBarPosition(); }).bind(this));
+  }
+
+  focus() {
+    if (this.channelFilter) {
+      this.channelFilter.focus();
+    }
   }
 
   initCommand() {
@@ -82,15 +93,41 @@ class TabInterface {
   }
 
   updateChannelStyles(pattern) {
+    pattern = pattern.trim();
     hash.handleChannelFilter(this.name, pattern);
 
-    if (!pattern) {
-      pattern = ".*";
+    let parts = pattern.split(/(\s+)/).filter((x) => x.trim().length > 0);
+
+    let showRegular = this.regularShown;
+    let special = "!";
+    if (parts.includes(special)) {
+      showRegular = false;
+      parts = parts.filter(e => e != special);
     }
-    const re = new RegExp(pattern);
+    let showCommand = this.commandShown;
+    special = "@";
+    if (parts.includes(special)) {
+      showCommand = false;
+      parts = parts.filter(e => e != special);
+    }
+
+    if (!parts.length) {
+      parts.push(".*");
+    }
 
     for (let [name, elem] of Object.entries(this.channelRows)) {
-      if (re.test(name)) {
+      let found = false;
+      if ((showRegular && elem.classList.contains("channel-regular")) ||
+          (showCommand && elem.classList.contains("channel-commandable"))) {
+        for (const re of parts.map((x) => new RegExp(x))) {
+          if (re.test(name)) {
+            found = true;
+            break;
+          }
+        }
+      }
+
+      if (found) {
         elem.style.display = "table-row";
       } else {
         elem.style.display = "none";
@@ -99,19 +136,34 @@ class TabInterface {
   }
 
   channelKeydown(event) {
+    // ctrl-h - go to tabs (open if necessary)
+
+    if (globalKeyEvent(event) || ignoreFilterKeyEvent(event)) {
+      return;
+    }
+
+    let curr = this.channelFilter.value;
+
+    // new feature: make '$' toggle the state of all telemetry channels visible
+    // if any are already selected, enable all, if they're all already enabled
+    // disable them
     if (event.key == "Enter") {
-      this.channelFilter.value = "";
-      this.updateChannelStyles(this.channelFilter.value);
+      curr = "";
     } else {
-      let curr = this.channelFilter.value;
       if (event.key == "Backspace") {
         curr = curr.slice(0, -1);
       } else {
         curr += event.key;
       }
-
-      this.updateChannelStyles(curr);
     }
+
+    if (!curr) {
+      this.channelFilter.value = curr;
+    }
+
+    this.updateChannelStyles(curr);
+
+    this.focus();
   }
 
   initControls() {
@@ -175,6 +227,42 @@ class TabInterface {
     if (selector && send) {
       send.onclick = () => { this.worker.command(`custom ${selector.value}`); };
     }
+
+    /* Initialize commandable/regular channel visibility toggle. */
+    let commandToggle = this.query("#toggle-command-channels");
+    if (commandToggle) {
+      commandToggle.onclick = () => {
+        this.commandShown = !this.commandShown;
+        let classes = commandToggle.children[0].classList;
+        if (this.commandShown) {
+          classes.toggle("bi-eye-slash");
+          classes.toggle("bi-eye");
+          classes.toggle("stale");
+        } else {
+          classes.toggle("bi-eye");
+          classes.toggle("bi-eye-slash");
+          classes.toggle("stale");
+        }
+        this.updateChannelStyles(this.channelFilter.value);
+      };
+    }
+    let regularToggle = this.query("#toggle-regular-channels");
+    if (regularToggle) {
+      regularToggle.onclick = () => {
+        this.regularShown = !this.regularShown;
+        let classes = regularToggle.children[0].classList;
+        if (this.regularShown) {
+          classes.toggle("bi-eye-slash-fill");
+          classes.toggle("bi-eye-fill");
+          classes.toggle("stale");
+        } else {
+          classes.toggle("bi-eye-slash-fill");
+          classes.toggle("bi-eye-fill");
+          classes.toggle("stale");
+        }
+        this.updateChannelStyles(this.channelFilter.value);
+      };
+    }
   }
 
   setHandler(elem) {
@@ -217,14 +305,14 @@ class TabInterface {
       document.addEventListener(
           up, (event) => { document.removeEventListener(move, handleMouse); },
           {once : true});
-    });
+    }, {passive : true});
   }
 
   setupVerticalDivider(elem) {
     setupCursorContext(elem, this.setupVerticalDividerEvents.bind(this));
   }
 
-  correctVerticalBarPosition(elem) {
+  correctVerticalBarPosition() {
     if (shown_tab == this.name && this.divider) {
       let margin =
           window.innerWidth - this.divider.getBoundingClientRect().right;
@@ -331,6 +419,13 @@ class TabInterface {
   log(message) {
     if (this.logs) {
       this.logs.value += message + "\n";
+
+      const max_length = 4096;
+      if (this.logs.value.length > max_length) {
+        this.logs.value =
+            this.logs.value.substr(this.logs.value.length - max_length);
+      }
+
       if (this.isShown()) {
         this.logs.scrollTo(0, this.logs.scrollHeight);
       }
@@ -384,7 +479,7 @@ class TabInterface {
           this.clearPlotPoints();
           break;
         default:
-          console.log(`Action '${action}' not hangled!`);
+          console.log(`Action '${action}' not handled!`);
           break;
         }
       }

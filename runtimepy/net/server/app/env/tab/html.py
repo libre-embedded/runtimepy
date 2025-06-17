@@ -36,10 +36,18 @@ def channel_color_button(parent: Element, name: str) -> Element:
         parent,
         id=f"{name}-line-color",
         icon="activity",
-        icon_classes=["fs-5"],
+        icon_classes=["border-0", "fs-5"],
         tooltip=f"Change line color for '{name}'.",
     )
-    button.add_class("d-none", "p-1")
+    button.add_class(
+        "d-none",
+        "p-0",
+        "ps-2",
+        "pe-2",
+        "border-top-0",
+        "border-bottom-0",
+        "border-primary-subtle",
+    )
 
     return button
 
@@ -79,7 +87,7 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
 
         div(
             tag="td",
-            class_str="channel-value p-0",
+            class_str="channel-value p-0 pe-2",
             parent=parent,
             title=f"Current value of '{name}'.",
         )
@@ -102,7 +110,7 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
 
         # Add boolean/bit toggle button.
         is_bit = field.width == 1
-        kind_str = f"{'bit' if is_bit else 'bits'} {field.where_str()}"
+        kind_str = f"{'bit&nbsp;' if is_bit else 'bits'} {field.where_str()}"
 
         name_td = create_name_td(parent)
 
@@ -119,7 +127,7 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
 
         div(
             tag="td",
-            class_str="channel-value p-0",
+            class_str="channel-value p-0 pe-2",
             parent=parent,
             title=f"Current value of '{name}'.",
         )
@@ -131,16 +139,26 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
             text=kind_str,
             parent=parent,
             title=f"Field position for '{name}' within underlying primitive.",
-            class_str="text-info-emphasis text-nowrap p-0 ps-1 pe-1",
+            class_str="text-code text-nowrap p-0 ps-2 pe-1",
         )
 
     def channel_table(self, parent: Element) -> None:
         """Create the channel table."""
 
         table = div(
-            tag="table", parent=div(parent=parent, class_str="table-container")
+            tag="table",
+            parent=div(parent=parent).add_class(
+                "flex-shrink-0",
+                "overflow-x-scroll",
+                "overscroll-behavior-x-none",
+            ),
         )
-        table.add_class("table", TEXT)
+        table.add_class(
+            "table",
+            "table-hover",
+            "mb-0",
+            TEXT,
+        )
 
         header = div(tag="thead", parent=table)
         body = div(tag="tbody", parent=table)
@@ -151,11 +169,8 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
         # Table for channels.
         env = self.command.env
         for name in env.names:
-            row = div(
-                tag="tr",
-                parent=body,
-                id=name,
-                class_str="channel-row border-start border-end",
+            row = div(tag="tr", parent=body, id=name).add_class(
+                "channel-row", "border-start", "border-end"
             )
 
             plot_checkbox(row, name)
@@ -187,9 +202,12 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
     def _compose_plot(self, parent: Element) -> None:
         """Compose plot elements."""
 
-        plot_container = div(
-            parent=parent,
-            class_str="w-100 h-100 border-start position-relative",
+        plot_container = div(parent=parent).add_class(
+            "w-100",
+            "h-100",
+            "border-start",
+            "position-relative",
+            "logo-outline-background",
         )
 
         # Plot.
@@ -227,26 +245,47 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
             parent=container,
             kind="column",
             tag="form",
+            autocomplete="off",
         )
-        vert_container.add_class("channel-column", "collapse", "show")
+        vert_container.add_class(
+            "channel-column",
+            "flex-grow-0",
+            "flex-shrink-0",
+            "collapse",
+            "show",
+            "overflow-y-scroll",
+            "overflow-x-hidden",
+            "overscroll-behavior-none",
+        )
 
-        input_box(
+        _, label, box = input_box(
             vert_container,
-            label="command",
             pattern="help",
             description="Send a string command via this environment.",
+            placement="bottom",
+            label="command",
             id=self.get_id("command"),
+            icon="terminal",
+            spellcheck="false",
         )
+
+        label.add_class("border-top-0")
+        box.add_class("border-top-0")
 
         # Text area.
         logs = div(
             tag="textarea",
             parent=div(parent=vert_container, class_str="form-floating"),
-            class_str=(
-                f"form-control rounded-0 {TEXT} text-body-emphasis text-logs"
-            ),
             id=self.get_id("logs"),
             title=f"Text logs for {self.name}.",
+        )
+        logs.add_class(
+            "form-control",
+            "rounded-0",
+            "text-logs",
+            "border-top-0",
+            "p-2",
+            "overscroll-behavior-none",
         )
         logs.booleans.add("readonly")
 
@@ -258,13 +297,16 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
             "border-start",
             "border-top",
             "border-end",
+            "bg-gradient-tertiary-to-bottom",
         )
 
         # Divider.
-        div(
-            id=self.get_id("divider"),
-            parent=container,
-            class_str="vertical-divider border-start bg-dark-subtle",
+        div(id=self.get_id("divider"), parent=container).add_class(
+            "vertical-divider",
+            "flex-grow-0",
+            "flex-shrink-0",
+            "border-start",
+            "bg-dark-subtle",
         )
 
         self._compose_plot(container)

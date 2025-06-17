@@ -4,10 +4,11 @@ A module aggregating stream-oriented connection interfaces.
 
 # built-in
 from typing import BinaryIO as _BinaryIO
-from typing import Tuple
+
+# third-party
+from vcorelib.io import BinaryMessage
 
 # internal
-from runtimepy.net.connection import BinaryMessage
 from runtimepy.net.stream.base import PrefixedMessageConnection
 from runtimepy.net.stream.string import StringMessageConnection
 from runtimepy.net.tcp.connection import TcpConnection
@@ -34,14 +35,14 @@ class UdpPrefixedMessageConnection(PrefixedMessageConnection, UdpConnection):
     """A UDP implementation for size-prefixed messages."""
 
     async def process_datagram(
-        self, data: bytes, addr: Tuple[str, int]
+        self, data: BinaryMessage, addr: tuple[str, int]
     ) -> bool:
         """Process a datagram."""
 
         return await self.process_binary(data, addr=addr)
 
     def _send_message(
-        self, data: BinaryMessage, addr: Tuple[str, int] = None
+        self, data: BinaryMessage, addr: tuple[str, int] = None
     ) -> None:
         """Underlying data send."""
 
@@ -52,7 +53,7 @@ class EchoMessageConnection(PrefixedMessageConnection):
     """A connection that just echoes what it was sent."""
 
     async def process_single(
-        self, stream: _BinaryIO, addr: Tuple[str, int] = None
+        self, stream: _BinaryIO, addr: tuple[str, int] = None
     ) -> bool:
         """Process a single message."""
 

@@ -3,6 +3,7 @@ A simple name-to-identifier registry interface.
 """
 
 # built-in
+from typing import Any as _Any
 from typing import MutableMapping as _MutableMapping
 from typing import Optional as _Optional
 from typing import Union as _Union
@@ -13,6 +14,11 @@ from runtimepy.mapping import TwoWayNameMapping as _TwoWayNameMapping
 RegistryKey = _Union[str, int]
 KeyToName = _MutableMapping[int, str]
 NameToKey = _MutableMapping[str, int]
+
+
+def is_registry_key(data: _Any) -> bool:
+    """Determine if this data is a registry key."""
+    return isinstance(data, (int, str))
 
 
 class NameRegistry(_TwoWayNameMapping[int]):

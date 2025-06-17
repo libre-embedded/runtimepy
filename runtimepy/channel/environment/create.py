@@ -28,6 +28,7 @@ from runtimepy.enum.types import EnumTypelike as _EnumTypelike
 from runtimepy.mapping import EnumMappingData as _EnumMappingData
 from runtimepy.primitives import ChannelScaling, Primitive
 from runtimepy.primitives import Primitivelike as _Primitivelike
+from runtimepy.primitives.field.fields import BitFields as _BitFields
 from runtimepy.registry.name import RegistryKey as _RegistryKey
 
 
@@ -74,9 +75,21 @@ class CreateChannelEnvironment(_BaseChannelEnvironment):
 
         # Keep track of any new enum channels.
         if enum is not None:
-            self.channel_enums[result] = self.enums[enum]
+            runtime = self.enums[enum]
+            self.channel_enums[result] = runtime
+            if runtime.default:
+                self[name] = runtime.default
 
         return self[name]
+
+    def add_fields(
+        self, name: str, fields: _BitFields, **channel_kwargs
+    ) -> None:
+        """Add bit fields to this channel environment."""
+
+        self.channel(name, kind=fields.raw, **channel_kwargs)
+        with self.names_pushed(name):
+            self.fields.add(fields, namespace=self._namespace, track=True)
 
     def int_channel(
         self,
@@ -171,6 +184,7 @@ class CreateChannelEnvironment(_BaseChannelEnvironment):
         items: _EnumMappingData = None,
         namespace: _Namespace = None,
         primitive: str = DEFAULT_ENUM_PRIMITIVE,
+        **kwargs,
     ) -> _RuntimeEnum:
         """Create a new enum from the environment."""
 
@@ -179,6 +193,7 @@ class CreateChannelEnvironment(_BaseChannelEnvironment):
             kind=kind,
             items=items,
             primitive=primitive,
+            **kwargs,
         )
         assert result is not None, f"Can't create enum '{name}'!"
         return result

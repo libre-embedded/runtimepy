@@ -11,6 +11,7 @@ from typing import TypeVar
 
 # third-party
 from vcorelib import DEFAULT_ENCODING
+from vcorelib.io import BinaryMessage
 
 # internal
 from runtimepy.primitives.byte_order import (
@@ -133,7 +134,7 @@ class Serializable(ABC):
         )
 
     @abstractmethod
-    def update(self, data: bytes, timestamp_ns: int = None) -> int:
+    def update(self, data: BinaryMessage, timestamp_ns: int = None) -> int:
         """Update this serializable from a bytes instance."""
 
     def update_str(self, data: str, timestamp_ns: int = None) -> int:
@@ -158,7 +159,9 @@ class Serializable(ABC):
 
         return result
 
-    def update_chain(self, data: bytes, timestamp_ns: int = None) -> int:
+    def update_chain(
+        self, data: BinaryMessage, timestamp_ns: int = None
+    ) -> int:
         """Update this serializable from a bytes instance."""
 
         with _BytesIO(data) as stream:

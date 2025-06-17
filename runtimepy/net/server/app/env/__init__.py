@@ -109,16 +109,27 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
     # Remove tab-content scrolling.
     tabs.set_scroll(False)
 
-    # Tab name filter.
-    input_box(tabs.tabs, label="tab", description="Tab name filter.")
-
     centered_markdown(
         tabs.tabs,
         app.config_param("top_markdown", "configure `top_markdown`"),
         "border-start",
         "border-bottom",
         "border-end",
+        "bg-gradient-tertiary-to-top",
     )
+
+    # Tab name filter.
+    _, label, box = input_box(
+        div(tag="form", autocomplete="off", parent=tabs.tabs),
+        label="tab",
+        description="Tab name filter.",
+        placement="bottom",
+        icon="funnel",
+        spellcheck="false",
+        pattern=".* $ @",
+    )
+    label.add_class("border-top-0")
+    box.add_class("border-top-0")
 
     populate_tabs(app, tabs)
 
@@ -128,6 +139,18 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
         ".channel-column",
         icon="table",
         id="channels-button",
+    )
+    tabs.add_button(
+        "Open channel table",
+        "",
+        icon="arrow-bar-right",
+        id="open-channels-button",
+    )
+    tabs.add_button(
+        "Dedent channel table",
+        "",
+        icon="arrow-bar-left",
+        id="dedent-channels-button",
     )
 
     # Plot settings modal.
@@ -149,11 +172,12 @@ def channel_environments(app: AppInfo, tabs: TabbedContent) -> None:
         app.config_param("bottom_markdown", "configure `bottom_markdown`"),
         "border-start",
         "border-end",
+        "bg-gradient-tertiary-to-bottom",
     )
 
     # Add splash screen element.
     div(
         id=f"{PKG_NAME}-splash",
         parent=tabs.container,
-        class_str="bg-success-subtle bg-gradient",
+        class_str="bg-secondary-subtle bg-gradient",
     )

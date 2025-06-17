@@ -12,10 +12,12 @@ from vcorelib.io.file_writer import IndentedFileWriter
 from vcorelib.paths import rel
 
 LOGO_MARKDOWN = "[![logo](/static/png/chip-circle-bootstrap/128x128.png)](/)"
+DIR_FILE = "dir.html"
 
 
 def markdown_for_dir(
-    path: Path, base: Path, extra_links: dict[str, Iterable[str]] = None
+    paths_bases: Iterable[tuple[Path, Path]],
+    extra_links: dict[str, Iterable[str]] = None,
 ) -> str:
     """Get markdown data for a directory."""
 
@@ -32,22 +34,26 @@ def markdown_for_dir(
                         for app in apps:
                             writer.write(f"* [{app}]({app})")
 
-        curr_dir = rel(path, base=base)
-        writer.write(f"## `{curr_dir}`")
+        writer.write("## directories")
         writer.empty()
 
-        # Link to go up a directory.
-        if curr_dir != Path():
-            writer.write(f"* [..](/{curr_dir.parent})")
+        for path, base in paths_bases:
+            curr_dir = rel(path, base=base)
+            writer.write(f"### `{base.name}/{curr_dir}`")
+            writer.empty()
 
-        for item in path.iterdir():
-            curr = rel(item, base=base)
+            # Link to go up a directory.
+            if curr_dir != Path():
+                writer.write(f"* [..](/{curr_dir.parent}/{DIR_FILE})")
 
-            name = f"`{curr.name}`"
-            if item.is_dir():
-                name = f"**{name}**"
+            for item in sorted(path.iterdir()):
+                curr = rel(item, base=base)
 
-            writer.write(f"* [{name}](/{curr})")
+                name = f"`{curr.name}`"
+                if item.is_dir():
+                    name = f"**{name}**"
+
+                writer.write(f"* [{name}](/{curr})")
 
         result: str = cast(StringIO, writer.stream).getvalue()
 

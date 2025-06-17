@@ -20,14 +20,12 @@ class ChannelTable {
     for (let input of table.querySelectorAll("input.channel-value-input")) {
       this.channelInputs[input.id] = input;
 
-      let cmd =
-
-          /* Register handler for pressing enter. */
-          input.onkeypress = (event) => {
-            if (event.key == "Enter") {
-              this.worker.command(`set ${input.id} ${input.value}`);
-            }
-          };
+      /* Register handler for pressing enter. */
+      input.onkeypress = (event) => {
+        if (event.key == "Enter") {
+          this.worker.command(`set ${input.id} ${input.value}`);
+        }
+      };
 
       /* Register handler for pressing send button. */
       input.nextElementSibling.onclick =

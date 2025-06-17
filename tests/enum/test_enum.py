@@ -20,7 +20,7 @@ class SampleEnum(IntEnum):
 def test_runtime_enum_from_enum():
     """Test that we can create a runtime enumeration from a class."""
 
-    enum = RuntimeEnum.from_enum(SampleEnum, 1)
+    enum = RuntimeEnum.from_enum(SampleEnum, 1, default="b")
     assert enum.get_int("a")
     assert enum.get_int("b")
     assert enum.get_int("c")

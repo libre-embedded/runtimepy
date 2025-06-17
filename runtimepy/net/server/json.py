@@ -87,7 +87,7 @@ def json_handler(
     stream: TextIO,
     request: RequestHeader,
     response: ResponseHeader,
-    request_data: Optional[bytes],
+    request_data: Optional[bytearray],
     data: JsonObject,
 ) -> None:
     """Create an HTTP response from some JSON object data."""

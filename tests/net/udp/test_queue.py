@@ -33,7 +33,7 @@ async def test_udp_queue_basic():
         conn.send_text(msg)
 
     for conn in [conn1, conn2]:
-        assert (await conn.datagrams.get())[0].decode() == msg
+        assert bytes((await conn.datagrams.get())[0]).decode() == msg
 
     # Clean up.
     sig.set()

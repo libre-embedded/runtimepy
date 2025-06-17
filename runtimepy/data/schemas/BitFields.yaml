@@ -33,6 +33,15 @@ properties:
         description:
           type: string
 
+        default:
+          oneOf:
+            - type: string
+            - type: integer
+            - type: boolean
+
+        controls:
+          type: object
+
         index:
           type: integer
           minimum: 0

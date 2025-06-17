@@ -31,9 +31,15 @@ class IntegerBounds(NamedTuple):
         return max(self.min, min(val, self.max))
 
     @staticmethod
-    def create(byte_count: int, signed: bool) -> "IntegerBounds":
+    def create_bit(bit_count: int, signed: bool) -> "IntegerBounds":
         """Compute maximum and minimum values given size and signedness."""
 
-        min_val = 0 if not signed else -1 * (2 ** (byte_count * 8 - 1))
-        width = 8 * byte_count if not signed else 8 * byte_count - 1
-        return IntegerBounds(min_val, (2**width) - 1)
+        return IntegerBounds(
+            0 if not signed else -1 * (2 ** (bit_count - 1)),
+            (2 ** (bit_count if not signed else bit_count - 1)) - 1,
+        )
+
+    @staticmethod
+    def create(byte_count: int, signed: bool) -> "IntegerBounds":
+        """Compute maximum and minimum values given size and signedness."""
+        return IntegerBounds.create_bit(8 * byte_count, signed)

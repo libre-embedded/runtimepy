@@ -11,10 +11,12 @@ from typing import Callable
 from typing import Optional as _Optional
 from typing import cast as _cast
 
+# third-party
+from vcorelib.io import BinaryMessage
+
 # internal
 from runtimepy.net import IpHost as _IpHost
 from runtimepy.net import normalize_host as _normalize_host
-from runtimepy.net.connection import BinaryMessage as _BinaryMessage
 from runtimepy.net.mtu import ETHERNET_MTU, UDP_DEFAULT_MTU, host_discover_mtu
 
 
@@ -23,7 +25,7 @@ class BinaryMessageQueueMixin:
 
     def __init__(self) -> None:
         """Initialize this protocol."""
-        self.queue: _asyncio.Queue[_BinaryMessage] = _asyncio.Queue()
+        self.queue: _asyncio.Queue[BinaryMessage] = _asyncio.Queue()
 
 
 class TransportMixin:

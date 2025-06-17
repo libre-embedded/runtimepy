@@ -9,10 +9,10 @@ from logging import getLogger as _getLogger
 from typing import Optional as _Optional
 
 # third-party
+from vcorelib.io import BinaryMessage
 from vcorelib.logging import LoggerType as _LoggerType
 
 # internal
-from runtimepy.net.connection import BinaryMessage as _BinaryMessage
 from runtimepy.net.connection import Connection as _Connection
 from runtimepy.net.mixin import (
     BinaryMessageQueueMixin as _BinaryMessageQueueMixin,
@@ -26,7 +26,7 @@ class QueueProtocol(_BinaryMessageQueueMixin, _Protocol):
     logger: _LoggerType
     conn: _Connection
 
-    def data_received(self, data: _BinaryMessage) -> None:
+    def data_received(self, data: BinaryMessage) -> None:
         """Handle incoming data."""
         self.queue.put_nowait(data)
 

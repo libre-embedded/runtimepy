@@ -7,8 +7,11 @@ import math
 from typing import Optional
 
 # internal
-from runtimepy.channel import Controls
+from runtimepy.primitives.types.bounds import IntegerBounds
 
+Literal = int | float | bool
+Default = Optional[Literal]
+Controls = dict[str, Literal | dict[str, Literal]]
 DEFAULT_STEPS = 64.0
 
 
@@ -28,6 +31,22 @@ def make_slider(
         result["default"] = default
 
     return result
+
+
+def bit_slider(width: int, signed: bool) -> Controls:
+    """Make a slider for an unsigned integer width."""
+    bounds = IntegerBounds.create_bit(width, signed)
+    return make_slider(bounds.min, bounds.max, 2**width - 1)
+
+
+def signed_slider(width: int) -> Controls:
+    """Make a slider for an unsigned integer width."""
+    return bit_slider(width, True)
+
+
+def unsigned_slider(width: int) -> Controls:
+    """Make a slider for an unsigned integer width."""
+    return bit_slider(width, False)
 
 
 CANONICAL: dict[str, Controls] = {

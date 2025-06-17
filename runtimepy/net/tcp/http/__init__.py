@@ -11,6 +11,7 @@ from typing import Any, Awaitable, Callable, Optional, Tuple, Union, cast
 
 # third-party
 from vcorelib import DEFAULT_ENCODING
+from vcorelib.io import BinaryMessage
 
 # internal
 from runtimepy import PKG_NAME, VERSION
@@ -19,18 +20,18 @@ from runtimepy.net.http.header import RequestHeader
 from runtimepy.net.http.response import AsyncResponse, ResponseHeader
 from runtimepy.net.tcp.connection import TcpConnection as _TcpConnection
 
-HttpResult = Optional[bytes | AsyncResponse]
+HttpResult = Optional[BinaryMessage | AsyncResponse]
 
 #
 # async def handler(
 #     response: ResponseHeader,
 #     request: RequestHeader,
-#     request_data: Optional[bytes],
+#     request_data: Optional[bytearray],
 # ) -> HttpResult:
 #     """Sample handler."""
 #
 HttpRequestHandler = Callable[
-    [ResponseHeader, RequestHeader, Optional[bytes]],
+    [ResponseHeader, RequestHeader, Optional[bytearray]],
     Awaitable[HttpResult],
 ]
 HttpResponse = Tuple[ResponseHeader, HttpResult]
@@ -99,7 +100,7 @@ class HttpConnection(_TcpConnection):
         self,
         response: ResponseHeader,
         request: RequestHeader,
-        request_data: Optional[bytes],
+        request_data: Optional[bytearray],
     ) -> HttpResult:
         """Sample handler."""
 
@@ -107,7 +108,7 @@ class HttpConnection(_TcpConnection):
         self,
         response: ResponseHeader,
         request: RequestHeader,
-        request_data: Optional[bytes],
+        request_data: Optional[bytearray],
     ) -> HttpResult:
         """Sample handler."""
 
@@ -115,7 +116,7 @@ class HttpConnection(_TcpConnection):
         self,
         response: ResponseHeader,
         request_header: RequestHeader,
-        request_data: Optional[bytes] = None,
+        request_data: Optional[bytearray] = None,
     ) -> HttpResult:
         """Process an individual request."""
 
@@ -141,7 +142,7 @@ class HttpConnection(_TcpConnection):
         return result
 
     async def request(
-        self, request: RequestHeader, data: Optional[bytes] = None
+        self, request: RequestHeader, data: Optional[BinaryMessage] = None
     ) -> HttpResponse:
         """Make an HTTP request."""
 
@@ -157,7 +158,7 @@ class HttpConnection(_TcpConnection):
         return result
 
     async def request_json(
-        self, request: RequestHeader, data: Optional[bytes] = None
+        self, request: RequestHeader, data: Optional[BinaryMessage] = None
     ) -> Any:
         """
         Perform a request and convert the response to a data structure by
@@ -191,7 +192,7 @@ class HttpConnection(_TcpConnection):
 
         header.log(self.logger, True)
 
-    async def process_binary(self, data: bytes) -> bool:
+    async def process_binary(self, data: BinaryMessage) -> bool:
         """Process a binary frame."""
 
         for header, payload in self.processor.ingest(

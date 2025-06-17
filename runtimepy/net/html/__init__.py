@@ -5,7 +5,7 @@ A module implementing HTML-related interfaces.
 # built-in
 from io import StringIO
 from typing import Any, Optional
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, urlencode
 
 # third-party
 from svgen.element import Element
@@ -13,7 +13,6 @@ from svgen.element.html import Html, div
 from vcorelib import DEFAULT_ENCODING
 from vcorelib.io import IndentedFileWriter
 from vcorelib.paths import find_file
-from vcorelib.python import StrToBool
 
 # internal
 from runtimepy import PKG_NAME
@@ -37,20 +36,30 @@ def create_app_shell(
     """Create a bootstrap-based application shell."""
 
     container = div(parent=parent, **kwargs)
-    container.add_class("d-flex", "align-items-start", "bg-body")
+    container.add_class("d-flex", "align-items-start", "bg-body", "h-100")
 
     # Dark theme.
     container["data-bs-theme"] = bootstrap_theme
 
     # Buttons.
-    button_column = div(parent=container if use_button_column else None)
+    button_column = div(
+        id="button-column",
+        parent=container if use_button_column else None,
+        head_child=div(
+            class_str="flex-grow-1 border-bottom "
+            "bg-gradient-secondary-to-bottom"
+        ),
+        tail_child=div(
+            class_str="flex-grow-1 border-top bg-gradient-secondary-to-top"
+        ),
+    )
     button_column.add_class(
         "d-flex", "flex-column", "h-100", f"bg-{bootstrap_theme}-subtle"
     )
 
     # Dark/light theme switch button.
     bootstrap_button(
-        icon_str("lightbulb"),
+        icon_str("highlights"),
         tooltip="Toggle light/dark.",
         id="theme-button",
         parent=button_column,
@@ -95,26 +104,35 @@ def full_markdown_page(
 
     markdown_kwargs: dict[str, Any] = {"id": PKG_NAME}
 
+    params: dict[str, str] = {"print": "true"}
     if uri_query:
         parsed = parse_qs(uri_query)
+        for key, val in parsed.items():
+            params[key] = val[-1]
 
         # Handle pages optimized for document creation.
-        if "print" in parsed and any(
-            StrToBool.check(x) for x in parsed["print"]
-        ):
-            markdown_kwargs["bootstrap_theme"] = "light"
-            markdown_kwargs["use_button_column"] = False
+        # from vcorelib.python import StrToBool
+        # if "print" in parsed and any(
+        #     StrToBool.check(x) for x in parsed["print"]
+        # ):
+        #     markdown_kwargs["bootstrap_theme"] = "light"
+        #     markdown_kwargs["use_button_column"] = False
 
     _, button_column = markdown_page(
         document.body, markdown, **markdown_kwargs
     )
+    button_column.add_class("border-end")
 
     bootstrap_button(
         icon_str("printer"),
         tooltip="Printer-friendly view.",
         id="print-button",
         title="print-view button",
-        parent=div(tag="a", href="?print=true", parent=button_column),
+        parent=div(
+            tag="a",
+            href=f"?{urlencode(params)}#light-mode",
+            parent=button_column,
+        ),
     )
 
     # JavaScript.

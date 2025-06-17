@@ -7,6 +7,7 @@ import asyncio
 
 # third-party
 from pytest import mark
+from vcorelib.io import BinaryMessage
 
 from runtimepy.net import sockname
 from runtimepy.net.arbiter import AppInfo, ConnectionArbiter
@@ -70,9 +71,9 @@ class MockNp05b(TcpConnection):
 
         return True
 
-    async def process_binary(self, data: bytes) -> bool:
+    async def process_binary(self, data: BinaryMessage) -> bool:
         """Process a binary frame."""
-        return await self.process_text(data.decode())
+        return await self.process_text(bytes(data).decode())
 
 
 class MockNp05bConn(TcpConnectionFactory[MockNp05b]):

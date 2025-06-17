@@ -20,6 +20,7 @@ from typing import Union as _Union
 
 # third-party
 from vcorelib.asyncio import log_exceptions as _log_exceptions
+from vcorelib.io import BinaryMessage
 import websockets
 from websockets.asyncio.client import ClientConnection as _ClientConnection
 from websockets.asyncio.server import Server as _Server
@@ -29,7 +30,7 @@ from websockets.exceptions import ConnectionClosed as _ConnectionClosed
 
 # internal
 from runtimepy.net import sockname as _sockname
-from runtimepy.net.connection import BinaryMessage, Connection
+from runtimepy.net.connection import Connection
 from runtimepy.net.connection import EchoConnection as _EchoConnection
 from runtimepy.net.connection import NullConnection as _NullConnection
 from runtimepy.net.manager import ConnectionManager as _ConnectionManager
@@ -39,6 +40,17 @@ T = _TypeVar("T", bound="WebsocketConnection")
 ConnectionInit = _Callable[[T], _Awaitable[bool]]
 V = _TypeVar("V")
 LOG = _getLogger(__name__)
+
+
+async def websocket_connect(uri: str, **kwargs) -> _ClientConnection:
+    """Attempt to connect a websocket interface."""
+
+    # Defaults.
+    kwargs.setdefault("use_ssl", uri.startswith("wss"))
+
+    return await getattr(websockets, "connect")(  # type: ignore
+        uri, **handle_possible_ssl(**kwargs)
+    )
 
 
 class WebsocketConnection(Connection):
@@ -53,6 +65,10 @@ class WebsocketConnection(Connection):
 
         self.protocol = protocol
         super().__init__(self.protocol.logger, **kwargs)
+
+        # Store connection-instantiation arguments (for connection restarting).
+        self._uri: str = ""
+        self._conn_kwargs: dict[str, _Any] = {}
 
     async def _handle_connection_closed(
         self, task: _Awaitable[V]
@@ -81,7 +97,9 @@ class WebsocketConnection(Connection):
 
     async def _send_binay_message(self, data: BinaryMessage) -> None:
         """Send a binary message."""
-        await self._handle_connection_closed(self.protocol.send(data))
+        await self._handle_connection_closed(
+            self.protocol.send(data),  # type: ignore
+        )
         self.metrics.tx.increment(len(data))
 
     async def close(self) -> None:
@@ -94,12 +112,30 @@ class WebsocketConnection(Connection):
     ) -> T:
         """Connect a client to an endpoint."""
 
-        kwargs.setdefault("use_ssl", uri.startswith("wss"))
+        inst = cls(await websocket_connect(uri, **kwargs), markdown=markdown)
 
-        protocol = await getattr(websockets, "connect")(
-            uri, **handle_possible_ssl(**kwargs)
-        )
-        return cls(protocol, markdown=markdown)
+        # Stored for connection restart capability.
+        inst._uri = uri
+        inst._conn_kwargs = {**kwargs}
+
+        return inst
+
+    async def restart(self) -> bool:
+        """
+        Reset necessary underlying state for this connection to 'process'
+        again.
+        """
+
+        result = False
+
+        if self._uri:
+            with _suppress(TimeoutError, OSError):
+                self.protocol = await websocket_connect(
+                    self._uri, **self._conn_kwargs
+                )
+                result = True
+
+        return result
 
     @classmethod
     @_asynccontextmanager
@@ -113,7 +149,13 @@ class WebsocketConnection(Connection):
         async with getattr(websockets, "connect")(
             uri, **handle_possible_ssl(**kwargs)
         ) as protocol:
-            yield cls(protocol, markdown=markdown)
+            inst = cls(protocol, markdown=markdown)
+
+            # Stored for connection restart capability.
+            inst._uri = uri
+            inst._conn_kwargs = {**kwargs}
+
+            yield inst
 
     @classmethod
     def server_handler(

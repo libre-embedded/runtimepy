@@ -3,29 +3,33 @@ A module implementing an application information interface.
 """
 
 # built-in
-from abc import ABC as _ABC
 import asyncio as _asyncio
 from contextlib import AsyncExitStack as _AsyncExitStack
 from contextlib import contextmanager
 from dataclasses import dataclass
+from importlib import import_module
 from logging import getLogger as _getLogger
 from re import compile as _compile
 from typing import Awaitable as _Awaitable
 from typing import Callable as _Callable
 from typing import Iterator as _Iterator
 from typing import MutableMapping as _MutableMapping
+from typing import Optional
 from typing import TYPE_CHECKING, Any
 from typing import TypeVar as _TypeVar
 from typing import Union as _Union
+from typing import cast
 
 # third-party
 from vcorelib.io.types import JsonObject as _JsonObject
 from vcorelib.logging import LoggerMixin as _LoggerMixin
 from vcorelib.logging import LoggerType as _LoggerType
+from vcorelib.names import import_str_and_item
 from vcorelib.namespace import Namespace as _Namespace
 
 # internal
 from runtimepy.channel.environment.sample import poll_sample_env, sample_env
+from runtimepy.codec.protocol import Protocol, ProtocolFactory
 from runtimepy.mapping import DEFAULT_PATTERN
 from runtimepy.mixins.trig import TrigMixin
 from runtimepy.net.arbiter.result import OverallResult, results
@@ -50,11 +54,13 @@ V = _TypeVar("V", bound=PeriodicTask)
 Z = _TypeVar("Z")
 
 
-class RuntimeStruct(RuntimeStructBase, _ABC):
+class RuntimeStruct(RuntimeStructBase):
     """A class implementing a base runtime structure."""
 
     app: "AppInfo"
     array: PrimitiveArray
+    recv: Optional[Protocol]
+    send: Optional[Protocol]
 
     byte_order: ByteOrder = DEFAULT_BYTE_ORDER
 
@@ -81,13 +87,39 @@ class RuntimeStruct(RuntimeStructBase, _ABC):
         if self.final_poll:
             self.app.stack.enter_context(self._final_poll())
 
+        byte_order = type(self).byte_order
+
+        self.recv = None
+        self.send = None
+        if "protocol_factory" in self.config:
+            module, name = import_str_and_item(
+                cast(str, self.config["protocol_factory"])
+            )
+            factory: type[ProtocolFactory] = getattr(
+                import_module(module), name
+            )
+            if ProtocolFactory in factory.__bases__:
+                self.recv = factory.singleton()
+                byte_order = self.recv.byte_order
+                with self.env.names_pushed("rx"):
+                    self.env.register_protocol(self.recv, False)
+
+                self.send = factory.instance()
+                with self.env.names_pushed("tx"):
+                    self.env.register_protocol(self.send, True)
+
         self.init_env()
-        self.update_byte_order(self.byte_order, **kwargs)
+        self.update_byte_order(byte_order, **kwargs)
 
     def update_byte_order(self, byte_order: ByteOrder, **kwargs) -> None:
         """Update the over-the-wire byte order for this struct."""
 
-        self.array = self.env.array(byte_order=byte_order, **kwargs).array
+        if self.recv is None:
+            self.array = self.env.array(byte_order=byte_order, **kwargs).array
+        else:
+            # Can't change byte order at runtime in this configuration.
+            assert byte_order == self.recv.byte_order
+            self.array = self.recv
 
 
 W = _TypeVar("W", bound=RuntimeStruct)

@@ -98,6 +98,8 @@ async def runtimepy_http_client_server(
             client.request(RequestHeader(target="/tests")),
             client.request(RequestHeader(target="/app.html")),
             client.request(RequestHeader(target="/app.html")),
+            client.request(RequestHeader(target="/mux.html")),
+            client.request(RequestHeader(target="/dir.html")),
             client.request(RequestHeader(target="/index.html")),
             client.request(RequestHeader(target="/test_json.html")),
             client.request(RequestHeader(target="/landing_page.html")),

@@ -53,9 +53,7 @@ def create_nav_container(
 ) -> Element:
     """Create a navigation container element."""
 
-    content = div(
-        id=f"{name}-{item}", role="tabpanel", tabindex="0", parent=parent
-    )
+    content = div(id=f"{name}-{item}", role="tabpanel", parent=parent)
     content["aria-labelledby"] = f"{name}-{item}-tab"
 
     content.add_class("tab-pane", "fade")
@@ -86,16 +84,25 @@ class TabbedContent:
         self.container, self.button_column = create_app_shell(parent, id=name)
 
         # Toggle tabs button.
-        self.add_button("Toggle tabs", f"#{PKG_NAME}-tabs", id="tabs-button")
+        self.add_button(
+            "Toggle tabs",
+            f"#{PKG_NAME}-tabs",
+            id="tabs-button",
+            icon="list-task",
+        )
 
         # Create tab container.
         self.tabs = div(id=f"{PKG_NAME}-tabs", parent=self.container)
         self.tabs.add_class(
             "nav",
             "flex-column",
+            "flex-shrink-0",
+            "flex-nowrap",
             "nav-pills",
             "show",
-            "flex-column-scroll-bodge",
+            "h-100",
+            "overflow-y-scroll",
+            "overscroll-behavior-none",
         )
 
         # Create content container.
@@ -108,14 +115,14 @@ class TabbedContent:
         """Set classes on content element."""
 
         self.content["class"] = ""
-        self.content.add_class("tab-content", "tab-content-bodge")
+        self.content.add_class("tab-content", "w-100", "h-100")
         if scroll:
-            self.content.add_class("scroll")
+            self.content.add_class("overflow-scroll")
 
     def create(self, name: str) -> tuple[Element, Element]:
         """Only the first tab is active."""
 
-        container = flex(parent=self.tabs)
+        container = flex(parent=self.tabs).add_class("border-start")
 
         # Open in new window button.
         toggle_button(
@@ -123,9 +130,8 @@ class TabbedContent:
             id=name,
             icon="window-plus",
             title=f"Open '{name}' in a new window.",
-        ).add_class(
-            "border-start", "border-bottom", "window-button", "btn-link"
-        )
+            tabindex="-1",
+        ).add_class("border-bottom", "window-button", "btn-link")
 
         # Navigate to tab button.
         button = create_nav_button(
@@ -133,6 +139,7 @@ class TabbedContent:
             self.name,
             name,
             self.active_tab,
+            tabindex="-1",
             class_str="border-bottom border-end flex-grow-1",
         )
 

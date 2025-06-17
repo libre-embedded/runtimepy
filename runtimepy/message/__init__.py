@@ -9,7 +9,7 @@ from typing import Any
 from typing import Iterator as _Iterator
 
 # third-party
-from vcorelib.io import ByteFifo
+from vcorelib.io import BinaryMessage, ByteFifo
 
 # internal
 from runtimepy.primitives import Uint32, UnsignedInt
@@ -48,7 +48,7 @@ class MessageProcessor:
 
         self.message_length_out = self.message_length_kind()
 
-    def encode(self, stream: _BytesIO, data: bytes | str) -> None:
+    def encode(self, stream: _BytesIO, data: BinaryMessage | str) -> None:
         """Encode a message to a stream."""
 
         if isinstance(data, str):
@@ -72,7 +72,7 @@ class MessageProcessor:
         for message in self.process(data):
             yield loads(message.decode())
 
-    def process(self, data: bytes) -> _Iterator[bytes]:
+    def process(self, data: BinaryMessage) -> _Iterator[bytearray]:
         """Process an incoming message."""
 
         self.buffer.ingest(data)

@@ -20,7 +20,7 @@ class App {
     worker.addEventListener("message", async (event) => {
       if (event.data == 0) {
         /* Manage settings modal. */
-        let _modal = document.getElementById("runtimepy-plot");
+        let _modal = document.getElementById("runtimepy-settings");
         if (_modal) {
           modalManager = new PlotModalManager(_modal);
         }
@@ -53,11 +53,63 @@ class App {
           this.switchTab(hash.tab);
         }
 
+        hash.updateTabFilter(hash.tabFilter);
+
         /* Handle settings controls. */
         loadSettings();
 
         /* Handle individual settings. */
         this.handleInitialMinTxPeriod();
+
+        /* Handle channel-table expand button. */
+        let _button = document.getElementById("open-channels-button");
+        if (_button) {
+          _button.onclick = () => {
+            /* Ensure channel table is visible. */
+            if (!hash.channelsShown && hash.channelsButton) {
+              hash.channelsButton.click();
+            }
+
+            /* Ensure channel table is at maximum width. */
+            if (shown_tab in tabs) {
+              let elem = tabs[shown_tab].query(".channel-column");
+              if (elem) {
+                elem.style.width = window.innerWidth + "px";
+                tabs[shown_tab].correctVerticalBarPosition();
+                tabs[shown_tab].focus();
+              }
+            }
+          };
+        }
+        _button = document.getElementById("dedent-channels-button");
+        if (_button) {
+          _button.onclick = () => {
+            if (!hash.channelsShown) {
+              return;
+            }
+
+            /* Reduce channel table width. */
+            if (shown_tab in tabs) {
+              let elem = tabs[shown_tab].query(".channel-column");
+              if (elem) {
+                let newWidth = elem.getBoundingClientRect().width - 50;
+                if (newWidth > 0) {
+                  elem.style.width = newWidth + "px";
+                  tabs[shown_tab].focus();
+                } else {
+                  hash.channelsButton.click();
+                }
+              }
+            }
+          };
+        }
+
+        /* Set initial focus. */
+        if (hash.tabsShown && tabFilter) {
+          tabFilter.input.focus();
+        } else if (hash.channelsShown && shown_tab in tabs) {
+          tabs[shown_tab].focus();
+        }
 
         startMainLoop();
       }
@@ -110,7 +162,7 @@ function startMainLoop() {
     if (splash) {
       let curr = window.getComputedStyle(splash).getPropertyValue("opacity");
       if (curr > 0) {
-        splash.style.opacity = curr - Math.min(0.05, deltaT / 2000);
+        splash.style.opacity = curr - Math.min(0.05, deltaT / 1000);
       } else {
         splash.style.display = "none";
         splash = undefined;

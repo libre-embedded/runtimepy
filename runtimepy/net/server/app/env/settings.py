@@ -15,17 +15,14 @@ from runtimepy.net.server.app.placeholder import under_construction
 def plot_settings(tabs: TabbedContent) -> None:
     """Create the plot settings modal."""
 
-    modal = Modal(tabs, name="plot", icon="graph-up")
+    modal = Modal(tabs, name="settings", icon="sliders")
     under_construction(modal.footer)
 
-    div(tag="h1", text="settings", parent=modal.body)
-    div(tag="hr", parent=modal.body)
-
-    div(tag="h2", text="plot status", parent=modal.body)
+    div(tag="h1", text="plot status", parent=modal.body)
     div(id="plot-status-inner", parent=modal.body)
-    div(tag="hr", parent=modal.body)
 
-    div(tag="h2", text="minimum transmit period (ms)", parent=modal.body)
+    div(tag="hr", parent=modal.body)
+    div(tag="h1", text="minimum transmit period (ms)", parent=modal.body)
 
     div(
         tag="p",

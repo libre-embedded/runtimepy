@@ -5,6 +5,9 @@ A module implementing an SCPI interface.
 # built-in
 import asyncio
 
+# third-party
+from vcorelib.io import BinaryMessage
+
 # internal
 from runtimepy.net.arbiter.tcp import TcpConnectionFactory
 from runtimepy.net.tcp import TcpConnection
@@ -34,9 +37,9 @@ class ScpiConnection(TcpConnection):
 
         return True
 
-    async def process_binary(self, data: bytes) -> bool:
+    async def process_binary(self, data: BinaryMessage) -> bool:
         """Process a binary frame."""
-        return await self.process_text(data.decode())
+        return await self.process_text(bytes(data).decode())
 
     async def send_command(
         self,

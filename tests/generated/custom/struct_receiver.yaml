@@ -1,0 +1,11 @@
+---
+structs:
+  - name: struct1
+    config:
+      protocol_factory: tests.generated.structs.struct1.Struct1
+  - name: struct2
+    config:
+      protocol_factory: tests.generated.structs.struct2.Struct2
+  - name: struct3
+    config:
+      protocol_factory: tests.generated.structs.struct3.Struct3

@@ -8,8 +8,8 @@ time_command: true
 
 requirements:
   - aiofiles
-  - vcorelib>=3.6.0
-  - svgen>=0.7.12
+  - vcorelib>=3.6.2
+  - svgen>=0.8.0
   - websockets
   - psutil
   - "windows-curses; sys_platform == 'win32' and python_version < '3.12'"

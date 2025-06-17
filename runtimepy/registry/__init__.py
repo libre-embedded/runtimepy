@@ -20,6 +20,7 @@ from vcorelib.io.types import JsonValue as _JsonValue
 from runtimepy.registry.item import RegistryItem as _RegistryItem
 from runtimepy.registry.name import NameRegistry as _NameRegistry
 from runtimepy.registry.name import RegistryKey as _RegistryKey
+from runtimepy.registry.name import is_registry_key as _is_registry_key
 from runtimepy.schemas import RuntimepyDictCodec as _RuntimepyDictCodec
 
 T = _TypeVar("T", bound=_RegistryItem)
@@ -66,6 +67,15 @@ class Registry(_RuntimepyDictCodec, _Generic[T]):
             for name, item in self.items.items()
         }
 
+    def register_from_other(self, other: "Registry[T]") -> None:
+        """Register missing elements from another registry."""
+
+        for name, instance in other.items.items():
+            if name in self.items:
+                assert self.items[name].id == instance.id, (name, instance)
+            else:
+                assert self.register(name, instance), (name, instance)
+
     def register(self, name: str, item: T) -> bool:
         """Attempt to register a new item."""
 
@@ -98,6 +108,16 @@ class Registry(_RuntimepyDictCodec, _Generic[T]):
         name = self.names.name(key)
         if name is not None and name in self.items:
             result = self.items[name]
+        return result
+
+    def registry_normalize(self, key: _RegistryKey | T) -> T:
+        """Attempt to get an item from a registry key."""
+
+        if _is_registry_key(key):
+            result: T = self[_cast(str, key)]
+        else:
+            result = _cast(T, key)
+
         return result
 
     def __getitem__(self, key: _RegistryKey) -> T:

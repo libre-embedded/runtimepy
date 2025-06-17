@@ -14,6 +14,7 @@ from vcorelib.namespace import CPP_DELIM, Namespace
 from runtimepy.codec.protocol import Protocol
 from runtimepy.enum import RuntimeEnum
 from runtimepy.enum.registry import DEFAULT_ENUM_PRIMITIVE, RuntimeIntEnum
+from runtimepy.mixins.logging import LogLevel
 from runtimepy.primitives.byte_order import (
     DEFAULT_BYTE_ORDER,
     ByteOrder,
@@ -65,7 +66,7 @@ class TypeSystem(LoggerMixin):
         self.root_namespace = global_namespace
 
         # Register enums.
-        for enum in [ByteOrder]:
+        for enum in [ByteOrder, LogLevel]:
             self.runtime_int_enum(enum)
 
         self.root_namespace = global_namespace.child(*namespace)
@@ -103,12 +104,15 @@ class TypeSystem(LoggerMixin):
         items: dict[str, int],
         *namespace: str,
         primitive: str = DEFAULT_ENUM_PRIMITIVE,
+        default: Union[str, bool, int] = None,
     ) -> None:
         """Register an enumeration."""
 
         name = self._name(name, *namespace, check_available=True)
 
-        enum = self._enums.enum(name, "int", items=items, primitive=primitive)
+        enum = self._enums.enum(
+            name, "int", items=items, primitive=primitive, default=default
+        )
         assert enum is not None
         self._register_primitive(name, enum.primitive)
 

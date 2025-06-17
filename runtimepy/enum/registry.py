@@ -6,6 +6,7 @@ A module implementing and enumeration registry.
 from enum import IntEnum as _IntEnum
 from typing import Optional as _Optional
 from typing import TypeVar
+from typing import Union as _Union
 from typing import cast as _cast
 
 # third-party
@@ -34,12 +35,15 @@ class EnumRegistry(_Registry[_RuntimeEnum]):
         kind: _EnumTypelike,
         items: _EnumMappingData = None,
         primitive: str = DEFAULT_ENUM_PRIMITIVE,
+        default: _Union[str, bool, int] = None,
     ) -> _Optional[_RuntimeEnum]:
         """Create a new runtime enumeration."""
 
         data: _JsonObject = {"type": _cast(str, kind), "primitive": primitive}
         if items is not None:
             data["items"] = items  # type: ignore
+        if default is not None:
+            data["default"] = default
         return self.register_dict(name, data)
 
 
@@ -69,6 +73,11 @@ class RuntimeIntEnum(_IntEnum):
         return None
 
     @classmethod
+    def default(cls: type[T]) -> _Optional[T]:
+        """Get a possible default value for this enumeration."""
+        return None
+
+    @classmethod
     def primitive(cls) -> str:
         """The underlying primitive type for this runtime enumeration."""
         return DEFAULT_ENUM_PRIMITIVE
@@ -81,7 +90,7 @@ class RuntimeIntEnum(_IntEnum):
     @classmethod
     def runtime_enum(cls, identifier: int) -> _RuntimeEnum:
         """Obtain a runtime enumeration from this class."""
-        return _RuntimeEnum.from_enum(cls, identifier)
+        return _RuntimeEnum.from_enum(cls, identifier, default=cls.default())
 
     @classmethod
     def register_enum(
@@ -98,6 +107,9 @@ class RuntimeIntEnum(_IntEnum):
         ident = cls.id()
         if ident is not None:
             data["id"] = ident
+
+        if cls.default() is not None:
+            data["default"] = cls.default()
 
         result = registry.register_dict(name, data)
         assert result is not None, (name, data)

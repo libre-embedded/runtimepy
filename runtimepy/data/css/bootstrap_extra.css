@@ -106,12 +106,8 @@ select:hover {
   background-image: linear-gradient(to top, rgba(var(--bs-tertiary-bg-rgb), 0), var(--bs-tertiary-bg));
 }
 
-.bg-gradient-tertiary-to-left {
-  background-image: linear-gradient(to left, rgba(var(--bs-tertiary-bg-rgb), 0), var(--bs-tertiary-bg));
-}
-
-.bg-gradient-tertiary-to-right {
-  background-image: linear-gradient(to right, rgba(var(--bs-tertiary-bg-rgb), 0), var(--bs-tertiary-bg));
+.bg-gradient-tertiary-top-bottom {
+  background-image: linear-gradient(to bottom, var(--bs-tertiary-bg), rgba(var(--bs-tertiary-bg-rgb), 0), var(--bs-tertiary-bg));
 }
 
 .border-start-info-subtle {

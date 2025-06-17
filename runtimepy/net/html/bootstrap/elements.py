@@ -199,12 +199,12 @@ def centered_markdown(
         "flex-grow-1",
         "d-flex",
         "flex-row",
-        "flex-wrap",
         "justify-content-between",
+        "bg-gradient-tertiary-top-bottom",
         *container_classes,
     )
 
-    div(parent=container, class_str="flex-grow-1 bg-gradient-tertiary-to-left")
+    div(parent=container, class_str="flex-grow-1")
 
     horiz_container = div(parent=container)
     horiz_container.add_class(
@@ -239,8 +239,6 @@ def centered_markdown(
 
     div(parent=horiz_container, class_str="flex-grow-1")
 
-    div(
-        parent=container, class_str="flex-grow-1 bg-gradient-tertiary-to-right"
-    )
+    div(parent=container, class_str="flex-grow-1")
 
     return container

@@ -25,7 +25,7 @@ from runtimepy.net.http.request_target import PathMaybeQuery
 from runtimepy.net.http.response import AsyncResponse, ResponseHeader
 from runtimepy.net.server.html import HtmlApp, HtmlApps, get_html, html_handler
 from runtimepy.net.server.json import encode_json, json_handler
-from runtimepy.net.server.markdown import markdown_for_dir
+from runtimepy.net.server.markdown import DIR_FILE, markdown_for_dir
 from runtimepy.net.server.mux import mux_app
 from runtimepy.net.tcp.http import HttpConnection, HttpResult
 from runtimepy.util import normalize_root, path_has_part, read_binary
@@ -203,6 +203,10 @@ class RuntimepyServerConnection(HttpConnection):
         candidates: list[Path] = []
         for search in self.paths:
             candidate = search.joinpath(path[0][1:])
+
+            if candidate.name == DIR_FILE:
+                candidate = candidate.parent
+
             if candidate.is_dir():
                 directories.append((candidate, search))
                 candidates.append(candidate.joinpath("index.html"))
@@ -246,10 +250,9 @@ class RuntimepyServerConnection(HttpConnection):
 
         # Handle a directory as a last resort.
         if not result and directories:
-            candidate, search = directories[0]
             result = self.render_markdown(
                 markdown_for_dir(
-                    candidate, search, {"applications": self.apps.keys()}
+                    directories, {"applications": self.apps.keys()}
                 ),
                 response,
                 path[1],

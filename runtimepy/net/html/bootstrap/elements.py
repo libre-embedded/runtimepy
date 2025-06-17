@@ -199,6 +199,7 @@ def centered_markdown(
         "flex-grow-1",
         "d-flex",
         "flex-row",
+        "flex-wrap",
         "justify-content-between",
         *container_classes,
     )

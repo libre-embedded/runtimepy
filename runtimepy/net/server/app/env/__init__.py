@@ -40,6 +40,7 @@ def populate_tabs(app: AppInfo, tabs: TabbedContent) -> None:
             tabs,
             icon="arrow-repeat",
             markdown=task.markdown,
+            js_uris=task.config.get("js_uris", []),
         ).entry()
 
     # Struct tabs.
@@ -51,6 +52,7 @@ def populate_tabs(app: AppInfo, tabs: TabbedContent) -> None:
             tabs,
             icon="bucket",
             markdown=struct.markdown,
+            js_uris=struct.config.get("js_uris", []),
         ).entry()
 
     # Subprocess tabs.

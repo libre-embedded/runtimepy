@@ -28,12 +28,13 @@ class ChannelEnvironmentTabBase(Tab, LoggerMixin, MarkdownMixin):
         tabs: TabbedContent,
         icon: str = "alarm",
         markdown: str = None,
+        **kwargs,
     ) -> None:
         """Initialize this instance."""
 
         self.command = command
         self.set_markdown(markdown=markdown, package=PKG_NAME)
-        super().__init__(name, app, tabs, source="env", icon=icon)
+        super().__init__(name, app, tabs, source="env", icon=icon, **kwargs)
 
         # Logging.
         LoggerMixin.__init__(self, logger=self.command.logger)

@@ -9,7 +9,9 @@ from typing import Iterable, cast
 
 # third-party
 from vcorelib.io.file_writer import IndentedFileWriter
+from vcorelib.math.time import byte_count_str
 from vcorelib.paths import rel
+from vcorelib.paths import stats as _stats
 
 LOGO_MARKDOWN = "[![logo](/static/png/chip-circle-bootstrap/128x128.png)](/)"
 DIR_FILE = "dir.html"
@@ -46,6 +48,8 @@ def markdown_for_dir(
             if curr_dir != Path():
                 writer.write(f"* [..](/{curr_dir.parent}/{DIR_FILE})")
 
+            writer.write("| name | size |")
+            writer.write("|------|------|")
             for item in sorted(path.iterdir()):
                 curr = rel(item, base=base)
 
@@ -53,7 +57,14 @@ def markdown_for_dir(
                 if item.is_dir():
                     name = f"**{name}**"
 
-                writer.write(f"* [{name}](/{curr})")
+                stats = _stats(item)
+                assert stats
+                size_str = (
+                    byte_count_str(stats.st_size) if item.is_file() else ""
+                )
+                writer.write(f"| [{name}](/{curr}) | {size_str} |")
+
+            writer.empty()
 
         result: str = cast(StringIO, writer.stream).getvalue()
 

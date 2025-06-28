@@ -4,7 +4,7 @@ A module implementing an application tab interface.
 
 # built-in
 from io import StringIO
-from typing import cast
+from typing import Iterable, cast
 
 # third-party
 from svgen.element import Element
@@ -29,6 +29,7 @@ class Tab:
         source: str = None,
         subdir: str = "tab",
         icon: str = None,
+        js_uris: Iterable[str] = None,
     ) -> None:
         """Initialize this instance."""
 
@@ -46,6 +47,10 @@ class Tab:
         button_str += self.name
         self.button.text = button_str
 
+        if not js_uris:
+            js_uris = []
+        self.js_uris: list[str] = list(js_uris)
+
         self.init()
 
         self.compose(self.content)
@@ -59,8 +64,12 @@ class Tab:
     def write_js(self, writer: IndentedFileWriter, **kwargs) -> bool:
         """Write JavaScript code for the tab."""
 
-        return write_found_file(
-            writer, kind_url("js", self.source, subdir=self.subdir, **kwargs)
+        return all(
+            write_found_file(writer, uri)
+            for uri in [
+                kind_url("js", self.source, subdir=self.subdir, **kwargs)
+            ]
+            + self.js_uris
         )
 
     def entry(self) -> None:

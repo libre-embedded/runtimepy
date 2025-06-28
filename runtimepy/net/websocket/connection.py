@@ -29,6 +29,7 @@ from websockets.asyncio.server import serve as _serve
 from websockets.exceptions import ConnectionClosed as _ConnectionClosed
 
 # internal
+from runtimepy.net import normalize_host as _normalize_host
 from runtimepy.net import sockname as _sockname
 from runtimepy.net.connection import Connection
 from runtimepy.net.connection import EchoConnection as _EchoConnection
@@ -64,7 +65,13 @@ class WebsocketConnection(Connection):
         """Initialize this connection."""
 
         self.protocol = protocol
-        super().__init__(self.protocol.logger, **kwargs)
+        super().__init__(
+            _getLogger(
+                f"W {_normalize_host(*self.protocol.local_address)} -> "
+                f"{_normalize_host(*self.protocol.remote_address)}"
+            ),
+            **kwargs,
+        )
 
         # Store connection-instantiation arguments (for connection restarting).
         self._uri: str = ""

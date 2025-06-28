@@ -85,6 +85,9 @@ structs:
 
   - name: example.struct3
     factory: sample_struct
+    config:
+      js_uris:
+        - package://runtimepy/js/sample.js
 
 # Sample peer processes.
 processes:

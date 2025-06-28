@@ -250,9 +250,9 @@ class Connection(
             await backoff.sleep()
             if await self.restart():
                 self._set_enabled(True)
-                self._restarts.raw.value += 1
+                self._restarts.increment()
 
-            self._restart_attempts.raw.value += 1
+            self._restart_attempts.increment()
 
     @asynccontextmanager
     async def process_then_disable(self, **kwargs) -> AsyncIterator[None]:

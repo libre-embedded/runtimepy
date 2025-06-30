@@ -105,7 +105,7 @@ def channel_table_header(
     ).add_class(*TABLE_BUTTON_CLASSES)
 
     _, label, box = input_box(
-        div(tag="th", parent=ctl_row, colspan="2", class_str="p-0"),
+        div(tag="th", parent=ctl_row, class_str="p-0 border-end-0"),
         description="Channel name filter.",
         pattern=".* ! @ $",
         label="filter",
@@ -114,17 +114,27 @@ def channel_table_header(
         spellcheck="false",
     )
     label.add_class("border-top-0", "border-bottom-0")
-    box.add_class("border-top-0", "border-bottom-0")
+    box.add_class("border-top-0", "border-bottom-0", "border-end-0")
+
+    # Canonical channel view dropdown.
+    select = select_element(
+        parent=div(tag="th", parent=ctl_row, class_str="p-0"),
+        id="filter-view",
+        title="Canonical channel filters.",
+    ).add_class("border-end-0", "w-100")
+    # need to source real data
+    div(tag="option", value="test1", text="test1", parent=select)
+    div(tag="option", value="test2", text="test2", parent=select)
+    div(tag="option", value="test3", text="test3", parent=select)
 
     cell = flex(
         parent=div(tag="th", parent=ctl_row, colspan="2", class_str="p-0")
     )
 
-    # Add a selection menu for custom commands.
+    # Add a selection menu for custom commands. (need a data source for this)
     select = select_element(
         parent=cell, id="custom-commands", title="Custom command selector."
     )
-    select.add_class("border-start-0")
 
     if command.custom_commands:
         for key in command.custom_commands:

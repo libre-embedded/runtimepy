@@ -170,7 +170,6 @@ class ConfigConnectionArbiter(_ImportConnectionArbiter):
             kwargs = dict_resolve_env_vars(
                 client.get("kwargs", {}), env=self._ports  # type: ignore
             )
-            kwargs.setdefault("markdown", client.get("markdown"))
 
             assert await self.factory_client(
                 factory,
@@ -179,6 +178,8 @@ class ConfigConnectionArbiter(_ImportConnectionArbiter):
                 defer=client["defer"],
                 # Perform some known fixes for common keyword arguments.
                 **fix_kwargs(kwargs),
+                views=client.get("views"),
+                markdown=client.get("markdown"),
             ), f"Couldn't register client '{name}' ({factory})!"
 
         # Register servers.

@@ -56,6 +56,10 @@ class ChannelTable {
 
         if (Number.isInteger(val)) {
           /* Handle integer formatting. */
+        } else if (typeof val == "boolean") {
+          /* Use glyphs for booleans. */
+          val = val ? '<i class="bi bi-circle-fill"></i>'
+                    : '<i class="bi bi-circle"></i>';
         } else {
           /* Handle floating-point numbers. */
           let checkFloat = Number.parseFloat(val);

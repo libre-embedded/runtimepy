@@ -72,6 +72,7 @@ class PeriodicTask(
         self.metrics = metrics
 
         ChannelEnvironmentMixin.__init__(self, env=env)
+        self.env.views.update(self.config.get("views", {}))  # type: ignore
         self.setup_level_channel(self.env)
         self.command = ChannelCommandProcessor(self.env, self.logger)
         self.register_task_metrics(self.metrics)

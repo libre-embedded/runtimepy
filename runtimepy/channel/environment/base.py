@@ -54,6 +54,7 @@ class BaseChannelEnvironment(_NamespaceMixin, FinalizeMixin):
         fields: _Iterable[_BitFields] = None,
         namespace: Namespace = None,
         namespace_delim: str = DEFAULT_DELIM,
+        views: dict[str, str] = None,
     ) -> None:
         """Initialize this channel environment."""
 
@@ -104,6 +105,10 @@ class BaseChannelEnvironment(_NamespaceMixin, FinalizeMixin):
         # Apply initial values if they were provided.
         if values is not None:
             self.apply(values)
+
+        if not views:
+            views = {}
+        self.views = views
 
     def __setitem__(self, key: _RegistryKey, value: ChannelValue) -> None:
         """Mapping-set interface."""

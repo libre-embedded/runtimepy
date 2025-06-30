@@ -27,14 +27,7 @@ properties:
       $ref: package://runtimepy/schemas/StructConfig.yaml
 
   commands:
-    type: array
-    items:
-      type: array
-      minItems: 2
-      maxItems: 2
-      items:
-        - type: string
-        - type: string
+    $ref: package://runtimepy/schemas/TwoTupleArray.yaml
 
   tasks:
     type: array

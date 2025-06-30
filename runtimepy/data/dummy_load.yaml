@@ -9,6 +9,9 @@ tasks:
       a: 1
       b: 2
       c: 3
+      views:
+        - [zero, "\\.0\\."]
+        - [one, "\\.1\\."]
     markdown: |
       # This is a Test
 
@@ -29,6 +32,9 @@ tasks:
   - name: wave3
     factory: sinusoid
     period_s: 0.03
+    config:
+      views:
+        - [trig, sin cos]
     markdown: |
       # Markdown for wave3
 
@@ -50,6 +56,10 @@ clients:
     defer: true
     kwargs:
       remote_addr: [localhost, "$udp_json"]
+    views:
+      - [metrics, metrics]
+      - [transmit, tx]
+      - [receive, rx]
     markdown: |
       # `udp_json_client`
 

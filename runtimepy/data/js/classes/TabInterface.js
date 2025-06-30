@@ -263,6 +263,19 @@ class TabInterface {
         this.updateChannelStyles(this.channelFilter.value);
       };
     }
+
+    /* Initialize channel view dropdown. */
+    let channelView = this.query("#filter-view");
+    if (channelView) {
+      channelView.onchange = () => {
+        if (!channelView.value || channelView.value == '-') {
+          this.channelFilter.value = "";
+        } else {
+          this.channelFilter.value = channelView.value;
+        }
+        this.updateChannelStyles(this.channelFilter.value);
+      };
+    }
   }
 
   setHandler(elem) {

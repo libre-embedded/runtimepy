@@ -89,12 +89,17 @@ class FactoryConnectionArbiter(_BaseConnectionArbiter):
         if factory in self._conn_factories:
             factory_inst = self._conn_factories[factory]
 
+            views = kwargs.pop("views", {})
+
             conn = factory_inst.client(name, *args, **kwargs)
             if not defer:
                 conn = await conn  # type: ignore
 
             result = self.register_connection(
-                conn, *self._conn_names[factory_inst], name
+                conn,
+                *self._conn_names[factory_inst],
+                name,
+                views=views,
             )
 
         return result

@@ -80,6 +80,21 @@ def enum_dropdown(
 TABLE_BUTTON_CLASSES = ("border-top-0", "border-bottom-0")
 
 
+def views_dropdown(parent: Element, command: ChannelCommandProcessor) -> None:
+    """Dropdown menu for channel environment views."""
+
+    select = select_element(
+        parent=div(tag="th", parent=parent, class_str="p-0"),
+        id="filter-view",
+        title="Canonical channel filters.",
+    ).add_class("border-end-0", "w-100")
+    div(tag="option", value="", text="-", parent=select)
+    for text, value in command.env.views.items():
+        div(tag="option", value=value, text=text, parent=select)
+    if not command.env.views:
+        select.booleans.add("disabled")
+
+
 def channel_table_header(
     parent: Element, command: ChannelCommandProcessor
 ) -> None:
@@ -105,7 +120,7 @@ def channel_table_header(
     ).add_class(*TABLE_BUTTON_CLASSES)
 
     _, label, box = input_box(
-        div(tag="th", parent=ctl_row, colspan="2", class_str="p-0"),
+        div(tag="th", parent=ctl_row, class_str="p-0 border-end-0"),
         description="Channel name filter.",
         pattern=".* ! @ $",
         label="filter",
@@ -114,17 +129,18 @@ def channel_table_header(
         spellcheck="false",
     )
     label.add_class("border-top-0", "border-bottom-0")
-    box.add_class("border-top-0", "border-bottom-0")
+    box.add_class("border-top-0", "border-bottom-0", "border-end-0")
+
+    views_dropdown(ctl_row, command)
 
     cell = flex(
         parent=div(tag="th", parent=ctl_row, colspan="2", class_str="p-0")
     )
 
-    # Add a selection menu for custom commands.
+    # Add a selection menu for custom commands. (need a data source for this)
     select = select_element(
         parent=cell, id="custom-commands", title="Custom command selector."
     )
-    select.add_class("border-start-0")
 
     if command.custom_commands:
         for key in command.custom_commands:

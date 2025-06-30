@@ -7,6 +7,7 @@ from collections import defaultdict
 from typing import Optional
 
 # third-party
+from vcorelib.io.bus import BUS
 from vcorelib.math import RateLimiter, metrics_time_ns, to_nanos
 
 # internal
@@ -92,6 +93,11 @@ class RuntimepyWebsocketConnection(WebsocketJsonMessageConnection):
 
         async def ui_handler(outbox: JsonMessage, inbox: JsonMessage) -> None:
             """A simple loopback handler."""
+
+            # Handle bus messages.
+            if "bus" in inbox:
+                await BUS.send_ro("ui", inbox["bus"])
+                return
 
             # Handle frame messages.
             if "time" in inbox:

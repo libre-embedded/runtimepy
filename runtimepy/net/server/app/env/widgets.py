@@ -80,6 +80,21 @@ def enum_dropdown(
 TABLE_BUTTON_CLASSES = ("border-top-0", "border-bottom-0")
 
 
+def views_dropdown(parent: Element, command: ChannelCommandProcessor) -> None:
+    """Dropdown menu for channel environment views."""
+
+    select = select_element(
+        parent=div(tag="th", parent=parent, class_str="p-0"),
+        id="filter-view",
+        title="Canonical channel filters.",
+    ).add_class("border-end-0", "w-100")
+    div(tag="option", value="", text="-", parent=select)
+    for text, value in command.env.views.items():
+        div(tag="option", value=value, text=text, parent=select)
+    if not command.env.views:
+        select.booleans.add("disabled")
+
+
 def channel_table_header(
     parent: Element, command: ChannelCommandProcessor
 ) -> None:
@@ -116,16 +131,7 @@ def channel_table_header(
     label.add_class("border-top-0", "border-bottom-0")
     box.add_class("border-top-0", "border-bottom-0", "border-end-0")
 
-    # Canonical channel view dropdown.
-    select = select_element(
-        parent=div(tag="th", parent=ctl_row, class_str="p-0"),
-        id="filter-view",
-        title="Canonical channel filters.",
-    ).add_class("border-end-0", "w-100")
-    # need to source real data
-    div(tag="option", value="test1", text="test1", parent=select)
-    div(tag="option", value="test2", text="test2", parent=select)
-    div(tag="option", value="test3", text="test3", parent=select)
+    views_dropdown(ctl_row, command)
 
     cell = flex(
         parent=div(tag="th", parent=ctl_row, colspan="2", class_str="p-0")

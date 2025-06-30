@@ -53,8 +53,10 @@ function isModifierKeyEvent(event) {
 }
 
 function ignoreFilterKeyEvent(event) {
-  // home end pg up pg down delete f keys
-  return isModifierKeyEvent(event) || event.key == "Tab";
+  return isModifierKeyEvent(event) || event.key == "Tab" ||
+         (event.key.startsWith("F") && event.key.length > 1) ||
+         event.key.startsWith("Del") || event.key == "Home" ||
+         event.key == "End" || event.key == "PageUp" || event.key == "PageDown";
 }
 
 function globalKeyEvent(event) {

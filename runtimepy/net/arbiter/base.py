@@ -147,6 +147,7 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
         self._ports: dict[str, int] = {}
 
         self._commands: list[tuple[str, str]] = []
+        self._views: dict[str, dict[str, str]] = {}
 
         self._init()
 
@@ -156,6 +157,9 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
     def _register_connection(self, connection: _Connection, name: str) -> None:
         """Perform connection registration."""
 
+        if name in self._views:
+            connection.env.views.update(self._views[name])
+            del self._views[name]
         self._connections[name] = connection
         self.manager.queue.put_nowait(connection)
         connection.logger.info("Registered as '%s'.", name)
@@ -165,6 +169,7 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
         connection: _Union[_Connection, _Awaitable[_Connection]],
         *names: str,
         delim: str = None,
+        views: dict[str, str] = None,
     ) -> bool:
         """Attempt to register a connection object."""
 
@@ -172,6 +177,9 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
 
         with self.names_pushed(*names):
             name = self.namespace(delim=delim)
+
+        if views:
+            self._views[name] = views
 
         if (
             name not in self._connections

@@ -45,6 +45,7 @@ class RuntimeStructBase(
         self.set_markdown(config=config, markdown=markdown, package=PKG_NAME)
         LoggerMixinLevelControl.__init__(self, logger=_getLogger(self.name))
         ChannelEnvironmentMixin.__init__(self)
+        self.env.views.update(config.get("views", {}))  # type: ignore
         if self.log_level_channel:
             self.setup_level_channel(self.env)
         self.command = ChannelCommandProcessor(self.env, self.logger)

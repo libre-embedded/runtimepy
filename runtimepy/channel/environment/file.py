@@ -42,6 +42,8 @@ ENUMS_FILE = f"{ENUMS_KEY}.json"
 VALUES_FILE = f"{VALUES_KEY}.json"
 FIELDS_FILE = f"{FIELDS_KEY}.json"
 NAMES_FILE = f"{NAMES_KEY}.json"
+VIEWS_KEY = "views"
+# VIEWS_FILE = f"{VIEWS_KEY}.json"
 
 
 class FileChannelEnvironment(_BaseChannelEnvironment):
@@ -64,6 +66,7 @@ class FileChannelEnvironment(_BaseChannelEnvironment):
             VALUES_KEY: _cast(
                 _JsonObject, self.values(resolve_enum=resolve_enum)
             ),
+            VIEWS_KEY: _cast(_JsonObject, self.views),
         }
 
     def export(
@@ -143,6 +146,7 @@ class FileChannelEnvironment(_BaseChannelEnvironment):
             enums=enum_reg,
             values=_cast(_Optional[_ValueMap], data.get(VALUES_KEY)),
             fields=_fields_from_dict(data[FIELDS_KEY]),
+            views=_cast(dict[str, str], data.get(VIEWS_KEY, {})),
         )
 
         # Typically, externally loaded environments should be final at load

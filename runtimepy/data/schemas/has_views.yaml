@@ -1,0 +1,4 @@
+---
+properties:
+  views:
+    $ref: package://runtimepy/schemas/TwoTupleArray.yaml

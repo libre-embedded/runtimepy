@@ -18,7 +18,7 @@ from vcorelib.paths import Pathlike, find_file, normalize
 
 # internal
 from runtimepy import DEFAULT_EXT, PKG_NAME
-from runtimepy.channel.environment.command import GLOBAL
+from runtimepy.channel.environment.command import GLOBAL, global_command
 from runtimepy.net.html import full_markdown_page
 from runtimepy.net.http.header import RequestHeader
 from runtimepy.net.http.request_target import PathMaybeQuery
@@ -270,17 +270,22 @@ class RuntimepyServerConnection(HttpConnection):
         response_data["success"] = False
         response_data["message"] = "No command executed."
 
-        if not args or args[0] not in GLOBAL:
+        def cmd_usage() -> None:
+            """Set usage information for the response."""
             response_data["usage"] = (
                 "/<environment (arg0)>/<arg1>[/.../<argN>]"
             )
             response_data["environments"] = list(GLOBAL)
 
-        # Run command.
+        if args:
+            result = global_command(args[0], " ".join(args[1:]))
+            if result is None:
+                cmd_usage()
+            else:
+                response_data["success"] = result.success
+                response_data["message"] = str(result)
         else:
-            result = GLOBAL[args[0]].command(" ".join(args[1:]))
-            response_data["success"] = result.success
-            response_data["message"] = str(result)
+            cmd_usage()
 
         # Send response.
         encode_json(stream, response, response_data)

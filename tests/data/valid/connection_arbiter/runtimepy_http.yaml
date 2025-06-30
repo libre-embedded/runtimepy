@@ -15,6 +15,11 @@ structs:
   - name: noise
     factory: gaussian_source
 
+commands:
+  - [fake, "asdf"]
+  - [clock, ""]
+  - [clock, "toggle step"]
+
 config:
   experimental: true
   foo: bar

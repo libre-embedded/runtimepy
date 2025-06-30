@@ -26,6 +26,16 @@ properties:
     items:
       $ref: package://runtimepy/schemas/StructConfig.yaml
 
+  commands:
+    type: array
+    items:
+      type: array
+      minItems: 2
+      maxItems: 2
+      items:
+        - type: string
+        - type: string
+
   tasks:
     type: array
     items:

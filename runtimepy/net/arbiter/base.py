@@ -26,6 +26,7 @@ from vcorelib.namespace import NamespaceMixin as _NamespaceMixin
 from runtimepy.channel.environment.command import (
     clear_env,
     env_json_data,
+    global_commands,
     register_env,
 )
 from runtimepy.net.arbiter.housekeeping import housekeeping
@@ -144,6 +145,8 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
 
         # A copy of named port mappings (loaded via external config).
         self._ports: dict[str, int] = {}
+
+        self._commands: list[tuple[str, str]] = []
 
         self._init()
 
@@ -318,6 +321,11 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
 
             # Run initialization methods.
             result = await self._run_apps_list(self._inits, info)
+
+            # Run commands.
+            await _asyncio.sleep(0)
+            global_commands(*self._commands)
+
             if result == 0:
                 # Get application methods.
                 apps = self._apps

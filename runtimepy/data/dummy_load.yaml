@@ -107,3 +107,7 @@ processes:
       app: runtimepy.sample.program.run
 
     program: runtimepy.sample.program.SampleProgram
+
+commands:
+  - [udp_json_client, "set log_level warning"]
+  - [proc1.peer, "set log_level warning"]

@@ -12,7 +12,9 @@ from typing import Any, Iterator, Optional, cast
 
 # third-party
 from vcorelib import DEFAULT_ENCODING
+from vcorelib.dict import GenericStrDict
 from vcorelib.io import ARBITER, JsonObject
+from vcorelib.io.bus import BUS
 from vcorelib.logging import DEFAULT_TIME_FORMAT, LoggerMixin
 from vcorelib.math import default_time_ns, nano_str
 from vcorelib.names import name_search
@@ -25,6 +27,7 @@ from runtimepy.channel.environment.command.processor import (
     CommandHook,
     EnvironmentMap,
 )
+from runtimepy.channel.environment.command.result import CommandResult
 from runtimepy.channel.registry import ParsedEvent
 from runtimepy.mapping import DEFAULT_PATTERN
 
@@ -241,6 +244,38 @@ class GlobalEnvironment(UserDict[str, ChannelCommandProcessor], LoggerMixin):
 
 GLOBAL = GlobalEnvironment()
 ENVIRONMENTS = GLOBAL
+
+
+def global_command(env: str, value: str) -> Optional[CommandResult]:
+    """Handle a global command."""
+
+    result = None
+    if env in GLOBAL:
+        result = GLOBAL[env].command(value)
+    else:
+        GLOBAL.logger.error(
+            "Couldn't run command env='%s' value='%s'.", env, value
+        )
+    return result
+
+
+def global_commands(*cmds: tuple[str, str]) -> None:
+    """Handle a global command."""
+    for env, value in cmds:
+        global_command(env, value)
+
+
+async def global_command_bus(payload: GenericStrDict) -> None:
+    """Handle a bus message."""
+
+    if "env" in payload and "value" in payload:
+        global_command(payload["env"], payload["value"])
+    elif "cmds" in payload:
+        global_commands(*payload["cmds"])
+
+
+BUS.register_ro("command", global_command_bus)
+BUS.register_ro("cmd", global_command_bus)
 
 
 def clear_env() -> None:

@@ -7,6 +7,10 @@ from contextlib import ExitStack, contextmanager
 import logging
 from typing import Iterator
 
+# third-party
+from pytest import mark
+from vcorelib.io.bus import BUS
+
 # module under test
 from runtimepy.channel.environment import ChannelEnvironment
 from runtimepy.channel.environment.command import GlobalEnvironment
@@ -63,6 +67,14 @@ def global_test_env() -> Iterator[GlobalEnvironment]:
             envs.register(name, sample_env(name))
 
         yield envs
+
+
+@mark.asyncio
+async def test_environment_bus_commands_basic():
+    """Test basic commands sent via bus."""
+
+    await BUS.send_ro("cmd", {"cmds": [("asdf", "asdf"), ("asdf", "asdf")]})
+    await BUS.send_ro("cmd", {"env": "asdf", "value": "asdf"})
 
 
 def test_global_environment_basic():

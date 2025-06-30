@@ -71,6 +71,11 @@ class ConnectionArbiterConfig(_RuntimepyDictCodec):
 
         self.directory = _Path(str(data.get("directory", ".")))
 
+        self.commands: list[tuple[str, str]] = data.get(  # type: ignore
+            "commands",
+            [],
+        )
+
     def asdict(self) -> _JsonObject:
         """Obtain a dictionary representing this instance."""
         return self.data

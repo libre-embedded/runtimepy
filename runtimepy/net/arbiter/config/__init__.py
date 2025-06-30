@@ -245,5 +245,8 @@ class ConfigConnectionArbiter(_ImportConnectionArbiter):
             assert "root" not in config.config, config.config
             config.config["root"] = root
 
+        # Register commands.
+        self._commands = config.commands
+
 
 ConfigConnectionArbiter.add_search_package(PKG_NAME)

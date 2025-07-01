@@ -33,6 +33,7 @@ from runtimepy.primitives import Bool as _Bool
 from runtimepy.primitives import Double as _Double
 from runtimepy.primitives import Float as _Float
 from runtimepy.primitives.evaluation import EvalResult as _EvalResult
+from runtimepy.ui.button import ActionButton
 from runtimepy.ui.controls import Controlslike
 
 
@@ -75,6 +76,7 @@ class PeriodicTask(
         self.env.views.update(self.config.get("views", {}))  # type: ignore
         self.setup_level_channel(self.env)
         self.command = ChannelCommandProcessor(self.env, self.logger)
+        self.command.buttons.extend(ActionButton.from_top_level(self.config))
         self.register_task_metrics(self.metrics)
 
         # State.

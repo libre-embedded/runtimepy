@@ -21,6 +21,7 @@ from runtimepy.channel.environment.command.processor import (
 from runtimepy.mixins.async_command import AsyncCommandProcessingMixin
 from runtimepy.mixins.environment import ChannelEnvironmentMixin
 from runtimepy.mixins.logging import LoggerMixinLevelControl
+from runtimepy.ui.button import ActionButton
 
 
 class RuntimeStructBase(
@@ -50,6 +51,7 @@ class RuntimeStructBase(
             self.setup_level_channel(self.env)
         self.command = ChannelCommandProcessor(self.env, self.logger)
         self.config = config
+        self.command.buttons.extend(ActionButton.from_top_level(self.config))
 
         async def poll(args: Namespace, __: Optional[FieldOrChannel]) -> None:
             """Handle a test command."""

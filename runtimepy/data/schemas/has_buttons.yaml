@@ -1,0 +1,6 @@
+---
+properties:
+  buttons:
+    type: array
+    items:
+      $ref: package://runtimepy/schemas/Button.yaml

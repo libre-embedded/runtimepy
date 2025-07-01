@@ -47,6 +47,7 @@ from runtimepy.net.manager import ConnectionManager as _ConnectionManager
 from runtimepy.net.server import RuntimepyServerConnection
 from runtimepy.subprocess.peer import RuntimepyPeer as _RuntimepyPeer
 from runtimepy.tui.mixin import CursesWindow, TuiMixin
+from runtimepy.ui.button import ActionButton
 
 ServerTask = _Awaitable[None]
 RuntimeProcessTask = tuple[
@@ -148,6 +149,7 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
 
         self._commands: list[tuple[str, str]] = []
         self._views: dict[str, dict[str, str]] = {}
+        self._buttons: dict[str, list[ActionButton]] = {}
 
         self._init()
 
@@ -157,9 +159,16 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
     def _register_connection(self, connection: _Connection, name: str) -> None:
         """Perform connection registration."""
 
+        # Handle views.
         if name in self._views:
             connection.env.views.update(self._views[name])
             del self._views[name]
+
+        # Handle buttons.
+        if name in self._buttons:
+            connection.command.buttons.extend(self._buttons[name])
+            del self._buttons[name]
+
         self._connections[name] = connection
         self.manager.queue.put_nowait(connection)
         connection.logger.info("Registered as '%s'.", name)
@@ -170,6 +179,7 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
         *names: str,
         delim: str = None,
         views: dict[str, str] = None,
+        buttons: list[ActionButton] = None,
     ) -> bool:
         """Attempt to register a connection object."""
 
@@ -180,6 +190,8 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
 
         if views:
             self._views[name] = views
+        if buttons:
+            self._buttons[name] = buttons
 
         if (
             name not in self._connections

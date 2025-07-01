@@ -2,6 +2,9 @@
 A module implementing a channel-environment tab HTML interface.
 """
 
+# built-in
+from io import StringIO
+
 # third-party
 from vcorelib.io.markdown import MarkdownMixin
 from vcorelib.logging import LoggerMixin
@@ -39,3 +42,11 @@ class ChannelEnvironmentTabBase(Tab, LoggerMixin, MarkdownMixin):
         # Logging.
         LoggerMixin.__init__(self, logger=self.command.logger)
         self.log_limiter = RateLimiter.from_s(1.0)
+
+    def _action_markdown(self) -> str:
+        """Get action-button markdown."""
+
+        with StringIO() as stream:
+            for button in self.command.buttons:
+                button.element().encode(stream)
+            return stream.getvalue()

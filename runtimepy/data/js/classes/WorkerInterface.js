@@ -10,7 +10,7 @@ class WorkerInterface {
 
   command(data) { this.send({kind : "command", value : data}); }
 
-  bus(data) { this.worker.postMessage({bus : data}); }
+  bus(key, data) { this.worker.postMessage({key : key, bus : data}); }
 
   toWorker(data, param) { return this.send({"worker" : data}, param); }
 }

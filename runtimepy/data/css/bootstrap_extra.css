@@ -110,6 +110,10 @@ select:hover {
   background-image: linear-gradient(to bottom, var(--bs-tertiary-bg), rgba(var(--bs-tertiary-bg-rgb), 0), var(--bs-tertiary-bg));
 }
 
+.bg-gradient-tertiary-left-right {
+  background-image: linear-gradient(to right, var(--bs-tertiary-bg), rgba(var(--bs-tertiary-bg-rgb), 0), var(--bs-tertiary-bg));
+}
+
 .border-start-info-subtle {
   border-left: var(--bs-border-width) var(--bs-border-style) var(--bs-info-border-subtle);
 }

@@ -16,6 +16,7 @@ from runtimepy.net.arbiter.base import (
 from runtimepy.net.arbiter.base import ServerTask as _ServerTask
 from runtimepy.net.connection import Connection as _Connection
 from runtimepy.net.manager import ConnectionManager as _ConnectionManager
+from runtimepy.ui.button import ActionButton
 
 
 class ConnectionFactory:
@@ -90,6 +91,7 @@ class FactoryConnectionArbiter(_BaseConnectionArbiter):
             factory_inst = self._conn_factories[factory]
 
             views = kwargs.pop("views", {})
+            buttons = ActionButton.from_top_level(kwargs.pop("buttons", []))
 
             conn = factory_inst.client(name, *args, **kwargs)
             if not defer:
@@ -100,6 +102,7 @@ class FactoryConnectionArbiter(_BaseConnectionArbiter):
                 *self._conn_names[factory_inst],
                 name,
                 views=views,
+                buttons=buttons,
             )
 
         return result

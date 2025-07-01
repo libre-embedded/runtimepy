@@ -1,4 +1,42 @@
 ---
+# UDP JSON clients.
+clients:
+  - factory: udp_json
+    name: udp_json_client
+    defer: true
+    kwargs:
+      remote_addr: [localhost, "$udp_json"]
+    views:
+      - [metrics, metrics]
+      - [transmit, tx]
+      - [receive, rx]
+    buttons: &buttons
+      - icon: tux
+        key: test
+        payload: {}
+      - icon: tux
+        key: test
+        text: asdf
+        payload: {}
+      - icon: tux
+        key: test
+        payload: {}
+        outline: false
+      - icon: tux
+        key: test
+        text: asdf
+        payload: {}
+        outline: false
+    markdown: |
+      # `udp_json_client`
+
+      Connects to `udp_json_server`.
+
+  - factory: udp_json
+    name: udp_json_server
+    kwargs:
+      local_addr: [localhost, "$udp_json"]
+
 # Add some sample tasks.
 tasks:
   # Chaos.
@@ -9,6 +47,7 @@ tasks:
       a: 1
       b: 2
       c: 3
+      buttons: *buttons
       views:
         - [zero, "\\.0\\."]
         - [one, "\\.1\\."]
@@ -49,27 +88,6 @@ tasks:
   # Drive interactions with runtime entities that won't otherwise be polled.
   - {name: app, factory: SampleApp, period_s: 0.25}
 
-# UDP JSON clients.
-clients:
-  - factory: udp_json
-    name: udp_json_client
-    defer: true
-    kwargs:
-      remote_addr: [localhost, "$udp_json"]
-    views:
-      - [metrics, metrics]
-      - [transmit, tx]
-      - [receive, rx]
-    markdown: |
-      # `udp_json_client`
-
-      Connects to `udp_json_server`.
-
-  - factory: udp_json
-    name: udp_json_server
-    kwargs:
-      local_addr: [localhost, "$udp_json"]
-
 # Add some sample structs.
 structs:
   - name: example.struct1
@@ -79,6 +97,8 @@ structs:
       a: 1
       b: 2
       c: 3
+
+      buttons: *buttons
 
       markdown: |
         # Docs for `example.struct1`

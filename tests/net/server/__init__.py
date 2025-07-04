@@ -29,7 +29,7 @@ async def runtimepy_websocket_client(
 ) -> None:
     """Test client interactions via WebSocket."""
 
-    client.send_json({"ui": {"bus": {"a": 1}}})
+    client.send_json({"ui": {"key": "test", "bus": {"a": 1}}})
 
     send_ui(client, "test", {"a": 1, "b": 2, "c": 3})
 

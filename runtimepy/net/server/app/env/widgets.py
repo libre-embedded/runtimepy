@@ -84,15 +84,16 @@ def views_dropdown(parent: Element, command: ChannelCommandProcessor) -> None:
     """Dropdown menu for channel environment views."""
 
     select = select_element(
-        parent=div(tag="th", parent=parent, class_str="p-0"),
+        parent=div(
+            tag="th", parent=parent, class_str="p-0 channel-views-min-width"
+        ),
         id="filter-view",
         title="Canonical channel filters.",
     ).add_class("border-end-0", "w-100")
     div(tag="option", value="", text="-", parent=select)
+    div(tag="option", value="^$", text="hide", parent=select)
     for text, value in command.env.views.items():
         div(tag="option", value=value, text=text, parent=select)
-    if not command.env.views:
-        select.booleans.add("disabled")
 
 
 def channel_table_header(
@@ -120,7 +121,11 @@ def channel_table_header(
     ).add_class(*TABLE_BUTTON_CLASSES)
 
     _, label, box = input_box(
-        div(tag="th", parent=ctl_row, class_str="p-0 border-end-0"),
+        div(
+            tag="th",
+            parent=ctl_row,
+            class_str="p-0 border-end-0 channel-filter-min-width",
+        ),
         description="Channel name filter.",
         pattern=".* ! @ $",
         label="filter",
@@ -137,7 +142,7 @@ def channel_table_header(
         parent=div(tag="th", parent=ctl_row, colspan="2", class_str="p-0")
     )
 
-    # Add a selection menu for custom commands. (need a data source for this)
+    # Add a selection menu for custom commands.
     select = select_element(
         parent=cell, id="custom-commands", title="Custom command selector."
     )
@@ -157,12 +162,7 @@ def channel_table_header(
             tooltip="Send selected command (left dropdown).",
         ).add_class(*TABLE_BUTTON_CLASSES)
     else:
-        div(
-            tag="option",
-            parent=select,
-            value="noop",
-            text="no custom commands",
-        )
+        div(tag="option", parent=select, value="noop", text="-")
         select.booleans.add("disabled")
 
     # Button for 'reset all defaults' if this tab has more than one channel

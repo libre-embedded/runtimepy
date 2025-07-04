@@ -20,6 +20,7 @@ from runtimepy.channel.environment.command.result import SUCCESS, CommandResult
 from runtimepy.mixins.environment import ChannelEnvironmentMixin
 from runtimepy.primitives.bool import Bool
 from runtimepy.primitives.field import BitField
+from runtimepy.ui.button import ActionButton
 
 CommandHook = Callable[[Namespace, Optional[FieldOrChannel]], None]
 
@@ -33,7 +34,11 @@ class ChannelCommandProcessor(ChannelEnvironmentMixin):
     """A command processing interface for channel environments."""
 
     def __init__(
-        self, env: ChannelEnvironment, logger: LoggerType, **kwargs
+        self,
+        env: ChannelEnvironment,
+        logger: LoggerType,
+        buttons: list[ActionButton] = None,
+        **kwargs,
     ) -> None:
         """Initialize this instance."""
 
@@ -48,6 +53,11 @@ class ChannelCommandProcessor(ChannelEnvironmentMixin):
         self.parser.data = self.parser_data
 
         self.parser.initialize()
+
+        # Action buttons.
+        if buttons is None:
+            buttons = []
+        self.buttons: list[ActionButton] = buttons
 
     def register_custom_commands(
         self, *custom_commands: CustomCommand

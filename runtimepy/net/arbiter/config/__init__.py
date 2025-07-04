@@ -180,6 +180,7 @@ class ConfigConnectionArbiter(_ImportConnectionArbiter):
                 **fix_kwargs(kwargs),
                 views=client.get("views"),
                 markdown=client.get("markdown"),
+                buttons=client.get("buttons", []),
             ), f"Couldn't register client '{name}' ({factory})!"
 
         # Register servers.

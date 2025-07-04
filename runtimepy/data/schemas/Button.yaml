@@ -1,0 +1,17 @@
+---
+type: object
+additionalProperties: false
+required: [key, payload]
+properties:
+  key:
+    type: string
+  payload:
+    type: object
+  text:
+    type: string
+  icon:
+    type: string
+  variant:
+    type: string
+  outline:
+    type: boolean

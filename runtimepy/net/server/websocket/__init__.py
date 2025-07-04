@@ -96,7 +96,7 @@ class RuntimepyWebsocketConnection(WebsocketJsonMessageConnection):
 
             # Handle bus messages.
             if "bus" in inbox:
-                await BUS.send_ro("ui", inbox["bus"])
+                await BUS.send_ro(inbox["key"], inbox["bus"])
                 return
 
             # Handle frame messages.

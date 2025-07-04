@@ -289,6 +289,16 @@ class ChannelEnvironmentTabHtml(ChannelEnvironmentTabControls):
         )
         logs.booleans.add("readonly")
 
+        if self.command.buttons:
+            centered_markdown(
+                vert_container,
+                self._action_markdown(),
+                "border-start",
+                "border-bottom",
+                "border-end",
+                "bg-gradient-tertiary-left-right",
+            )
+
         self.channel_table(vert_container)
 
         centered_markdown(

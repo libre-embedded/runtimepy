@@ -5,6 +5,7 @@ A module implementing web server markdown interfaces.
 # built-in
 from io import StringIO
 import mimetypes
+from os import stat_result
 from pathlib import Path
 from typing import Iterable, cast
 
@@ -17,19 +18,46 @@ from vcorelib.paths import stats as _stats
 
 LOGO_MARKDOWN = "[![logo](/static/png/chip-circle-bootstrap/128x128.png)](/)"
 DIR_FILE = "dir.html"
+AUTOPLAY_PREVIEW_SIZE = 100 * (1024 * 1024)  # 100 MiB
 
 
-def file_preview(path: Path, link: Path) -> str:
+def file_preview(path: Path, link: Path, stats: stat_result) -> str:
     """Get possible preview text for a file."""
 
     preview = ""
 
-    if path.is_file():
-        mime, _ = mimetypes.guess_type(path, strict=False)
-        if mime and mime.startswith("image"):
-            preview = div(tag="img", src=f"/{link}", alt=str(link)).encode_str(
-                newlines=False
-            )
+    if not path.is_file():
+        return preview
+
+    mime, _ = mimetypes.guess_type(path, strict=False)
+    if mime:
+        # Image previews.
+        if mime.startswith("image"):
+            preview = div(
+                tag="img",
+                src=f"/{link}",
+                alt=str(link),
+                class_str="media-preview",
+            ).encode_str(newlines=False)
+
+        # Video previews.
+        elif mime.startswith("video"):
+            elem = div(tag="video", class_str="media-preview")
+            elem.booleans.add("loop")
+            elem.booleans.add("controls")
+
+            if stats.st_size < AUTOPLAY_PREVIEW_SIZE:
+                elem.booleans.add("autoplay")
+
+            div(parent=elem, tag="source", src=f"/{link}", type=mime)
+
+            preview = elem.encode_str(newlines=False)
+
+        # Audio previews.
+        elif mime.startswith("audio"):
+            elem = div(tag="audio", src=f"/{link}")
+            elem.booleans.add("controls")
+            preview = elem.encode_str(newlines=False)
 
     return preview
 
@@ -65,7 +93,8 @@ def write_markdown_dir(
         size_str = byte_count_str(stats.st_size) if item.is_file() else ""
 
         writer.write(
-            f"| [{name}](/{curr}) | {size_str} | {file_preview(item, curr)} |"
+            f"| [{name}](/{curr}) | {size_str} | "
+            f"{file_preview(item, curr, stats)} |"
         )
 
     writer.empty()

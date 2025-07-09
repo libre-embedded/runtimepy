@@ -82,3 +82,7 @@ body > :first-child {
 .channel-filter-min-width {
   min-width: 5.5em;
 }
+
+.media-preview {
+  max-width: 70vw;
+}

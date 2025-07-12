@@ -3,11 +3,12 @@ A module implementing HTTP-response interfaces.
 """
 
 # built-in
+from abc import ABC, abstractmethod
 import http
 from io import StringIO
 import logging
 from pathlib import Path
-from typing import AsyncIterator, cast
+from typing import AsyncIterator, Optional, cast
 
 # third-party
 import aiofiles
@@ -96,19 +97,32 @@ class ResponseHeader(HeadersMixin):
         self["Cache-Control"] = value
 
 
-class AsyncResponse:
+class AsyncResponse(ABC):
+    """Interface for asynchronous responses."""
+
+    @abstractmethod
+    async def size(self) -> Optional[int]:
+        """Get this response's size."""
+
+    @abstractmethod
+    async def process(self) -> AsyncIterator[bytes]:
+        """Yield chunks to write asynchronously."""
+        yield bytes()  # pragma: nocover
+
+
+class AsyncFile(AsyncResponse):
     """
     A class facilitating asynchronous server responses for e.g.
     file-system files.
     """
 
-    def __init__(self, path: Path, chunk_size: int = 1024) -> None:
+    def __init__(self, path: Path, chunk_size: int = 4096) -> None:
         """Initialize this instance."""
 
         self.path = path
         self.chunk_size = chunk_size
 
-    async def size(self) -> int:
+    async def size(self) -> Optional[int]:
         """Get this response's size."""
         return cast(int, await aiofiles.os.path.getsize(self.path))
 

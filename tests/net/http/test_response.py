@@ -6,7 +6,7 @@ Test the 'net.http.response' module.
 from pytest import mark
 
 # module under test
-from runtimepy.net.http.response import AsyncResponse
+from runtimepy.net.http.response import AsyncFile
 
 # built-in
 from tests.resources import resource
@@ -16,7 +16,9 @@ from tests.resources import resource
 async def test_async_response_basic():
     """Test basic async responses."""
 
-    inst = AsyncResponse(resource("test_bigger.txt"))
-    assert await inst.size() > 0
+    inst = AsyncFile(resource("test_bigger.txt"))
+    size = await inst.size()
+    assert size is not None
+    assert size > 0
     async for chunk in inst.process():
         assert chunk

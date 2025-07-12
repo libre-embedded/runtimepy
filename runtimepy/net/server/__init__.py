@@ -8,7 +8,7 @@ from io import StringIO
 import logging
 import mimetypes
 from pathlib import Path
-from typing import Any, Optional, TextIO, Union
+from typing import Any, Awaitable, Callable, Optional, TextIO, Union
 from urllib.parse import urlencode
 
 # third-party
@@ -22,7 +22,7 @@ from runtimepy.channel.environment.command import GLOBAL, global_command
 from runtimepy.net.html import full_markdown_page
 from runtimepy.net.http.header import RequestHeader
 from runtimepy.net.http.request_target import PathMaybeQuery
-from runtimepy.net.http.response import AsyncResponse, ResponseHeader
+from runtimepy.net.http.response import AsyncFile, ResponseHeader
 from runtimepy.net.server.html import HtmlApp, HtmlApps, get_html, html_handler
 from runtimepy.net.server.json import encode_json, json_handler
 from runtimepy.net.server.markdown import DIR_FILE, markdown_for_dir
@@ -41,11 +41,17 @@ def package_data_dir() -> Path:
     return result.parent
 
 
+CustomAsync = Callable[
+    [ResponseHeader, RequestHeader, Optional[bytearray]], Awaitable[HttpResult]
+]
+
+
 class RuntimepyServerConnection(HttpConnection):
     """A class implementing a server-connection interface for this package."""
 
     # Can register application methods to URL paths.
     apps: HtmlApps = {"/mux.html": mux_app}
+    custom: dict[str, CustomAsync] = {}
     default_app: Optional[HtmlApp] = None
 
     # Can load additional data into this dictionary for easy HTTP access.
@@ -245,7 +251,7 @@ class RuntimepyServerConnection(HttpConnection):
                 response.static_resource()
 
                 # Return the file data.
-                result = AsyncResponse(candidate)
+                result = AsyncFile(candidate)
                 break
 
         # Handle a directory as a last resort.
@@ -334,6 +340,12 @@ class RuntimepyServerConnection(HttpConnection):
                     response["Content-Type"] = "image/x-icon"
                     response.static_resource()
                     return self.favicon_data
+
+                # Check for a custom handler.
+                if path in self.custom:
+                    return await self.custom[path](
+                        response, request, request_data
+                    )
 
                 # Try serving a file and handling redirects.
                 for handler in [self.try_redirect, self.try_file]:

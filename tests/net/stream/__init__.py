@@ -17,12 +17,12 @@ from runtimepy.control.step import ToggleStepper
 from runtimepy.message import JsonMessage
 from runtimepy.net.arbiter.info import AppInfo
 from runtimepy.net.http.header import RequestHeader
-from runtimepy.net.http.response import ResponseHeader
+from runtimepy.net.http.response import AsyncFile, ResponseHeader
 from runtimepy.net.server import RuntimepyServerConnection
 from runtimepy.net.server.websocket import RuntimepyWebsocketConnection
 from runtimepy.net.stream import StringMessageConnection
 from runtimepy.net.stream.json import JsonMessageConnection
-from runtimepy.net.tcp.http import HttpConnection
+from runtimepy.net.tcp.http import HttpConnection, HttpResult
 from runtimepy.net.udp import UdpConnection
 from tests.net.server import (
     runtimepy_http_client_server,
@@ -30,7 +30,7 @@ from tests.net.server import (
 )
 
 # internal
-from tests.resources import SampleArbiterTask
+from tests.resources import SampleArbiterTask, resource
 
 
 async def sample_handler(
@@ -105,6 +105,20 @@ async def runtimepy_http_test(app: AppInfo) -> int:
         if conn is not client:
             server = conn
     assert server is not None
+
+    async def custom_handler(
+        response: ResponseHeader,
+        request: RequestHeader,
+        data: Optional[bytearray],
+    ) -> HttpResult:
+        """Sample custom handler."""
+
+        del response
+        del request
+        del data
+        return AsyncFile(resource("test_bigger.txt"))
+
+    RuntimepyServerConnection.custom["/custom_handler"] = custom_handler
 
     await runtimepy_http_client_server(app, client, server)
 

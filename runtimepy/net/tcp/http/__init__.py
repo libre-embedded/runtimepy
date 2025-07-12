@@ -173,13 +173,13 @@ class HttpConnection(_TcpConnection):
     ) -> None:
         """Send a request or response to a request."""
 
-        # Set content length.
-        header["content-length"] = "0"
-
+        size = None
         if isinstance(data, AsyncResponse):
-            header["content-length"] = str(await data.size())
+            size = await data.size()
         elif data is not None:
-            header["content-length"] = str(len(data))
+            size = len(data)
+        if size is not None:
+            header["content-length"] = str(size)
 
         self.send_binary(bytes(header))
 

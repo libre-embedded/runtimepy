@@ -115,6 +115,8 @@ async def runtimepy_http_client_server(
             client.request(RequestHeader(target="/pyproject.toml")),
             # favicon.ico.
             client.request(RequestHeader(target="/favicon.ico")),
+            # Custom handlers.
+            client.request(RequestHeader(target="/custom_handler")),
             # JSON queries.
             client.request_json(RequestHeader(target="/json")),
             client.request_json(RequestHeader(target="/json//////")),

@@ -43,6 +43,7 @@ class Connection(
     byte_order: ByteOrder = DEFAULT_BYTE_ORDER
 
     default_auto_restart = False
+    ignore_stop_sig = False
 
     def __init__(
         self,
@@ -300,7 +301,7 @@ class Connection(
             )
 
         # Allow a stop signal to also disable the connection.
-        if stop_sig is not None:
+        if stop_sig is not None and not self.ignore_stop_sig:
             self._tasks.append(_asyncio.create_task(self._wait_sig(stop_sig)))
 
         self.exited.clear()

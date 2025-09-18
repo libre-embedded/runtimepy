@@ -237,9 +237,10 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
             self._register_connection(value, key)
 
         # Ensure connections are all initialized.
-        await _asyncio.gather(
-            *(x.initialized.wait() for x in self._connections.values())
-        )
+        with self.log_time("Connection initialization", reminder=True):
+            await _asyncio.gather(
+                *(x.initialized.wait() for x in self._connections.values())
+            )
 
     async def _build_structs(self, info: AppInfo) -> None:
         """Build structs."""
@@ -372,6 +373,8 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
         info: Optional[AppInfo] = None
 
         try:
+            self.stop_sig.clear()
+
             async with _AsyncExitStack() as stack:
                 result, info = await self._main(
                     stack,

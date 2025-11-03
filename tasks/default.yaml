@@ -9,6 +9,8 @@ config:
 
     Arbitrary configuration (testing).
 
+    <div style="width: 800px; background-color: red">test</div>
+
   bottom_markdown: |
     # Bottom Markdown
 

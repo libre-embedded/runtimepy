@@ -69,7 +69,10 @@ class RuntimeStruct(RuntimeStructBase):
     final_poll = False
 
     def init_env(self) -> None:
-        """Initialize this sample environment."""
+        """Initialize this environment."""
+
+    async def async_init_env(self) -> None:
+        """Initialize this environment."""
 
     @contextmanager
     def _final_poll(self) -> _Iterator[None]:
@@ -109,6 +112,7 @@ class RuntimeStruct(RuntimeStructBase):
                     self.env.register_protocol(self.send, True)
 
         self.init_env()
+        await self.async_init_env()
         self.update_byte_order(byte_order, **kwargs)
 
     def update_byte_order(self, byte_order: ByteOrder, **kwargs) -> None:

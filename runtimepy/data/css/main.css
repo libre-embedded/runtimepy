@@ -19,6 +19,8 @@ body > :first-child {
 
 #runtimepy-tabs {
   width: min-content;
+  max-width: 30vw;
+  overflow: hidden;
 }
 
 #runtimepy-splash {

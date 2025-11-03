@@ -342,7 +342,11 @@ class JsonMessageInterface:
             target = self.targets.evaluate(key)
             if target:
                 assert target.data is not None
-                key, handler, kind = target.data
+                (  # pylint: disable=unpacking-non-sequence
+                    key,
+                    handler,
+                    kind,
+                ) = target.data
 
                 # Use target resolution data (if any) as a base.
                 with_sub_data = copy(

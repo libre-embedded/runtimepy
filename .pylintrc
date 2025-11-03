@@ -7,7 +7,7 @@ max-public-methods=22
 max-branches=13
 
 [MESSAGES CONTROL]
-disable=too-few-public-methods,duplicate-code
+disable=too-few-public-methods,duplicate-code,invalid-name
 
 [FORMAT]
 good-names=id,x,y,tx,rx

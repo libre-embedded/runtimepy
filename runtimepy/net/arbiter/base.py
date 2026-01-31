@@ -237,9 +237,10 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
             self._register_connection(value, key)
 
         # Ensure connections are all initialized.
-        await _asyncio.gather(
-            *(x.initialized.wait() for x in self._connections.values())
-        )
+        with self.log_time("Connection initialization", reminder=True):
+            await _asyncio.gather(
+                *(x.initialized.wait() for x in self._connections.values())
+            )
 
     async def _build_structs(self, info: AppInfo) -> None:
         """Build structs."""
@@ -362,6 +363,7 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
         app: NetworkApplicationlike = None,
         check_connections: bool = True,
         config: _JsonObject = None,
+        clear_stop_sig: bool = True,
     ) -> int:
         """
         Ensures connections are given a chance to initialize, run the
@@ -372,6 +374,9 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
         info: Optional[AppInfo] = None
 
         try:
+            if clear_stop_sig:
+                self.stop_sig.clear()
+
             async with _AsyncExitStack() as stack:
                 result, info = await self._main(
                     stack,
@@ -462,6 +467,7 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
         app: NetworkApplicationlike = None,
         check_connections: bool = True,
         config: _JsonObject = None,
+        clear_stop_sig: bool = False,
     ) -> int:
         """
         Run the application alongside the connection manager and server tasks.
@@ -472,7 +478,10 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
 
         # Run application.
         result = await self._entry(
-            app=app, check_connections=check_connections, config=config
+            app=app,
+            check_connections=check_connections,
+            config=config,
+            clear_stop_sig=clear_stop_sig,
         )
 
         # Shutdown any pending tasks.

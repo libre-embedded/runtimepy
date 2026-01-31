@@ -2,11 +2,11 @@
     =====================================
     generator=datazen
     version=3.2.3
-    hash=c354cb6439439285d244ad2bdcc32cc8
+    hash=ebb0bba9899d4baf7ce73b082f5e384e
     =====================================
 -->
 
-# runtimepy ([5.15.8](https://pypi.org/project/runtimepy/))
+# runtimepy ([5.16.0](https://pypi.org/project/runtimepy/))
 
 [![python](https://img.shields.io/pypi/pyversions/runtimepy.svg)](https://pypi.org/project/runtimepy/)
 ![Build Status](https://github.com/libre-embedded/runtimepy/workflows/Python%20Package/badge.svg)
@@ -40,7 +40,7 @@ This package is tested on the following platforms:
 # Command-line Options
 
 ```
-$ ./venv3.12/bin/runtimepy -h
+$ ./venv3.13/bin/runtimepy -h
 
 usage: runtimepy [-h] [--version] [-v] [-q] [--curses] [--no-uvloop] [-C DIR]
                  {arbiter,mtu,server,task,tftp,tui,noop} ...
@@ -54,7 +54,7 @@ options:
   -q, --quiet           set to reduce output
   --curses              whether or not to use curses.wrapper when starting
   --no-uvloop           whether or not to disable uvloop as event loop driver
-  -C DIR, --dir DIR     execute from a specific directory
+  -C, --dir DIR         execute from a specific directory
 
 commands:
   {arbiter,mtu,server,task,tftp,tui,noop}
@@ -74,7 +74,7 @@ commands:
 ### `arbiter`
 
 ```
-$ ./venv3.12/bin/runtimepy arbiter -h
+$ ./venv3.13/bin/runtimepy arbiter -h
 
 usage: runtimepy arbiter [-h] [-i] [-w] [--no-poller] configs [configs ...]
 
@@ -95,7 +95,7 @@ options:
 ### `mtu`
 
 ```
-$ ./venv3.12/bin/runtimepy mtu -h
+$ ./venv3.13/bin/runtimepy mtu -h
 
 usage: runtimepy mtu [-h] [--probe-size PROBE_SIZE] [--fallback FALLBACK] [-t]
                      destination [destination ...]
@@ -116,7 +116,7 @@ options:
 ### `server`
 
 ```
-$ ./venv3.12/bin/runtimepy server -h
+$ ./venv3.13/bin/runtimepy server -h
 
 usage: runtimepy server [-h] [-i] [-w] [--no-poller] [--cafile CAFILE]
                         [--capath CAPATH] [--cadata CADATA]
@@ -142,7 +142,7 @@ options:
   --certfile CERTFILE   passed directly to instantiation
   --keyfile KEYFILE     passed directly to instantiation
   --host HOST           host address to listen on (default: '0.0.0.0')
-  -p PORT, --port PORT  port to listen on (default: 0)
+  -p, --port PORT       port to listen on (default: 0)
   -u, --udp             whether or not this is a UDP-based server (otherwise
                         it must be a TCP-based server)
   -l, --loopback        if true a client of the same connection type is added
@@ -152,7 +152,7 @@ options:
 ### `task`
 
 ```
-$ ./venv3.12/bin/runtimepy task -h
+$ ./venv3.13/bin/runtimepy task -h
 
 usage: runtimepy task [-h] [-i] [-w] [--no-poller] [-r RATE]
                       factory [configs ...]
@@ -169,14 +169,14 @@ options:
                         ensure that a 'wait_for_stop' application method is
                         run last
   --no-poller           don't run a connection-metrics poller task
-  -r RATE, --rate RATE  rate (in Hz) that the task should run (default: 10)
+  -r, --rate RATE       rate (in Hz) that the task should run (default: 10)
 
 ```
 
 ### `tftp`
 
 ```
-$ ./venv3.12/bin/runtimepy tftp -h
+$ ./venv3.13/bin/runtimepy tftp -h
 
 usage: runtimepy tftp [-h] [-p PORT] [-m MODE] [-t TIMEOUT] [-r REEMIT]
                       {read,write} host our_file [their_file]
@@ -189,28 +189,27 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -p PORT, --port PORT  port to message (default: 69)
-  -m MODE, --mode MODE  tftp mode to use (default: octet)
-  -t TIMEOUT, --timeout TIMEOUT
+  -p, --port PORT       port to message (default: 69)
+  -m, --mode MODE       tftp mode to use (default: octet)
+  -t, --timeout TIMEOUT
                         timeout for each step
-  -r REEMIT, --reemit REEMIT
-                        transmit period for each step
+  -r, --reemit REEMIT   transmit period for each step
 
 ```
 
 ### `tui`
 
 ```
-$ ./venv3.12/bin/runtimepy tui -h
+$ ./venv3.13/bin/runtimepy tui -h
 
 usage: runtimepy tui [-h] [-i ITERATIONS] [-r RATE]
 
 options:
   -h, --help            show this help message and exit
-  -i ITERATIONS, --iterations ITERATIONS
+  -i, --iterations ITERATIONS
                         maximum number of program iterations (if greater than
                         zero, default: 0)
-  -r RATE, --rate RATE  frequency (in Hz) to run the interface (default: 60.0
+  -r, --rate RATE       frequency (in Hz) to run the interface (default: 60.0
                         Hz)
 
 ```

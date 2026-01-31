@@ -12,8 +12,10 @@ from runtimepy.entry import main as runtimepy_main
 # internal
 from tests.resources import base_args, resource
 
+TIMEOUT = 60
 
-@mark.timeout(60)
+
+@mark.timeout(TIMEOUT)
 def test_arbiter_command_basic():
     """Test basic usages of the 'arbiter' command."""
 
@@ -35,7 +37,7 @@ def test_arbiter_command_basic():
         )
 
 
-@mark.timeout(60)
+@mark.timeout(TIMEOUT)
 def test_arbiter_command_advanced():
     """Test advanced usages of the 'arbiter' command."""
 

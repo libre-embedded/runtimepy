@@ -30,16 +30,15 @@ async def entry(
 
     await arbiter.load_configs(args.configs, wait_for_stop=args.wait_for_stop)
 
-    return await arbiter.app()
+    if args.init_only:
+        stop_sig.set()
+    return await arbiter.app(clear_stop_sig=not args.init_only)
 
 
 def app(args: _Namespace) -> int:
     """Start the application with an optional TUI."""
 
     stop_sig = _asyncio.Event()
-
-    if args.init_only:
-        stop_sig.set()
 
     result = _run_handle_stop(
         stop_sig,

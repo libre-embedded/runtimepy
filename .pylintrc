@@ -10,4 +10,4 @@ max-branches=13
 disable=too-few-public-methods,duplicate-code
 
 [FORMAT]
-good-names=id,x,y,tx,rx
+good-names=id,x,y,tx,rx,Double,Float,Half,Bool,Int8,Int16,Int32,Int64,Uint8,Primitives,PrimitiveTypes,Uint16,Uint32,Uint64

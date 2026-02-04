@@ -69,7 +69,10 @@ class RuntimeStruct(RuntimeStructBase):
     final_poll = False
 
     def init_env(self) -> None:
-        """Initialize this sample environment."""
+        """Initialize this environment."""
+
+    async def async_init_env(self) -> None:
+        """Initialize this environment."""
 
     @contextmanager
     def _final_poll(self) -> _Iterator[None]:
@@ -101,14 +104,18 @@ class RuntimeStruct(RuntimeStructBase):
             if ProtocolFactory in factory.__bases__:
                 self.recv = factory.singleton()
                 byte_order = self.recv.byte_order
-                with self.env.names_pushed("rx"):
+                if self.config.get("control", True):
+                    with self.env.names_pushed("rx"):
+                        self.env.register_protocol(self.recv, False)
+
+                    self.send = factory.instance()
+                    with self.env.names_pushed("tx"):
+                        self.env.register_protocol(self.send, True)
+                else:
                     self.env.register_protocol(self.recv, False)
 
-                self.send = factory.instance()
-                with self.env.names_pushed("tx"):
-                    self.env.register_protocol(self.send, True)
-
         self.init_env()
+        await self.async_init_env()
         self.update_byte_order(byte_order, **kwargs)
 
     def update_byte_order(self, byte_order: ByteOrder, **kwargs) -> None:

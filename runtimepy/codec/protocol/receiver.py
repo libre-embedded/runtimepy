@@ -21,6 +21,10 @@ NonStructHandler = Callable[[BytesIO], bool]
 NON_STRUCT_ID = 0
 
 
+def null_struct_handler(_: Protocol) -> None:
+    """Takes no action."""
+
+
 class StructReceiver(LoggerMixin):
     """A class for sending and receiving struct messages."""
 
@@ -44,7 +48,9 @@ class StructReceiver(LoggerMixin):
         assert self.non_struct_handler is None
         self.non_struct_handler = handler
 
-    def add_handler(self, identifier: int, handler: StructHandler) -> None:
+    def add_handler(
+        self, identifier: int, handler: StructHandler = null_struct_handler
+    ) -> None:
         """Add a struct message handler."""
 
         assert identifier not in self.handlers

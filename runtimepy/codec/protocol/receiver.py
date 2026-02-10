@@ -9,6 +9,7 @@ from typing import Callable, Optional
 
 # third-party
 from vcorelib.logging import LoggerMixin
+from vcorelib.math import default_time_ns
 
 # internal
 from runtimepy.codec.protocol import Protocol, ProtocolFactory
@@ -80,6 +81,8 @@ class StructReceiver(LoggerMixin):
     def process(self, data: bytes) -> None:
         """Attempt to process a struct message."""
 
+        timestamp_ns = default_time_ns()
+
         with BytesIO(data) as stream:
             stream.seek(0, os.SEEK_END)
             end_pos = stream.tell()
@@ -87,7 +90,9 @@ class StructReceiver(LoggerMixin):
 
             while stream.tell() < end_pos:
                 ident = self.id_primitive.from_stream(
-                    stream, byte_order=self.byte_order
+                    stream,
+                    byte_order=self.byte_order,
+                    timestamp_ns=timestamp_ns,
                 )
 
                 # Handle non-struct messages.
@@ -107,7 +112,7 @@ class StructReceiver(LoggerMixin):
                 # Handle struct messages.
                 elif ident in self.instances:
                     inst = self.instances[ident]
-                    inst.from_stream(stream)
+                    inst.from_stream(stream, timestamp_ns=timestamp_ns)
                     if ident in self.handlers:
                         self.handlers[ident](inst)
                     else:

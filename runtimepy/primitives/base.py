@@ -244,23 +244,36 @@ class Primitive(_Generic[T]):
         stream.write(self.binary(byte_order=byte_order))
         return self.kind.size
 
-    def update(self, data: BinaryMessage, byte_order: _ByteOrder = None) -> T:
+    def update(
+        self,
+        data: BinaryMessage,
+        byte_order: _ByteOrder = None,
+        timestamp_ns: int = None,
+    ) -> T:
         """Update this primitive from a bytes object."""
 
         if byte_order is None:
             byte_order = self.byte_order
 
-        self.value = self.kind.decode(  # type: ignore
-            data, byte_order=byte_order
+        self.set_value(
+            self.kind.decode(data, byte_order=byte_order),  # type: ignore
+            timestamp_ns=timestamp_ns,
         )
         return self.value
 
     def from_stream(
-        self, stream: _BinaryIO, byte_order: _ByteOrder = None
+        self,
+        stream: _BinaryIO,
+        byte_order: _ByteOrder = None,
+        timestamp_ns: int = None,
     ) -> T:
         """Update this primitive from a stream and return the new value."""
 
-        return self.update(stream.read(self.kind.size), byte_order=byte_order)
+        return self.update(
+            stream.read(self.kind.size),
+            byte_order=byte_order,
+            timestamp_ns=timestamp_ns,
+        )
 
     @classmethod
     def encode(cls, value: T, byte_order: _ByteOrder = None) -> bytes:

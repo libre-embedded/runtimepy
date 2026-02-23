@@ -128,8 +128,8 @@ def base_args(*commands: str) -> list[str]:
     base = [PKG_NAME]
 
     # Don't use uvloop if not using Python 3.11.
-    if not can_use_uvloop() and not is_windows():
-        base.append("--no-uvloop")
+    # if not can_use_uvloop() and not is_windows():
+    base.append("--no-uvloop")
 
     base.extend(commands)
 

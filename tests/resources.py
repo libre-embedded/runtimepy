@@ -5,7 +5,6 @@ A module for working with test data.
 # built-in
 import asyncio
 from pathlib import Path
-from sys import version_info
 from typing import Awaitable, Optional, TypeVar
 
 # third-party
@@ -114,22 +113,12 @@ class SampleArbiterTask(ArbiterTask, SampleTask):
     """A sample arbiter task."""
 
 
-def can_use_uvloop() -> bool:
-    """Determine if tests should try to use uvloop."""
-
-    return not is_windows() and (
-        version_info.major >= 3 and version_info.minor >= 11
-    )
-
-
 def base_args(*commands: str) -> list[str]:
     """Get base command-line arguments."""
 
     base = [PKG_NAME]
-
-    # Don't use uvloop if not using Python 3.11.
-    # if not can_use_uvloop() and not is_windows():
-    base.append("--no-uvloop")
+    if not is_windows():
+        base.append("--no-uvloop")  # has issues in test environment
 
     base.extend(commands)
 

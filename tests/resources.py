@@ -113,12 +113,20 @@ class SampleArbiterTask(ArbiterTask, SampleTask):
     """A sample arbiter task."""
 
 
+def can_use_uvloop() -> bool:
+    """Determine if tests should try to use uvloop."""
+
+    return False
+
+
 def base_args(*commands: str) -> list[str]:
     """Get base command-line arguments."""
 
     base = [PKG_NAME]
-    if not is_windows():
-        base.append("--no-uvloop")  # has issues in test environment
+
+    # Don't use uvloop if not using Python 3.11.
+    if not can_use_uvloop() and not is_windows():
+        base.append("--no-uvloop")
 
     base.extend(commands)
 

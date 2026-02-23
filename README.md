@@ -2,11 +2,11 @@
     =====================================
     generator=datazen
     version=3.2.3
-    hash=5fb00253ef852621d793c49ac8298981
+    hash=2fb2d85a4f46fda14e39e1fadf7aa445
     =====================================
 -->
 
-# runtimepy ([5.16.1](https://pypi.org/project/runtimepy/))
+# runtimepy ([5.17.0](https://pypi.org/project/runtimepy/))
 
 [![python](https://img.shields.io/pypi/pyversions/runtimepy.svg)](https://pypi.org/project/runtimepy/)
 ![Build Status](https://github.com/libre-embedded/runtimepy/workflows/Python%20Package/badge.svg)
@@ -24,8 +24,8 @@ Consider [sponsoring development](https://github.com/sponsors/libre-embedded).
 
 This package is tested with the following Python minor versions:
 
-* [`python3.12`](https://docs.python.org/3.12/)
 * [`python3.13`](https://docs.python.org/3.13/)
+* [`python3.14`](https://docs.python.org/3.14/)
 
 ## Platform Support
 
@@ -40,7 +40,7 @@ This package is tested on the following platforms:
 # Command-line Options
 
 ```
-$ ./venv3.13/bin/runtimepy -h
+$ ./venv3.14/bin/runtimepy -h
 
 usage: runtimepy [-h] [--version] [-v] [-q] [--curses] [--no-uvloop] [-C DIR]
                  {arbiter,mtu,server,task,tftp,tui,noop} ...
@@ -74,7 +74,7 @@ commands:
 ### `arbiter`
 
 ```
-$ ./venv3.13/bin/runtimepy arbiter -h
+$ ./venv3.14/bin/runtimepy arbiter -h
 
 usage: runtimepy arbiter [-h] [-i] [-w] [--no-poller] configs [configs ...]
 
@@ -95,7 +95,7 @@ options:
 ### `mtu`
 
 ```
-$ ./venv3.13/bin/runtimepy mtu -h
+$ ./venv3.14/bin/runtimepy mtu -h
 
 usage: runtimepy mtu [-h] [--probe-size PROBE_SIZE] [--fallback FALLBACK] [-t]
                      destination [destination ...]
@@ -116,7 +116,7 @@ options:
 ### `server`
 
 ```
-$ ./venv3.13/bin/runtimepy server -h
+$ ./venv3.14/bin/runtimepy server -h
 
 usage: runtimepy server [-h] [-i] [-w] [--no-poller] [--cafile CAFILE]
                         [--capath CAPATH] [--cadata CADATA]
@@ -152,7 +152,7 @@ options:
 ### `task`
 
 ```
-$ ./venv3.13/bin/runtimepy task -h
+$ ./venv3.14/bin/runtimepy task -h
 
 usage: runtimepy task [-h] [-i] [-w] [--no-poller] [-r RATE]
                       factory [configs ...]
@@ -176,7 +176,7 @@ options:
 ### `tftp`
 
 ```
-$ ./venv3.13/bin/runtimepy tftp -h
+$ ./venv3.14/bin/runtimepy tftp -h
 
 usage: runtimepy tftp [-h] [-p PORT] [-m MODE] [-t TIMEOUT] [-r REEMIT]
                       {read,write} host our_file [their_file]
@@ -200,7 +200,7 @@ options:
 ### `tui`
 
 ```
-$ ./venv3.13/bin/runtimepy tui -h
+$ ./venv3.14/bin/runtimepy tui -h
 
 usage: runtimepy tui [-h] [-i ITERATIONS] [-r RATE]
 

@@ -108,7 +108,7 @@ class ChannelEnvironmentTabMessaging(ChannelEnvironmentTabBase):
                 "%s: %s",
                 data["value"],
                 result,
-                level=logging.INFO if result else logging.ERROR,
+                level=logging.DEBUG if result else logging.ERROR,
             )
 
         # Handle tab-event messages.

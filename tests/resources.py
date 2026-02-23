@@ -5,7 +5,6 @@ A module for working with test data.
 # built-in
 import asyncio
 from pathlib import Path
-from sys import version_info
 from typing import Awaitable, Optional, TypeVar
 
 # third-party
@@ -117,9 +116,7 @@ class SampleArbiterTask(ArbiterTask, SampleTask):
 def can_use_uvloop() -> bool:
     """Determine if tests should try to use uvloop."""
 
-    return not is_windows() and (
-        version_info.major >= 3 and version_info.minor >= 11
-    )
+    return False
 
 
 def base_args(*commands: str) -> list[str]:

@@ -1,3 +1,11 @@
+function fullscreenClick(event) {
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else {
+    document.body.requestFullscreen();
+  }
+}
+
 class WindowHashManager {
   constructor(loc) {
     this.loc = loc;
@@ -135,6 +143,10 @@ class WindowHashManager {
     let lightDarkButton = document.getElementById("theme-button");
     if (lightDarkButton) {
       lightDarkButton.addEventListener("click", this.lightDarkClick.bind(this));
+    }
+    let fullscreenButton = document.getElementById("fullscreen-button");
+    if (fullscreenButton) {
+      fullscreenButton.addEventListener("click", fullscreenClick);
     }
 
     /* Click handlers for new window buttons. */

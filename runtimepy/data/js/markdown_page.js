@@ -10,10 +10,23 @@ function lightDarkClick(event) {
   window.location.hash = lightMode ? "#light-mode" : "";
 }
 
+function fullscreenClick(event) {
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else {
+    document.body.requestFullscreen();
+  }
+}
+
 window.onload = () => {
+  /* button column */
   let lightDarkButton = document.getElementById("theme-button");
   if (lightDarkButton) {
     lightDarkButton.addEventListener("click", lightDarkClick);
+  }
+  let fullscreenButton = document.getElementById("fullscreen-button");
+  if (fullscreenButton) {
+    fullscreenButton.addEventListener("click", fullscreenClick);
   }
 
   if (window.location.hash) {

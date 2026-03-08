@@ -66,6 +66,15 @@ def create_app_shell(
         title="change theme button",
     )
 
+    # Fullscreen toggle.
+    bootstrap_button(
+        icon_str("fullscreen"),
+        tooltip="Toggle fullscreen.",
+        id="fullscreen-button",
+        parent=button_column,
+        title="toggle fullscreen",
+    )
+
     return container, button_column
 
 

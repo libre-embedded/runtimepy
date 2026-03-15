@@ -102,17 +102,19 @@ class RuntimeStruct(RuntimeStructBase):
                 import_module(module), name
             )
             if ProtocolFactory in factory.__bases__:
-                self.recv = factory.singleton()
-                byte_order = self.recv.byte_order
                 if self.config.get("control", True):
+                    self.recv = factory.instance()
                     with self.env.names_pushed("rx"):
                         self.env.register_protocol(self.recv, False)
 
-                    self.send = factory.instance()
+                    self.send = factory.singleton()
                     with self.env.names_pushed("tx"):
                         self.env.register_protocol(self.send, True)
                 else:
+                    self.recv = factory.singleton()
                     self.env.register_protocol(self.recv, False)
+
+                byte_order = self.recv.byte_order
 
         self.init_env()
         await self.async_init_env()

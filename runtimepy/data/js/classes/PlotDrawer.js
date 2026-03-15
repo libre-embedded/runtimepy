@@ -158,15 +158,15 @@ class PlotDrawer {
       lineDepth = this.channels[key].buffer.capacity;
     }
 
-    this.lines[key] =
-        new WebglPlotBundle.WebglLine(this.rgbaColors[key], lineDepth);
+    this.lines[key] = new WebglPlotBundle.WebglThickLine(this.rgbaColors[key],
+                                                         lineDepth, 0.01);
   }
 
   updateLines() {
     /* Clear and re-add lines. */
     this.wglp.removeAllLines();
     for (let key in this.lines) {
-      this.wglp.addLine(this.lines[key]);
+      this.wglp.addThickLine(this.lines[key]);
     }
 
     this.drawLines();

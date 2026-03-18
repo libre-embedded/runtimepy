@@ -64,8 +64,10 @@ class Primitive(_Generic[T]):
             {}
         )
         self.time_source = time_source
-        self(value=value)
+        self.set_streak: int = 0
         self.last_updated_ns: int = self.time_source()
+        self.prev_updated_ns = self.last_updated_ns
+        self(value=value)
         self.scaling = scaling
         self._hash = IDENT()
 
@@ -148,16 +150,21 @@ class Primitive(_Generic[T]):
     def _check_callbacks(self, curr: T, new: T) -> None:
         """Determine if any callbacks should be serviced."""
 
-        if self.callbacks and curr != new:
-            to_remove = []
-            for ident, (callback, once) in self.callbacks.items():
-                callback(curr, new)
-                if once:
-                    to_remove.append(ident)
+        if curr != new:
+            if self.callbacks:
+                to_remove = []
+                for ident, (callback, once) in self.callbacks.items():
+                    callback(curr, new)
+                    if once:
+                        to_remove.append(ident)
 
-            # Remove one-time callbacks.
-            for item in to_remove:
-                self.remove_callback(item)
+                # Remove one-time callbacks.
+                for item in to_remove:
+                    self.remove_callback(item)
+
+                self.set_streak = 0
+        else:
+            self.set_streak += 1
 
     def set_value(self, value: T, timestamp_ns: int = None) -> None:
         """Set a new underlying value."""
@@ -170,6 +177,7 @@ class Primitive(_Generic[T]):
         curr: T = self.raw.value  # type: ignore
         self.raw.value = value
         self._check_callbacks(curr, value)
+        self.prev_updated_ns = self.last_updated_ns
 
     @property
     def scaled(self) -> Numeric:

@@ -25,13 +25,23 @@ class ChannelEnvironmentTabMessaging(ChannelEnvironmentTabBase):
         assert isinstance(chan, Channel) or chan is not None
         prim = chan.raw
 
-        def callback(_, __) -> None:
+        def callback(
+            curr: bool | int | float, new: bool | int | float
+        ) -> None:
             """Emit a change event to the stream."""
+
+            if prim.set_streak:
+                state.points[name].append(
+                    (
+                        self.command.env.value(name, value=curr),
+                        prim.prev_updated_ns,
+                    )
+                )
 
             # Render enumerations etc. here instead of trying to do it
             # in the UI.
             state.points[name].append(
-                (self.command.env.value(name), prim.last_updated_ns)
+                (self.command.env.value(name, value=new), prim.last_updated_ns)
             )
 
         state.primitives[name] = prim

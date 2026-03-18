@@ -192,7 +192,11 @@ class BaseChannelEnvironment(_NamespaceMixin, FinalizeMixin):
         return result
 
     def value(
-        self, key: _RegistryKey, resolve_enum: bool = True, scaled: bool = True
+        self,
+        key: _RegistryKey,
+        resolve_enum: bool = True,
+        scaled: bool = True,
+        value: ChannelValue = None,
     ) -> ChannelValue:
         """Attempt to get a channel's current value."""
 
@@ -204,7 +208,8 @@ class BaseChannelEnvironment(_NamespaceMixin, FinalizeMixin):
 
         chan, enum = self[key]
 
-        value: ChannelValue = chan.raw.scaled if scaled else chan.raw.value
+        if value is None:
+            value = chan.raw.scaled if scaled else chan.raw.value
 
         # Resolve enumeration values to strings.
         if enum is not None and resolve_enum:

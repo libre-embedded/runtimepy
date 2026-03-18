@@ -64,12 +64,12 @@ class Primitive(_Generic[T]):
             {}
         )
         self.time_source = time_source
-        self(value=value)
+        self.set_streak: int = 0
         self.last_updated_ns: int = self.time_source()
         self.prev_updated_ns = self.last_updated_ns
+        self(value=value)
         self.scaling = scaling
         self._hash = IDENT()
-        self.set_streak: int = 0
 
     @classmethod
     def valid_primitive(cls, primitive: _PythonPrimitive) -> bool:

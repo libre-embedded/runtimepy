@@ -165,14 +165,15 @@ class PlotDrawer {
   newLine(key) {
     /* Get color for line. */
     if (!(key in this.rgbaColors)) {
-      /*
-      this.setColor(key, {
-        r : Math.random() * 255,
-        g : Math.random() * 255,
-        b : Math.random() * 255
-      });
-      */
-      this.setColor(key, this.colors[key]);
+      if (this.colors[key]) {
+        this.setColor(key, this.colors[key]);
+      } else {
+        this.setColor(key, {
+          r : Math.random() * 255,
+          g : Math.random() * 255,
+          b : Math.random() * 255
+        });
+      }
     }
 
     /* Use underlying buffer capacity if it can be queried. */

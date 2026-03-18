@@ -1,5 +1,5 @@
 class PlotDrawer {
-  constructor(canvas, colors, overlay) {
+  constructor(canvas, colors, hex_colors, overlay) {
     this.canvas = canvas;
 
     this.overlay = new OverlayManager(overlay);
@@ -14,7 +14,10 @@ class PlotDrawer {
     /* Point managers for individual channels. */
     this.channels = {};
     this.colors = colors;
+    this.hex_colors = hex_colors;
     this.rgbaColors = {};
+    this.opacity = 0.7;
+    this.lineThickness = 0.01;
 
     /* Line objects by channel name. */
     this.lines = {};
@@ -26,7 +29,27 @@ class PlotDrawer {
     this.maxTimestamp = null;
   }
 
+  updateOverlayAxisLabels() {
+    let maxLines = [];
+    let minLines = [];
+    let max, min;
+    for (const key in this.channels) {
+      if (key in this.lines) {
+        let chan = this.channels[key];
+        max = chan.buffer.maxVal;
+        min = chan.buffer.minVal;
+        if (max != null && min != null) {
+          maxLines.push([ this.hex_colors[key], max ]);
+          minLines.push([ this.hex_colors[key], min ]);
+        }
+      }
+    }
+    this.overlay.upperLeftEntries = maxLines;
+    this.overlay.bottomLeftEntries = minLines;
+  }
+
   update(time) {
+    this.updateOverlayAxisLabels();
     this.overlay.update(time);
     this.wglp.update();
   }
@@ -134,22 +157,22 @@ class PlotDrawer {
   }
 
   setColor(key, rgb) {
-    this.rgbaColors[key] =
-        new WebglPlotBundle.ColorRGBA(rgb.r / 255, rgb.g / 255, rgb.b / 255, 1);
+    console.log(rgb);
+    this.rgbaColors[key] = new WebglPlotBundle.ColorRGBA(
+        rgb.r / 255, rgb.g / 255, rgb.b / 255, this.opacity);
   }
 
   newLine(key) {
     /* Get color for line. */
     if (!(key in this.rgbaColors)) {
-      if (key in this.colors) {
-        this.setColor(key, this.colors[key]);
-      } else {
-        this.setColor(key, {
-          r : Math.random() * 255,
-          g : Math.random() * 255,
-          b : Math.random() * 255
-        });
-      }
+      /*
+      this.setColor(key, {
+        r : Math.random() * 255,
+        g : Math.random() * 255,
+        b : Math.random() * 255
+      });
+      */
+      this.setColor(key, this.colors[key]);
     }
 
     /* Use underlying buffer capacity if it can be queried. */
@@ -158,8 +181,8 @@ class PlotDrawer {
       lineDepth = this.channels[key].buffer.capacity;
     }
 
-    this.lines[key] = new WebglPlotBundle.WebglThickLine(this.rgbaColors[key],
-                                                         lineDepth, 0.01);
+    this.lines[key] = new WebglPlotBundle.WebglThickLine(
+        this.rgbaColors[key], lineDepth, this.lineThickness);
   }
 
   updateLines() {

@@ -6,6 +6,8 @@ class PointBuffer {
 
     this.elements = 0;
     this.updateCapacity(capacity);
+    this.maxVal = null;
+    this.minVal = null;
   }
 
   reset() {
@@ -14,6 +16,8 @@ class PointBuffer {
     this.elements = 0;
     this.oldestTimestamp = null;
     this.newestTimestamp = null;
+    this.maxVal = null;
+    this.minVal = null;
   }
 
   updateCapacity(capacity) {
@@ -127,6 +131,10 @@ class PointBuffer {
     if (minVal == null || curr < minVal) {
       minVal = curr;
     }
+
+    /* Publish min and max. */
+    this.maxVal = maxVal;
+    this.minVal = minVal;
 
     let slope = 2 / (maxVal - minVal);
 

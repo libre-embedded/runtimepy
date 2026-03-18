@@ -27,6 +27,7 @@ class PlotManager {
 
     this.drawers = {};
     this.colors = {};
+    this.hex_colors = {};
     this.channelsToPlot = {};
   }
 
@@ -62,6 +63,7 @@ class PlotManager {
   channelColors(name) {
     if (!(name in this.colors)) {
       this.colors[name] = {};
+      this.hex_colors[name] = {};
     }
     return this.colors[name];
   }
@@ -69,7 +71,9 @@ class PlotManager {
   setColor(name, data) {
     let colors = this.channelColors(name);
     let chan = data["channel"];
-    colors[chan] = hexToRgb(data["color"]);
+
+    this.hex_colors[name][chan] = data["color"];
+    colors[chan] = hexToRgb(this.hex_colors[name][chan]);
 
     if (name in this.drawers) {
       let drawer = this.drawers[name];
@@ -118,7 +122,7 @@ class PlotManager {
           if (webglContextCount < webglContextMax && name in this.plots) {
             let drawer =
                 new PlotDrawer(this.plots[name], this.channelColors(name),
-                               this.overlays[name]);
+                               this.hex_colors[name], this.overlays[name]);
             this.drawers[name] = drawer;
 
             webglContextCount++;

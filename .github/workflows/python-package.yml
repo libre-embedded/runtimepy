@@ -46,7 +46,7 @@ jobs:
 
       - run: mk python-sa-types
 
-      - run: mk docs version=5.17.2
+      - run: mk docs version=5.17.3
         if: |
           matrix.python-version == '3.14'
           && matrix.system == 'ubuntu-latest'
@@ -78,7 +78,7 @@ jobs:
 
       - run: |
           mk python-release owner=libre-embedded \
-                            repo=runtimepy version=5.17.2
+                            repo=runtimepy version=5.17.3
         if: |
           matrix.python-version == '3.14'
           && matrix.system == 'ubuntu-latest'

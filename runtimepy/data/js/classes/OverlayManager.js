@@ -16,82 +16,100 @@ class OverlayManager {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext("2d");
+    this.ctx.globalAlpha = 0.7;
 
     /* Runtime state. */
     this.visible = true;
     this.bufferDepth = Math.min(512, this.canvas.width);
     this.minTimestamp = null;
     this.maxTimestamp = null;
-    this.lines = [];
+    this.textLines = [];
+    this.upperLeftEntries = [];
+    this.bottomLeftEntries = [];
     this.maxLen = 0;
 
     /* Make this controllable at some point. */
-    this.fontSize = 14;
+    this.fontSize = 22;
+    this.padding = this.fontSize / 4;
   }
 
   writeLn(data) {
     let padded = padStringTo(data);
     this.maxLen = Math.max(this.maxLen, padded.length);
-    this.lines.push(padded);
+    this.textLines.push(padded);
+  }
+
+  writeCornerLines(data, x, y) {
+    for (const line of data) {
+      this.ctx.fillStyle = line[0];
+      this.ctx.fillText(line[1], x, y);
+      y += this.fontSize;
+    }
+  }
+
+  upperLeftText() {
+    // this.ctx.fillRect(0, 0, size, size);
+    this.writeCornerLines(this.upperLeftEntries, this.padding * 2,
+                          this.padding + this.fontSize);
+  }
+
+  bottomLeftText() {
+    // ctx.fillRect(0, canvas.height - size, size, size);
+    this.writeCornerLines(this.bottomLeftEntries, this.padding * 2,
+                          this.canvas.height -
+                              (this.fontSize * this.bottomLeftEntries.length) +
+                              this.padding);
   }
 
   update(time) {
     let canvas = this.canvas;
     let ctx = this.ctx;
 
+    ctx.font = this.fontSize + "px monospace";
+
     /* Clear before drawing. */
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    /* Drawing settings. */
-    ctx.font = this.fontSize + "px monospace";
+    this.upperLeftText();
+    this.bottomLeftText();
+
+    // let size = this.fontSize * 2;
+    // ctx.fillRect(canvas.width - size, 0, size, size);
+    // ctx.fillRect(canvas.width - size, canvas.height - size, size, size);
+    // let time_str = String((time / 1000).toFixed(3));
+    // this.writeLn(time_str + " s (frame time )");
+
     ctx.fillStyle = "#cce2e6";
 
-    /* Always display frame time. */
-    this.writeLn(String((time / 1000).toFixed(3)) + " s (frame time )");
-
     if (this.visible) {
-      /* Corner fiducials. */
-      // ctx.fillStyle = "#495057";
-      // let size = fontSize * 2;
-      // ctx.fillRect(size, size, size, size);
-      // ctx.fillRect(canvas.width - (2 * size), size, size, size);
-      // ctx.fillRect(size, canvas.height - (2 * size), size, size);
-      // ctx.fillRect(canvas.width - (2 * size), canvas.height - (2 * size),
-      // size, size);
+      /* Height and width. */
+      this.writeLn(String(canvas.width) + "       (width      )");
+      this.writeLn(String(canvas.height) + "       (height     )");
+      this.writeLn(String(this.bufferDepth) + "       (max samples)");
 
       /* Show amount of time captured. */
       if (this.minTimestamp != null && this.maxTimestamp) {
         let nanos = nanosString(this.maxTimestamp - this.minTimestamp);
         this.writeLn(nanos[0] + nanos[1] + "s (x-axis     )");
       }
-
-      this.writeLn(String(this.bufferDepth) + "       (max samples)");
-
-      /* Height and width. */
-      this.writeLn(String(canvas.width) + "       (width      )");
-      this.writeLn(String(canvas.height) + "       (height     )");
-      this.writeLn("");
-      this.writeLn("Click to hide.");
-    } else {
-      this.writeLn("");
-      this.writeLn("Click for overlay.");
     }
-
-    this.writeLines(canvas.width - (this.maxLen * (this.fontSize * 0.6)),
-                    this.fontSize / 2);
+    this.writeLines(canvas.width - (this.maxLen * (this.fontSize * 0.55)));
   }
 
-  writeLines(x, y) {
+  writeLines(x) {
+    let y = this.padding + this.fontSize;
+    x -= this.padding;
+
     /* Draw lines. */
-    for (const line of this.lines) {
-      y += this.fontSize;
+    for (const line of this.textLines) {
       if (line) {
         this.ctx.fillText(line, x, y);
       }
+      y += this.fontSize;
     }
 
     /* Reset state. */
-    this.lines = [];
+    this.textLines = [];
     this.maxLen = 0;
   }
 

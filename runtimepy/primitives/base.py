@@ -163,8 +163,8 @@ class Primitive(_Generic[T]):
                     self.remove_callback(item)
 
                 self.set_streak = 0
-            else:
-                self.set_streak += 1
+        else:
+            self.set_streak += 1
 
     def set_value(self, value: T, timestamp_ns: int = None) -> None:
         """Set a new underlying value."""

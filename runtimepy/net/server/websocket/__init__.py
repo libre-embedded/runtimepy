@@ -7,6 +7,7 @@ from collections import defaultdict
 from typing import Optional
 
 # third-party
+from vcorelib.dict import GenericStrDict
 from vcorelib.io.bus import BUS
 from vcorelib.math import RateLimiter, metrics_time_ns, to_nanos
 
@@ -127,6 +128,14 @@ class RuntimepyWebsocketConnection(WebsocketJsonMessageConnection):
                         outbox[name] = response
 
         self.basic_handler("ui", ui_handler)
+
+        async def ui_fft_handler(data: GenericStrDict) -> None:
+            """Handle UI fft data."""
+
+            del data
+
+        # add a message bus handler for fft data
+        BUS.register_ro("ui_fft", ui_fft_handler)
 
     def init(self) -> None:
         """Initialize this instance."""

@@ -51,8 +51,9 @@ class ConnectionMetricsPoller(_ArbiterTask):
     async def init(self, app: _AppInfo) -> None:
         """Initialize this task with application information."""
 
-        del app
+        await super().init(app)
 
+        # Register channels.
         for key, val in type(self).extra_channels.items():
             self.env.channel(key, val)
 

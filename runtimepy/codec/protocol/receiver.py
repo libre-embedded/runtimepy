@@ -87,8 +87,7 @@ class StructReceiver(LoggerMixin):
         self.rates[inst.id] = RateTracker()
         prim = Double()
         self.rate_primitives[inst.id] = prim
-        name = to_snake(factory.__name__)
-        print(name)
+        name = f"{to_snake(factory.__name__)}.rx_hz"
         assert name not in ConnectionMetricsPoller.extra_channels, name
         ConnectionMetricsPoller.extra_channels[name] = prim
 

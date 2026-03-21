@@ -60,6 +60,7 @@ class FileChannelEnvironment(_BaseChannelEnvironment):
             ENUMS_KEY: self.enums.asdict(),
             FIELDS_KEY: self.fields.asdict(),
             NAMES_KEY: {
+                "id": self.id,
                 CHANNELS_KEY: _cast(_JsonValue, self.channels.names.asdict()),
                 ENUMS_KEY: _cast(_JsonValue, self.enums.names.asdict()),
             },
@@ -96,6 +97,7 @@ class FileChannelEnvironment(_BaseChannelEnvironment):
                 {
                     CHANNELS_KEY: self.channels.names.asdict(),
                     ENUMS_KEY: self.enums.names.asdict(),
+                    "id": self.id,
                 },
             ),
             **kwargs,
@@ -147,6 +149,7 @@ class FileChannelEnvironment(_BaseChannelEnvironment):
             values=_cast(_Optional[_ValueMap], data.get(VALUES_KEY)),
             fields=_fields_from_dict(data[FIELDS_KEY]),
             views=_cast(dict[str, str], data.get(VIEWS_KEY, {})),
+            identity=data[NAMES_KEY]["id"],  # type: ignore
         )
 
         # Typically, externally loaded environments should be final at load
@@ -195,6 +198,7 @@ class FileChannelEnvironment(_BaseChannelEnvironment):
             enums=enum_reg,
             values=value_map,
             fields=_fields_from_file(fields),
+            identity=name_data["id"],  # type: ignore
         )
 
         # Typically, externally loaded environments should be final at load

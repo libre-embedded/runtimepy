@@ -54,8 +54,9 @@ class ConnectionMetricsPoller(_ArbiterTask):
         await super().init(app)
 
         # Register channels.
-        for key, val in type(self).extra_channels.items():
-            self.env.channel(key, val)
+        if not self.env.finalized:
+            for key, val in type(self).extra_channels.items():
+                self.env.channel(key, val)
 
     async def dispatch(self) -> bool:
         """Dispatch an iteration of this task."""

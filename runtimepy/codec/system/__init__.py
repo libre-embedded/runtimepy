@@ -22,6 +22,7 @@ from runtimepy.primitives.byte_order import (
 )
 from runtimepy.primitives.types import AnyPrimitiveType, PrimitiveTypes
 from runtimepy.registry.name import RegistryKey
+from runtimepy.ui.controls import Default
 from runtimepy.util import Identifier
 
 
@@ -163,7 +164,7 @@ class TypeSystem(LoggerMixin):
         field_type: str,
         array_length: int = None,
         exact: bool = True,
-        default: Optional[int | float | bool] = None,
+        default: Default = None,
     ) -> None:
         """Add a field to a custom type."""
 

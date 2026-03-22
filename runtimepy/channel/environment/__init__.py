@@ -77,6 +77,7 @@ class ChannelEnvironment(
                                     primitive, commandable
                                 ),
                                 default=item.default,
+                                description=item.description,
                             )
                 else:
                     primitive = protocol.get_primitive(item.name)
@@ -89,6 +90,7 @@ class ChannelEnvironment(
                             primitive, commandable
                         ),
                         default=item.default,
+                        description=item.description,
                     )
 
             # Handle nested protocols.

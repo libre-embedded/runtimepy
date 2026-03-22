@@ -76,6 +76,7 @@ class ChannelEnvironment(
                                 controls=regular_channel_controls(
                                     primitive, commandable
                                 ),
+                                default=item.default,
                             )
                 else:
                     primitive = protocol.get_primitive(item.name)
@@ -87,6 +88,7 @@ class ChannelEnvironment(
                         controls=regular_channel_controls(
                             primitive, commandable
                         ),
+                        default=item.default,
                     )
 
             # Handle nested protocols.

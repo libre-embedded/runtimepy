@@ -18,7 +18,6 @@ from vcorelib.io.types import JsonObject as _JsonObject
 from vcorelib.logging import LoggerType
 
 # internal
-from runtimepy.channel.environment import Default
 from runtimepy.enum import RuntimeEnum as _RuntimeEnum
 from runtimepy.enum.registry import DEFAULT_ENUM_PRIMITIVE, EnumRegistry
 from runtimepy.primitives import AnyPrimitive as _AnyPrimitive
@@ -36,6 +35,7 @@ from runtimepy.primitives.int import UnsignedInt
 from runtimepy.primitives.serializable import Serializable, SerializableMap
 from runtimepy.registry.name import NameRegistry as _NameRegistry
 from runtimepy.registry.name import RegistryKey as _RegistryKey
+from runtimepy.ui.controls import Default
 
 ProtocolPrimitive = _Union[int, float, bool, str]
 

@@ -49,6 +49,7 @@ class FieldSpec(NamedTuple):
     array_length: _Optional[int] = None
     default: Default = None
     description: _Optional[str] = None
+    config: _Optional[dict[str, ProtocolPrimitive]] = None
 
     def is_array(self) -> bool:
         """Determine if this instance is an array."""
@@ -68,6 +69,8 @@ class FieldSpec(NamedTuple):
             result["default"] = self.default
         if self.description:
             result["description"] = self.description
+        if self.config:
+            result["config"] = self.config  # type: ignore
         return result
 
 
@@ -143,6 +146,7 @@ class ProtocolBase(PrimitiveArray):
                     array_length=item.array_length,
                     default=item.default,
                     description=item.description,
+                    config=item.config,
                 )
 
             elif isinstance(item[0], str):
@@ -211,6 +215,7 @@ class ProtocolBase(PrimitiveArray):
         track: bool = True,
         default: Default = None,
         description: str = None,
+        config: dict[str, ProtocolPrimitive] = None,
     ) -> None:
         """Add a new field to the protocol."""
 
@@ -259,6 +264,7 @@ class ProtocolBase(PrimitiveArray):
                     array_length=array_length,
                     default=default,
                     description=description,
+                    config=config,
                 )
             )
 

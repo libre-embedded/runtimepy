@@ -17,8 +17,12 @@ from runtimepy.net.arbiter.tcp.json import WebsocketJsonMessageConnection
 from runtimepy.net.server.app.env.tab import ChannelEnvironmentTab
 from runtimepy.net.server.app.env.tab.message import TabMessageSender
 from runtimepy.net.server.struct import UiState
+from runtimepy.net.server.websocket.data import (
+    DATA_CONNECTIONS,
+    RuntimepyDataWebsocketConnection,
+    data_connection_future,
+)
 from runtimepy.net.server.websocket.state import TabState
-from runtimepy.net.websocket import WebsocketConnection
 
 
 class RuntimepyWebsocketConnection(WebsocketJsonMessageConnection):
@@ -30,6 +34,8 @@ class RuntimepyWebsocketConnection(WebsocketJsonMessageConnection):
 
     poll_governor: RateLimiter
     poll_connection_metrics: bool
+
+    data_connection: Optional["RuntimepyDataWebsocketConnection"]
 
     _ui: Optional[UiState]
 
@@ -95,6 +101,14 @@ class RuntimepyWebsocketConnection(WebsocketJsonMessageConnection):
         async def ui_handler(outbox: JsonMessage, inbox: JsonMessage) -> None:
             """A simple loopback handler."""
 
+            # Handle pairing the data connection.
+            if "guid" in inbox:
+                self.data_connection = await data_connection_future(
+                    inbox["guid"]
+                )
+                del DATA_CONNECTIONS[inbox["guid"]]
+                self.logger.info("Data connection paired.")
+
             # Handle bus messages.
             if "bus" in inbox:
                 await BUS.send_ro(inbox["key"], inbox["bus"])
@@ -109,7 +123,9 @@ class RuntimepyWebsocketConnection(WebsocketJsonMessageConnection):
 
                 # Allows tabs to respond on a per-frame basis.
                 for name in ChannelEnvironmentTab.all_tabs:
-                    result = self.tabs[name].frame(inbox["time"])
+                    result = self.tabs[name].frame(
+                        inbox["time"], data_connection=self.data_connection
+                    )
                     if result:
                         outbox[name] = result
 
@@ -153,6 +169,7 @@ class RuntimepyWebsocketConnection(WebsocketJsonMessageConnection):
 
         self.poll_connection_metrics = False
         self._ui = None
+        self.data_connection = None
 
     async def async_init(self) -> bool:
         """A runtime initialization routine (executes during 'process')."""
@@ -175,7 +192,3 @@ class RuntimepyWebsocketConnection(WebsocketJsonMessageConnection):
         if ui:
             self.poll_connection_metrics = False
             ui.env.add_int("num_connections", -1)
-
-
-class RuntimepyDataWebsocketConnection(WebsocketConnection):
-    """A class implementing a WebSocket connection for streaming raw data."""

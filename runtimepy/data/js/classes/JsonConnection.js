@@ -5,10 +5,11 @@ const encoder = new TextEncoder();
 const forward_keys = [ "__id__", "loopback" ];
 
 class JsonConnection {
-  constructor(name, websocket_url) {
+  constructor(name, websocket_url, environments) {
     this.name = name;
     this.conn = new WebSocket(websocket_url);
     this.conn.binaryType = "arraybuffer";
+    this.environments = environments;
 
     /* State. */
     this.connected = new Promise((resolve, reject) => {
@@ -24,7 +25,11 @@ class JsonConnection {
 
     /* Individual message handlers. */
     this.message_handlers = {};
+
+    this.init();
   }
+
+  init() {}
 
   /*
    * This is where we need a different implementation for the data stream

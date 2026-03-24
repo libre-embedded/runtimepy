@@ -6,13 +6,18 @@ A module implementing a stateful data interface for per-connection tabs.
 from collections import defaultdict
 from dataclasses import dataclass
 import logging
+from typing import Optional
 
 # third-party
+from vcorelib.io import ByteFifo
 from vcorelib.logging import ListLogger
 
 # internal
 from runtimepy.channel.environment.base import ValueMap
 from runtimepy.message import JsonMessage
+from runtimepy.net.server.websocket.data import (
+    RuntimepyDataWebsocketConnection,
+)
 from runtimepy.primitives import AnyPrimitive
 
 # (value, nanosecond timestamp)
@@ -34,7 +39,13 @@ class TabState:
 
     _loggers: list[logging.Logger]
 
-    def frame(self, time: float) -> JsonMessage:
+    binary: ByteFifo
+
+    def frame(
+        self,
+        time: float,
+        data_connection: Optional[RuntimepyDataWebsocketConnection] = None,
+    ) -> JsonMessage:
         """Handle a new UI frame."""
 
         # Not used yet.
@@ -51,6 +62,11 @@ class TabState:
             result["points"] = self.points
             self.points = defaultdict(list)
 
+        # Forward binary data.
+        msg = self.binary.pop(self.binary.size)
+        if msg and data_connection is not None:
+            data_connection.send_message(msg)
+
         return result
 
     def clear_telemetry(self) -> None:
@@ -64,6 +80,7 @@ class TabState:
 
         # Clear points.
         self.points.clear()
+        self.binary.pop(self.binary.size)
 
     def clear_loggers(self) -> None:
         """Clear all logging handlers."""
@@ -89,5 +106,12 @@ class TabState:
         """Create a new instance."""
 
         return TabState(
-            False, ListLogger.create(), defaultdict(list), {}, {}, {}, []
+            False,
+            ListLogger.create(),
+            defaultdict(list),
+            {},
+            {},
+            {},
+            [],
+            ByteFifo(),
         )

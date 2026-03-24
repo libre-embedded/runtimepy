@@ -30,6 +30,13 @@ async function message(data) {
   }
 }
 
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 /* Worker entry. */
 async function start(config) {
   // console.log(config);
@@ -73,7 +80,7 @@ async function start(config) {
   conns["data"].message_handlers["ui"] = conns["json"].message_handlers["ui"];
 
   /* Identify data connection to backend. */
-  let guidMsg = {"ui" : {"guid" : crypto.randomUUID()}};
+  let guidMsg = {"ui" : {"guid" : uuidv4()}};
   conns["json"].send_json(guidMsg);
   conns["data"].send_json(guidMsg);
 

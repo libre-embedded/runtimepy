@@ -12,7 +12,7 @@ from runtimepy.channel import Channel
 from runtimepy.message import JsonMessage
 from runtimepy.net.server.app.env.tab.base import ChannelEnvironmentTabBase
 from runtimepy.net.server.websocket.state import TabState
-from runtimepy.primitives.types.int import Uint16, Uint64
+from runtimepy.primitives.types.int import Uint16  # , Uint64
 
 TabMessageSender = Callable[[JsonMessage], None]
 
@@ -62,14 +62,18 @@ class ChannelEnvironmentTabMessaging(ChannelEnvironmentTabBase):
         ) -> None:
             """Emit a change event to the stream."""
 
-            if prim.set_streak:
-                state.binary.ingest(binary_header)
-                state.binary.ingest(Uint64.encode(prim.prev_updated_ns))
-                state.binary.ingest(prim.kind.encode(curr))
+            # Binary implementation doesn't beat JSON performance yet.
 
-            state.binary.ingest(binary_header)
-            state.binary.ingest(Uint64.encode(prim.last_updated_ns))
-            state.binary.ingest(prim.kind.encode(new))
+            if prim.set_streak:
+                # state.binary.ingest(binary_header)
+                # state.binary.ingest(Uint64.encode(prim.prev_updated_ns))
+                # state.binary.ingest(prim.kind.encode(curr))
+                state.points[name].append((curr, prim.prev_updated_ns))
+
+            # state.binary.ingest(binary_header)
+            # state.binary.ingest(Uint64.encode(prim.last_updated_ns))
+            # state.binary.ingest(prim.kind.encode(new))
+            state.points[name].append((new, prim.last_updated_ns))
 
         state.primitives[name] = prim
 

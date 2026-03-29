@@ -11,6 +11,7 @@ from typing import Any, Optional, Union
 
 # third-party
 from vcorelib.dict.codec import JsonCodec
+from vcorelib.io.bus import BUS
 from vcorelib.logging import ListLogger, LoggerType
 from vcorelib.target.resolver import TargetResolver
 
@@ -78,6 +79,33 @@ class JsonMessageInterface:
         # Standard handlers.
         self.basic_handler("loopback")
         self.basic_handler("meta", self._meta_handler)
+
+        async def bus_ro_handler(
+            outbox: JsonMessage, inbox: JsonMessage
+        ) -> None:
+            """Handle read-only bus message requests."""
+
+            outbox["count"] = await BUS.send_ro(
+                inbox["key"],
+                inbox.get("data", {}),
+                inbox.get("null_ok", False),
+            )
+
+        self.basic_handler("bus_ro", bus_ro_handler)
+
+        async def bus_handler(outbox: JsonMessage, inbox: JsonMessage) -> None:
+            """Handle read-only bus message requests."""
+
+            outbox.update(
+                await BUS.send(
+                    inbox["key"],
+                    inbox.get("data", {}),
+                    send_ro=inbox.get("send_ro", True),
+                    null_ok=inbox.get("null_ok", False),
+                )
+            )
+
+        self.basic_handler("bus", bus_handler)
 
         self._register_handlers()
 

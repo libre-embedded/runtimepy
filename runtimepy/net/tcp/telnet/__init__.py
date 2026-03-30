@@ -5,6 +5,7 @@ A module implementing a basic telnet (RFC 854) connection interface.
 # built-in
 from abc import abstractmethod as _abstractmethod
 from contextlib import ExitStack as _ExitStack
+from contextlib import suppress
 from io import BytesIO as _BytesIO
 from typing import BinaryIO as _BinaryIO
 
@@ -38,7 +39,10 @@ class Telnet(_TcpConnection):
 
     async def process_telnet_message(self, data: bytes) -> bool:
         """By default, treat all incoming data bytes as text."""
-        return await self.process_text(data.decode(encoding=DEFAULT_ENCODING))
+
+        with suppress(UnicodeDecodeError):
+            await self.process_text(data.decode(encoding=DEFAULT_ENCODING))
+        return True
 
     @_abstractmethod
     async def process_command(self, code: TelnetCode) -> None:

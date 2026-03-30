@@ -9,11 +9,14 @@ from typing import Callable, Optional
 
 # third-party
 from vcorelib.logging import LoggerMixin
-from vcorelib.math import default_time_ns
+from vcorelib.math import RateTracker, default_time_ns
+from vcorelib.names import to_snake
 
 # internal
 from runtimepy.codec.protocol import Protocol, ProtocolFactory
+from runtimepy.net.arbiter.housekeeping import ConnectionMetricsPoller
 from runtimepy.primitives.byte_order import ByteOrder
+from runtimepy.primitives.float import Double
 from runtimepy.primitives.int import UnsignedInt
 
 StructHandler = Callable[[Protocol], None]
@@ -41,6 +44,8 @@ class StructReceiver(LoggerMixin):
         self.non_struct_handler: Optional[NonStructHandler] = None
         self.handlers: dict[int, StructHandler] = {}
         self.instances: dict[int, Protocol] = {}
+        self.rates: dict[int, RateTracker] = {}
+        self.rate_primitives: dict[int, Double] = {}
         for factory in factories:
             self.register(factory)
 
@@ -78,6 +83,14 @@ class StructReceiver(LoggerMixin):
         assert inst.id not in self.instances
         self.instances[inst.id] = inst
 
+        # Rate tracking.
+        self.rates[inst.id] = RateTracker()
+        prim = Double()
+        self.rate_primitives[inst.id] = prim
+        name = f"{to_snake(factory.__name__)}.rx_hz"
+        assert name not in ConnectionMetricsPoller.extra_channels, name
+        ConnectionMetricsPoller.extra_channels[name] = prim
+
     def process(self, data: bytes) -> None:
         """Attempt to process a struct message."""
 
@@ -111,6 +124,8 @@ class StructReceiver(LoggerMixin):
 
                 # Handle struct messages.
                 elif ident in self.instances:
+                    self.rate_primitives[ident](self.rates[ident]())
+
                     inst = self.instances[ident]
                     inst.from_stream(stream, timestamp_ns=timestamp_ns)
                     if ident in self.handlers:

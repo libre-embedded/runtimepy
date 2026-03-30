@@ -33,10 +33,18 @@ def make_slider(
     return result
 
 
-def bit_slider(width: int, signed: bool) -> Controls:
+def bit_slider(
+    width: int, signed: bool, default: Optional[int | float] = None
+) -> Controls:
     """Make a slider for an unsigned integer width."""
+
     bounds = IntegerBounds.create_bit(width, signed)
-    return make_slider(bounds.min, bounds.max, 2**width - 1)
+    return make_slider(
+        bounds.min,
+        bounds.max,
+        2**width - 1,  # bounds.max - bounds.min
+        default=default,
+    )
 
 
 def signed_slider(width: int) -> Controls:

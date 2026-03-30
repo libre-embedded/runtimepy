@@ -24,18 +24,32 @@ from runtimepy.channel.environment.telemetry import (
 from runtimepy.codec.protocol import Protocol as _Protocol
 from runtimepy.codec.protocol.base import FieldSpec as _FieldSpec
 from runtimepy.primitives import AnyPrimitive
-from runtimepy.ui.controls import Controls, Default, bit_slider
+from runtimepy.ui.controls import Controls, Default, bit_slider, make_slider
 
 
 def regular_channel_controls(
-    primitive: AnyPrimitive, commandable: bool
+    primitive: AnyPrimitive,
+    commandable: bool,
+    min_val: Optional[int | float] = None,
+    max_val: Optional[int | float] = None,
+    step: Optional[int | float] = None,
+    default: Optional[int | float] = None,
 ) -> Optional[Controls]:
     """Get channel controls for a regular primitive."""
 
     controls = None
 
-    if commandable and primitive.kind.is_integer and primitive.kind.bits <= 32:
-        controls = bit_slider(primitive.kind.bits, primitive.kind.signed)
+    if commandable:
+        # Check for explicitly provided parameters.
+        if min_val is not None and max_val is not None:
+            if step is None:
+                step = max_val - min_val
+            controls = make_slider(min_val, max_val, step, default=default)
+
+        elif primitive.kind.is_integer and primitive.kind.bits <= 32:
+            controls = bit_slider(
+                primitive.kind.bits, primitive.kind.signed, default=default
+            )
 
     return controls
 
@@ -56,11 +70,17 @@ class ChannelEnvironment(
         # Register any new enumerations.
         self.enums.register_from_other(protocol.enum_registry)
 
-        # need to handle defaults
-
         for item in protocol.build:
             # Handle regular primitive fields.
             if isinstance(item, _FieldSpec):
+                min_val: Optional[float] = None
+                max_val: Optional[float] = None
+                step: Optional[float] = None
+                if item.config:
+                    min_val = item.config.get("min_val")  # type: ignore
+                    max_val = item.config.get("max_val")  # type: ignore
+                    step = item.config.get("step")  # type: ignore
+
                 if item.is_array():
                     assert item.array_length is not None
                     with self.names_pushed(item.name):
@@ -74,8 +94,15 @@ class ChannelEnvironment(
                                 commandable=commandable,
                                 enum=item.enum,
                                 controls=regular_channel_controls(
-                                    primitive, commandable
+                                    primitive,
+                                    commandable,
+                                    min_val=min_val,
+                                    max_val=max_val,
+                                    step=step,
+                                    default=item.default,
                                 ),
+                                default=item.default,
+                                description=item.description,
                             )
                 else:
                     primitive = protocol.get_primitive(item.name)
@@ -85,8 +112,15 @@ class ChannelEnvironment(
                         commandable=commandable,
                         enum=item.enum,
                         controls=regular_channel_controls(
-                            primitive, commandable
+                            primitive,
+                            commandable,
+                            min_val=min_val,
+                            max_val=max_val,
+                            step=step,
+                            default=item.default,
                         ),
+                        default=item.default,
+                        description=item.description,
                     )
 
             # Handle nested protocols.

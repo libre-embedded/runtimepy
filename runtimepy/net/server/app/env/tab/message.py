@@ -3,6 +3,7 @@ A module implementing a channel-environment tab message-handling interface.
 """
 
 # built-in
+from io import BytesIO
 import logging
 from typing import Any, Callable
 
@@ -11,6 +12,7 @@ from runtimepy.channel import Channel
 from runtimepy.message import JsonMessage
 from runtimepy.net.server.app.env.tab.base import ChannelEnvironmentTabBase
 from runtimepy.net.server.websocket.state import TabState
+from runtimepy.primitives.types.int import Uint16  # , Uint64
 
 TabMessageSender = Callable[[JsonMessage], None]
 
@@ -25,11 +27,13 @@ class ChannelEnvironmentTabMessaging(ChannelEnvironmentTabBase):
         assert isinstance(chan, Channel) or chan is not None
         prim = chan.raw
 
-        def callback(
+        def enum_callback(
             curr: bool | int | float, new: bool | int | float
         ) -> None:
             """Emit a change event to the stream."""
 
+            # Render enumerations etc. here instead of trying to do it
+            # in the UI.
             if prim.set_streak:
                 state.points[name].append(
                     (
@@ -37,15 +41,47 @@ class ChannelEnvironmentTabMessaging(ChannelEnvironmentTabBase):
                         prim.prev_updated_ns,
                     )
                 )
-
-            # Render enumerations etc. here instead of trying to do it
-            # in the UI.
             state.points[name].append(
                 (self.command.env.value(name, value=new), prim.last_updated_ns)
             )
 
+        # Create an environment and channel id header.
+        binary_header = bytes()
+        if isinstance(chan, Channel):
+            with BytesIO() as stream:
+                prim_type = Uint16
+                assert prim_type.int_bounds is not None
+                assert chan.id <= prim_type.int_bounds.max, name
+                assert self.command.env.id <= prim_type.int_bounds.max, name
+                stream.write(prim_type.encode(self.command.env.id))
+                stream.write(prim_type.encode(chan.id))
+                binary_header = stream.getvalue()
+
+        def callback(
+            curr: bool | int | float, new: bool | int | float
+        ) -> None:
+            """Emit a change event to the stream."""
+
+            # Binary implementation doesn't beat JSON performance yet.
+
+            if prim.set_streak:
+                # state.binary.ingest(binary_header)
+                # state.binary.ingest(Uint64.encode(prim.prev_updated_ns))
+                # state.binary.ingest(prim.kind.encode(curr))
+                state.points[name].append((curr, prim.prev_updated_ns))
+
+            # state.binary.ingest(binary_header)
+            # state.binary.ingest(Uint64.encode(prim.last_updated_ns))
+            # state.binary.ingest(prim.kind.encode(new))
+            state.points[name].append((new, prim.last_updated_ns))
+
         state.primitives[name] = prim
-        state.callbacks[name] = prim.register_callback(callback)
+
+        state.callbacks[name] = prim.register_callback(
+            enum_callback
+            if chan.is_enum or prim.scaling or not binary_header
+            else callback
+        )
 
     def handle_shown_state(
         self,

@@ -4,13 +4,22 @@ Test HTTP server interactions.
 
 # built-in
 import asyncio
-from typing import Any
+from json import dumps
+from logging import Logger
+from typing import Any, cast
+from uuid import uuid4
+
+# third-party
+from vcorelib.io.bus import BUS
 
 # module under test
 from runtimepy.net.arbiter.info import AppInfo
 from runtimepy.net.http.header import RequestHeader
 from runtimepy.net.server import RuntimepyServerConnection
 from runtimepy.net.server.websocket import RuntimepyWebsocketConnection
+from runtimepy.net.server.websocket.data import (
+    RuntimepyDataWebsocketConnection,
+)
 from runtimepy.net.tcp.http import HttpConnection
 
 # internal
@@ -24,10 +33,21 @@ def send_ui(
     client.send_json({"ui": {"name": name, "event": data}})
 
 
-async def runtimepy_websocket_client(
-    client: RuntimepyWebsocketConnection,
-) -> None:
+async def runtimepy_websocket_client(app: AppInfo) -> None:
     """Test client interactions via WebSocket."""
+
+    client = app.single(pattern="client", kind=RuntimepyWebsocketConnection)
+
+    # Pair connection.
+    data_conn = app.single(
+        pattern="client", kind=RuntimepyDataWebsocketConnection
+    )
+    uuid_msg = {"ui": {"guid": str(uuid4())}}
+    data_conn.send_message_str(dumps(uuid_msg))
+    client.send_json(uuid_msg)
+    data_conn.send_message_str(dumps({"test": 0}))
+
+    await BUS.send_ro("ui_fft", {})  # for coverage (wip)
 
     client.send_json({"ui": {"key": "test", "bus": {"a": 1}}})
 
@@ -36,24 +56,44 @@ async def runtimepy_websocket_client(
     time = 0.0
     period = 0.05
 
+    await client.wait_json()
+
+    # Bus messages.
+    key = "bus_ro"
+    assert (
+        await client.wait_json(
+            {key: {"key": "log", "data": {"msg": "test 1"}}}
+        )
+    )[key]["count"]
+    key = "bus"
+    await client.wait_json({key: {"key": "log", "data": {"msg": "test 2"}}})
+
+    cast(Logger, app.logger).addHandler(client.list_handler)
+
     for idx in range(3):
         send_ui(client, f"sample{idx}", {"kind": "asdf"})
         send_ui(client, f"sample{idx}", {"kind": "init"})
         send_ui(client, f"sample{idx}", {"kind": "tab.shown"})
-        send_ui(client, f"sample{idx}", {"kind": "tab.hidden"})
         send_ui(client, f"sample{idx}", {"kind": "command", "value": "help"})
 
         # Trigger some telemetry sending.
         send_ui(client, f"wave{idx}", {"kind": "init"})
         send_ui(client, f"wave{idx}", {"kind": "tab.shown"})
 
+        app.logger.info("%d", idx)
+
         # Drive the UI forward.
         for _ in range(5):
+            for struct in app.structs.values():
+                struct.poll()
             await asyncio.sleep(period)
             client.send_json({"ui": {"time": time}})
             time += period
 
         send_ui(client, f"wave{idx}", {"kind": "tab.hidden"})
+        send_ui(client, f"sample{idx}", {"kind": "tab.hidden"})
+
+    cast(Logger, app.logger).removeHandler(client.list_handler)
 
 
 async def runtimepy_http_query_peer(app: AppInfo) -> None:

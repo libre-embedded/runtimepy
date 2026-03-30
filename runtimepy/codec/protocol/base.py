@@ -35,6 +35,7 @@ from runtimepy.primitives.int import UnsignedInt
 from runtimepy.primitives.serializable import Serializable, SerializableMap
 from runtimepy.registry.name import NameRegistry as _NameRegistry
 from runtimepy.registry.name import RegistryKey as _RegistryKey
+from runtimepy.ui.controls import Default
 
 ProtocolPrimitive = _Union[int, float, bool, str]
 
@@ -46,6 +47,9 @@ class FieldSpec(NamedTuple):
     kind: str
     enum: _Optional[_RegistryKey] = None
     array_length: _Optional[int] = None
+    default: Default = None
+    description: _Optional[str] = None
+    config: _Optional[dict[str, ProtocolPrimitive]] = None
 
     def is_array(self) -> bool:
         """Determine if this instance is an array."""
@@ -61,6 +65,12 @@ class FieldSpec(NamedTuple):
         }
         if self.enum is not None:
             result["enum"] = self.enum
+        if self.default is not None:
+            result["default"] = self.default
+        if self.description:
+            result["description"] = self.description
+        if self.config:
+            result["config"] = self.config  # type: ignore
         return result
 
 
@@ -134,6 +144,9 @@ class ProtocolBase(PrimitiveArray):
                     item.kind,
                     enum=item.enum,
                     array_length=item.array_length,
+                    default=item.default,
+                    description=item.description,
+                    config=item.config,
                 )
 
             elif isinstance(item[0], str):
@@ -200,6 +213,9 @@ class ProtocolBase(PrimitiveArray):
         serializable: Serializable = None,
         array_length: int = None,
         track: bool = True,
+        default: Default = None,
+        description: str = None,
+        config: dict[str, ProtocolPrimitive] = None,
     ) -> None:
         """Add a new field to the protocol."""
 
@@ -223,12 +239,18 @@ class ProtocolBase(PrimitiveArray):
             if kind is None:
                 kind = runtime_enum.primitive
 
+            # Translate possible enum default.
+            raw = default or runtime_enum.default
+            if raw:
+                assert not isinstance(raw, float)
+                default = runtime_enum.as_int(raw)
+
         assert kind is not None
         inst = _normalize_instance(kind)
 
-        # Set enum defaults.
-        if runtime_enum is not None and runtime_enum.default:
-            inst.value = runtime_enum.get_int(runtime_enum.default)
+        # Assign default.
+        if default is not None:
+            inst(default)  # type: ignore
 
         assert name not in self._regular_fields, name
         self._regular_fields[name] = self.add(inst, array_length=array_length)
@@ -240,6 +262,9 @@ class ProtocolBase(PrimitiveArray):
                     inst.kind.name,
                     enum,
                     array_length=array_length,
+                    default=default,
+                    description=description,
+                    config=config,
                 )
             )
 

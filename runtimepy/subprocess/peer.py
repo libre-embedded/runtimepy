@@ -11,6 +11,7 @@ from contextlib import (
     contextmanager,
     suppress,
 )
+import os
 from pathlib import Path
 from sys import executable
 from typing import AsyncIterator, Iterator, Type, TypeVar
@@ -212,12 +213,20 @@ class RuntimepyPeer(RuntimepyPeerInterface):
         """Run a peer subprocess."""
 
         async with AsyncExitStack() as stack:
+            entry_args = [executable]
+
+            if (
+                "COVERAGE_RUN" in os.environ
+                or "PYTEST_CURRENT_TEST" in os.environ
+            ):
+                entry_args.extend(["-m", "coverage", "run"])
+
             # Run program.
             yield await stack.enter_async_context(
                 cls.exec(
                     name,
                     config,
-                    executable,
+                    *entry_args,
                     str(
                         stack.enter_context(
                             cls._prepare_jit_script(name, config, import_str)

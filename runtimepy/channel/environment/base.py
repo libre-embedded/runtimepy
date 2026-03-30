@@ -31,6 +31,7 @@ from runtimepy.primitives.field.manager import (
     BitFieldsManager as _BitFieldsManager,
 )
 from runtimepy.registry.name import RegistryKey as _RegistryKey
+from runtimepy.util import Identifier
 
 ChannelValue = _Union[bool, int, float, str]
 ValueMap = dict[_RegistryKey, ChannelValue]
@@ -41,6 +42,7 @@ BoolChannelResult = tuple[_BoolChannel, _Optional[_RuntimeEnum]]
 IntChannelResult = tuple[_IntChannel, _Optional[_RuntimeEnum]]
 
 FieldOrChannel = _Union[_BitField, _AnyChannel]
+IDENTITY = Identifier(scale=1)
 
 
 class BaseChannelEnvironment(_NamespaceMixin, FinalizeMixin):
@@ -55,6 +57,7 @@ class BaseChannelEnvironment(_NamespaceMixin, FinalizeMixin):
         namespace: Namespace = None,
         namespace_delim: str = DEFAULT_DELIM,
         views: dict[str, str] = None,
+        identity: int = None,
     ) -> None:
         """Initialize this channel environment."""
 
@@ -109,6 +112,11 @@ class BaseChannelEnvironment(_NamespaceMixin, FinalizeMixin):
         if not views:
             views = {}
         self.views = views
+
+        # For UI telemetry.
+        if identity is None:
+            identity = IDENTITY()
+        self.id = identity
 
     def __setitem__(self, key: _RegistryKey, value: ChannelValue) -> None:
         """Mapping-set interface."""

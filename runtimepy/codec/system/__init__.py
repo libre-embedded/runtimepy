@@ -22,6 +22,7 @@ from runtimepy.primitives.byte_order import (
 )
 from runtimepy.primitives.types import AnyPrimitiveType, PrimitiveTypes
 from runtimepy.registry.name import RegistryKey
+from runtimepy.ui.controls import Default
 from runtimepy.util import Identifier
 
 
@@ -163,6 +164,7 @@ class TypeSystem(LoggerMixin):
         field_type: str,
         array_length: int = None,
         exact: bool = True,
+        default: Default = None,
     ) -> None:
         """Add a field to a custom type."""
 
@@ -178,7 +180,10 @@ class TypeSystem(LoggerMixin):
         enum = self._enums.get(field_type_name)
         if enum is not None:
             custom.add_field(
-                field_name, enum=field_type_name, array_length=array_length
+                field_name,
+                enum=field_type_name,
+                array_length=array_length,
+                default=default,
             )
             return
 
@@ -190,10 +195,12 @@ class TypeSystem(LoggerMixin):
                 array_length=array_length,
             )
         else:
+            # check for a default
             custom.add_field(
                 field_name,
                 kind=self.primitives[field_type_name].name,
                 array_length=array_length,
+                default=default,
             )
 
     def _find_name(

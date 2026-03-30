@@ -13,7 +13,7 @@ from runtimepy.net.arbiter.info import AppInfo as _AppInfo
 from runtimepy.net.arbiter.task import ArbiterTask as _ArbiterTask
 from runtimepy.net.arbiter.task import TaskFactory as _TaskFactory
 from runtimepy.net.manager import ConnectionManager as _ConnectionManager
-from runtimepy.primitives import Bool
+from runtimepy.primitives import AnyPrimitive, Bool
 
 TASK_NAME = "housekeeping"
 
@@ -22,6 +22,7 @@ class ConnectionMetricsPoller(_ArbiterTask):
     """A class that periodically polls connection metrics."""
 
     processors: list[Awaitable[None]]
+    extra_channels: dict[str, AnyPrimitive] = {}
 
     def __init__(
         self,
@@ -46,6 +47,16 @@ class ConnectionMetricsPoller(_ArbiterTask):
             commandable=True,
             description="Polls application connection metrics when true.",
         )
+
+    async def init(self, app: _AppInfo) -> None:
+        """Initialize this task with application information."""
+
+        await super().init(app)
+
+        # Register channels.
+        if not self.env.finalized:
+            for key, val in type(self).extra_channels.items():
+                self.env.channel(key, val)
 
     async def dispatch(self) -> bool:
         """Dispatch an iteration of this task."""

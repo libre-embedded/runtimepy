@@ -5,7 +5,8 @@ function create_connections(config) {
   let worker_cfg = config["worker"];
   let conns = {};
   for (let name in conn_factories) {
-    conns[name] = new conn_factories[name](name, worker_cfg[name]);
+    conns[name] = new conn_factories[name](name, worker_cfg[name],
+                                           config["environments"]);
   }
 
   return conns;
@@ -29,9 +30,16 @@ async function message(data) {
   }
 }
 
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 /* Worker entry. */
 async function start(config) {
-  console.log(config);
+  // console.log(config);
 
   conns = create_connections(config);
 
@@ -69,6 +77,12 @@ async function start(config) {
     }
     postMessage(data);
   };
+  conns["data"].message_handlers["ui"] = conns["json"].message_handlers["ui"];
+
+  /* Identify data connection to backend. */
+  let guidMsg = {"ui" : {"guid" : uuidv4()}};
+  conns["json"].send_json(guidMsg);
+  conns["data"].send_json(guidMsg);
 
   /* Tell main thread we're ready to go. */
   postMessage(0);

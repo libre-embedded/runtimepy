@@ -157,7 +157,6 @@ class PlotDrawer {
   }
 
   setColor(key, rgb) {
-    console.log(rgb);
     this.rgbaColors[key] = new WebglPlotBundle.ColorRGBA(
         rgb.r / 255, rgb.g / 255, rgb.b / 255, this.opacity);
   }

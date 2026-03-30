@@ -34,20 +34,23 @@ async def test_telnet_connection_basic():
             client.send_text("Hello, world!")
             client.send_binary(NEWLINE)
 
+            # Ensure these messages get sent.
+            await asyncio.sleep(0.1)
+
             server.send_option(TelnetCode.DO, 100)
             client.send_option(TelnetCode.WILL, 100)
 
             server.send_binary(bytes([TelnetNvt.BEL]))
             client.send_binary(bytes([TelnetNvt.BEL]))
 
-            # Ensure these messages get sent.
-            await asyncio.sleep(0.1)
-
-            server.send_command(TelnetCode.IP)
-            client.send_command(TelnetCode.IP)
+            server.send_command(TelnetCode.AO)
+            client.send_command(TelnetCode.AO)
 
             server.send_binary(bytes([TelnetCode.IAC, TelnetCode.IAC]))
             client.send_binary(bytes([TelnetCode.IAC, TelnetCode.IAC]))
+
+            server.send_command(TelnetCode.IP)
+            client.send_command(TelnetCode.IP)
 
         async def conn_disabler(
             timeout: float, poll_period: float = 0.05

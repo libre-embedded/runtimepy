@@ -19,7 +19,6 @@ from runtimepy.net.arbiter.info import AppInfo
 from runtimepy.net.http.header import RequestHeader
 from runtimepy.net.http.response import AsyncFile, ResponseHeader
 from runtimepy.net.server import RuntimepyServerConnection
-from runtimepy.net.server.websocket import RuntimepyWebsocketConnection
 from runtimepy.net.stream import StringMessageConnection
 from runtimepy.net.stream.json import JsonMessageConnection
 from runtimepy.net.tcp.http import HttpConnection, HttpResult
@@ -122,9 +121,7 @@ async def runtimepy_http_test(app: AppInfo) -> int:
 
     await runtimepy_http_client_server(app, client, server)
 
-    await runtimepy_websocket_client(
-        app.single(pattern="client", kind=RuntimepyWebsocketConnection), app
-    )
+    await runtimepy_websocket_client(app)
 
     # Find stepper struct, toggle 'simualte_time' twice.
     for inst in app.search_structs(ToggleStepper):

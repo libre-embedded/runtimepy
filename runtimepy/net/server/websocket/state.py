@@ -62,10 +62,10 @@ class TabState:
             result["points"] = self.points
             self.points = defaultdict(list)
 
-        # Forward binary data.
+        # Forward binary data (not used yet).
         msg = self.binary.pop(self.binary.size)
         if msg and data_connection is not None:
-            data_connection.send_message(msg)
+            data_connection.send_message(msg)  # pragma: nocover
 
         return result
 

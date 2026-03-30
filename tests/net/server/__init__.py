@@ -4,7 +4,8 @@ Test HTTP server interactions.
 
 # built-in
 import asyncio
-from typing import Any
+from logging import Logger
+from typing import Any, cast
 
 # module under test
 from runtimepy.net.arbiter.info import AppInfo
@@ -36,16 +37,31 @@ async def runtimepy_websocket_client(
     time = 0.0
     period = 0.05
 
+    await client.wait_json()
+
+    # Bus messages.
+    key = "bus_ro"
+    assert (
+        await client.wait_json(
+            {key: {"key": "log", "data": {"msg": "test 1"}}}
+        )
+    )[key]["count"]
+    key = "bus"
+    await client.wait_json({key: {"key": "log", "data": {"msg": "test 2"}}})
+
+    cast(Logger, app.logger).addHandler(client.list_handler)
+
     for idx in range(3):
         send_ui(client, f"sample{idx}", {"kind": "asdf"})
         send_ui(client, f"sample{idx}", {"kind": "init"})
         send_ui(client, f"sample{idx}", {"kind": "tab.shown"})
-        send_ui(client, f"sample{idx}", {"kind": "tab.hidden"})
         send_ui(client, f"sample{idx}", {"kind": "command", "value": "help"})
 
         # Trigger some telemetry sending.
         send_ui(client, f"wave{idx}", {"kind": "init"})
         send_ui(client, f"wave{idx}", {"kind": "tab.shown"})
+
+        app.logger.info("%d", idx)
 
         # Drive the UI forward.
         for _ in range(5):
@@ -56,6 +72,9 @@ async def runtimepy_websocket_client(
             time += period
 
         send_ui(client, f"wave{idx}", {"kind": "tab.hidden"})
+        send_ui(client, f"sample{idx}", {"kind": "tab.hidden"})
+
+    cast(Logger, app.logger).removeHandler(client.list_handler)
 
 
 async def runtimepy_http_query_peer(app: AppInfo) -> None:

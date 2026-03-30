@@ -85,11 +85,12 @@ class JsonMessageInterface:
         ) -> None:
             """Handle read-only bus message requests."""
 
-            outbox["count"] = await BUS.send_ro(
-                inbox["key"],
-                inbox.get("data", {}),
-                inbox.get("null_ok", False),
-            )
+            if "key" in inbox:
+                outbox["count"] = await BUS.send_ro(
+                    inbox["key"],
+                    inbox.get("data", {}),
+                    inbox.get("null_ok", False),
+                )
 
         self.basic_handler("bus_ro", bus_ro_handler)
 

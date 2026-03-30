@@ -25,7 +25,7 @@ def send_ui(
 
 
 async def runtimepy_websocket_client(
-    client: RuntimepyWebsocketConnection,
+    client: RuntimepyWebsocketConnection, app: AppInfo
 ) -> None:
     """Test client interactions via WebSocket."""
 
@@ -49,6 +49,8 @@ async def runtimepy_websocket_client(
 
         # Drive the UI forward.
         for _ in range(5):
+            for struct in app.structs.values():
+                struct.poll()
             await asyncio.sleep(period)
             client.send_json({"ui": {"time": time}})
             time += period

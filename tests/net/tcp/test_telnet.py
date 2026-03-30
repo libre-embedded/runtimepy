@@ -43,11 +43,11 @@ async def test_telnet_connection_basic():
             # Ensure these messages get sent.
             await asyncio.sleep(0.1)
 
-            server.send_binary(bytes([TelnetCode.IAC, TelnetCode.IAC]))
-            client.send_binary(bytes([TelnetCode.IAC, TelnetCode.IAC]))
-
             server.send_command(TelnetCode.IP)
             client.send_command(TelnetCode.IP)
+
+            server.send_binary(bytes([TelnetCode.IAC, TelnetCode.IAC]))
+            client.send_binary(bytes([TelnetCode.IAC, TelnetCode.IAC]))
 
         async def conn_disabler(
             timeout: float, poll_period: float = 0.05

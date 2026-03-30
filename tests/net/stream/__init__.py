@@ -123,7 +123,7 @@ async def runtimepy_http_test(app: AppInfo) -> int:
     await runtimepy_http_client_server(app, client, server)
 
     await runtimepy_websocket_client(
-        app.single(pattern="client", kind=RuntimepyWebsocketConnection)
+        app.single(pattern="client", kind=RuntimepyWebsocketConnection), app
     )
 
     # Find stepper struct, toggle 'simualte_time' twice.

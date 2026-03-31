@@ -45,7 +45,7 @@ class ExponentialBackoff:
         """Sleep for the correct amount of time."""
 
         if logger:
-            logger.info("[%d] %fs sleep", self.attempt, self.wait)
+            logger.warning("[%d] %fs sleep", self.attempt, self.wait)
         await asyncio.sleep(self.wait)
         self.wait = min((2 ^ self.attempt) * self.interval, self.max_sleep)
         self.attempt += 1

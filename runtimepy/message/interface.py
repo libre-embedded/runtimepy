@@ -8,6 +8,7 @@ from copy import copy
 from io import BytesIO
 import logging
 from typing import Any, Optional, Union
+from uuid import uuid4
 
 # third-party
 from vcorelib.dict.codec import JsonCodec
@@ -71,10 +72,8 @@ class JsonMessageInterface:
             "kind": type(self).__name__,
         }
 
-        self.curr_id = Identifier()
-
-        self.ids_waiting: dict[int, asyncio.Event] = {}
-        self.id_responses: dict[int, JsonMessage] = {}
+        self.ids_waiting: dict[str, asyncio.Event] = {}
+        self.id_responses: dict[str, JsonMessage] = {}
 
         # Standard handlers.
         self.basic_handler("loopback")
@@ -284,7 +283,7 @@ class JsonMessageInterface:
 
         data = copy(data)
         assert "__id__" not in data, data
-        ident = self.curr_id()
+        ident = str(uuid4())
         data["__id__"] = ident
 
         got_response = asyncio.Event()

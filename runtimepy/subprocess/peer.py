@@ -46,9 +46,6 @@ class RuntimepyPeer(RuntimepyPeerInterface):
         super().__init__(name, config, markdown=markdown)
         self.protocol = protocol
 
-        # Offset message identifiers.
-        self.curr_id.curr_id += 1
-
     async def _poll(self) -> None:
         """Poll input queues."""
 

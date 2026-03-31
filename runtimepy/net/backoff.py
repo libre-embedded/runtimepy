@@ -5,6 +5,9 @@ A module implementing a simple exponential-backoff interface.
 # built-in
 import asyncio
 
+# third-party
+from vcorelib.math.time import LoggerType
+
 
 class ExponentialBackoff:
     """A class implementing a simple exponential-backoff handler."""
@@ -38,9 +41,11 @@ class ExponentialBackoff:
         """
         return self.attempt >= self.max_tries
 
-    async def sleep(self) -> None:
+    async def sleep(self, logger: LoggerType = None) -> None:
         """Sleep for the correct amount of time."""
 
+        if logger:
+            logger.warning("[%d] %fs sleep", self.attempt, self.wait)
         await asyncio.sleep(self.wait)
         self.wait = min((2 ^ self.attempt) * self.interval, self.max_sleep)
         self.attempt += 1

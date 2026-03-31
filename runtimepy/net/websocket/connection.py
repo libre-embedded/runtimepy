@@ -178,6 +178,10 @@ class WebsocketConnection(Connection):
             """A handler that runs the callers initialization function."""
 
             conn = cls(protocol)
+
+            # Turn off connection restarts for server-side connections.
+            conn.env["auto_restart"] = False
+
             if init is None or await init(conn):
                 if manager is not None:
                     # Allow the connection manager to process this connection.

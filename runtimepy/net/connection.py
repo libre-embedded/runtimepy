@@ -248,7 +248,7 @@ class Connection(
             and not backoff.give_up
             and (stop_sig is None or not stop_sig.is_set())
         ):
-            await backoff.sleep()
+            await backoff.sleep(logger=self.logger)
             if await self.restart():
                 self._set_enabled(True)
                 self._restarts.increment()

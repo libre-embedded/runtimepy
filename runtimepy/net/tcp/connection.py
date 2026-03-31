@@ -199,6 +199,10 @@ class TcpConnection(_Connection, _TransportMixin):
 
         def app_cb(conn: T) -> None:
             """Call the appication callback and enqueue the new connection."""
+
+            # Turn off connection restarts for server-side connections.
+            conn.env["auto_restart"] = False
+
             if callback is not None:
                 callback(conn)
             assert manager is not None

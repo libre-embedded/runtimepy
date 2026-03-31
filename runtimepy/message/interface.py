@@ -95,14 +95,15 @@ class JsonMessageInterface:
         async def bus_handler(outbox: JsonMessage, inbox: JsonMessage) -> None:
             """Handle read-only bus message requests."""
 
-            outbox.update(
-                await BUS.send(
-                    inbox["key"],
-                    inbox.get("data", {}),
-                    send_ro=inbox.get("send_ro", True),
-                    null_ok=inbox.get("null_ok", False),
+            if "key" in inbox:
+                outbox.update(
+                    await BUS.send(
+                        inbox["key"],
+                        inbox.get("data", {}),
+                        send_ro=inbox.get("send_ro", True),
+                        null_ok=inbox.get("null_ok", False),
+                    )
                 )
-            )
 
         self.basic_handler("bus", bus_handler)
 

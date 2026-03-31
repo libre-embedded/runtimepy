@@ -41,7 +41,6 @@ from runtimepy.message.types import (
     T,
     TypedHandler,
 )
-from runtimepy.util import Identifier
 
 
 class JsonMessageInterface:

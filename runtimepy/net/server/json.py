@@ -8,6 +8,7 @@ from typing import Any, Optional, TextIO
 
 # third-party
 from vcorelib import DEFAULT_ENCODING
+from vcorelib.dict import GenericStrDict
 from vcorelib.io import ARBITER, JsonObject
 
 # internal
@@ -28,10 +29,10 @@ class Encoder(JSONEncoder):
         return o
 
 
-def traverse_dict(data: dict[str, Any], *paths: str) -> Any:
+def traverse_dict(data: GenericStrDict, *paths: str) -> Any:
     """Attempt to traverse a dictionary by path names."""
 
-    error: dict[str, Any] = {"path": {}}
+    error: GenericStrDict = {"path": {}}
 
     # Traverse path.
     curr_path = []
@@ -71,7 +72,7 @@ def traverse_dict(data: dict[str, Any], *paths: str) -> Any:
 def encode_json(
     stream: TextIO,
     response: ResponseHeader,
-    data: dict[str, Any],
+    data: GenericStrDict,
     response_type: str = "json",
 ) -> None:
     """Encode a JSON message response."""

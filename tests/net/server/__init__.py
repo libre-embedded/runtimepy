@@ -205,5 +205,14 @@ async def runtimepy_http_client_server(
                     method="POST", target="/sample1/custom/test_command"
                 )
             ),
+            # Bus messages.
+            client.request_json(
+                RequestHeader(method="POST", target="/"),
+                data=dumps({"key": "log", "data": {"msg": "test 3"}}).encode(),
+            ),
+            client.request_json(
+                RequestHeader(method="POST", target="/ro"),
+                data=dumps({"key": "log", "data": {"msg": "test 4"}}).encode(),
+            ),
         )
     )

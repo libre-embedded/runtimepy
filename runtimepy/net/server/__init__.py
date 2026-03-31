@@ -5,6 +5,7 @@ A module implementing a server interface for this package.
 # built-in
 import http
 from io import StringIO
+from json import loads
 import logging
 import mimetypes
 from pathlib import Path
@@ -14,6 +15,7 @@ from urllib.parse import urlencode
 # third-party
 from vcorelib import DEFAULT_ENCODING
 from vcorelib.io import IndentedFileWriter, JsonObject
+from vcorelib.io.bus import BUS
 from vcorelib.paths import Pathlike, find_file, normalize
 
 # internal
@@ -309,12 +311,43 @@ class RuntimepyServerConnection(HttpConnection):
         result = None
 
         with StringIO() as stream:
-            # Treat request as a command.
             if request.target.origin_form:
-                self.handle_command(
-                    stream, response, Path(request.target.path).parts[1:]
-                )
-                result = stream.getvalue().encode()
+                parts = Path(request.target.path).parts[1:]
+
+                if request_data:
+                    request_data_obj = loads(
+                        request_data.decode(encoding=DEFAULT_ENCODING)
+                    )
+                    response_data: dict[str, Any] = {}
+
+                    if "key" in request_data_obj:
+                        if parts and parts[0] == "ro":
+                            response_data["count"] = await BUS.send_ro(
+                                request_data_obj["key"],
+                                request_data_obj.get("data", {}),
+                                request_data_obj.get("null_ok", False),
+                            )
+                        else:
+                            response_data.update(
+                                await BUS.send(
+                                    request_data_obj["key"],
+                                    request_data_obj.get("data", {}),
+                                    send_ro=request_data_obj.get(
+                                        "send_ro", True
+                                    ),
+                                    null_ok=request_data_obj.get(
+                                        "null_ok", False
+                                    ),
+                                )
+                            )
+
+                        encode_json(stream, response, response_data)
+
+                # Treat request as a command.
+                else:
+                    self.handle_command(stream, response, parts)
+
+            result = stream.getvalue().encode()
 
         return result
 

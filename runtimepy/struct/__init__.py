@@ -9,6 +9,7 @@ from logging import getLogger as _getLogger
 from typing import Optional
 
 # third-party
+from vcorelib.dict import GenericStrDict
 from vcorelib.io.markdown import MarkdownMixin
 from vcorelib.io.types import JsonObject as _JsonObject
 
@@ -52,6 +53,16 @@ class RuntimeStructBase(
         self.command = ChannelCommandProcessor(self.env, self.logger)
         self.config = config
         self.command.buttons.extend(ActionButton.from_top_level(self.config))
+
+        # handle registering some initial channels
+        if self.config.get("channels"):
+            data: GenericStrDict
+            for chan, data in self.config["channels"].items():  # type: ignore
+                with self.env.names_pushed(*data.pop("namespace", [])):
+                    commandable = data.pop("commandable", False)
+                    self.env.channel(
+                        chan, data["type"], commandable=commandable, **data
+                    )
 
         async def poll(args: Namespace, __: Optional[FieldOrChannel]) -> None:
             """Handle a test command."""

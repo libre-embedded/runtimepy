@@ -105,7 +105,6 @@ class RuntimeStruct(RuntimeStructBase):
         self.recv = None
         self.send = None
         if "protocol_factory" in self.config:
-            assert "channels" not in self.config  # mutually exclusive
             module, name = import_str_and_item(
                 cast(str, self.config["protocol_factory"])
             )
@@ -124,10 +123,6 @@ class RuntimeStruct(RuntimeStructBase):
                         self.env.register_protocol(self.send, True)
                 else:
                     self.env.register_protocol(self.recv, False)
-
-        # Handle explicit channel configuration.
-        elif "channels" in self.config:
-            pass
 
         self.init_env()
         await self.async_init_env()

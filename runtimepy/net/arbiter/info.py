@@ -86,15 +86,26 @@ class RuntimeStruct(RuntimeStructBase):
     async def build(self, app: "AppInfo", **kwargs) -> None:
         """Build a struct instance's channel environment."""
 
+        # Handle config overrides.
+        self.final_poll = bool(
+            self.config.get("final_poll", type(self).final_poll)
+        )
+        self.byte_order = ByteOrder.normalize(
+            self.config.get(  # type: ignore
+                "byte_order",
+                type(self).byte_order,
+            )
+        )
+
         self.app = app
         if self.final_poll:
             self.app.stack.enter_context(self._final_poll())
 
-        byte_order = type(self).byte_order
-
+        # Handle a struct definition.
         self.recv = None
         self.send = None
         if "protocol_factory" in self.config:
+            assert "channels" not in self.config  # mutually exclusive
             module, name = import_str_and_item(
                 cast(str, self.config["protocol_factory"])
             )
@@ -103,7 +114,7 @@ class RuntimeStruct(RuntimeStructBase):
             )
             if ProtocolFactory in factory.__bases__:
                 self.recv = factory.singleton()
-                byte_order = self.recv.byte_order
+                self.byte_order = self.recv.byte_order
                 if self.config.get("control", True):
                     with self.env.names_pushed("rx"):
                         self.env.register_protocol(self.recv, False)
@@ -114,9 +125,13 @@ class RuntimeStruct(RuntimeStructBase):
                 else:
                     self.env.register_protocol(self.recv, False)
 
+        # Handle explicit channel configuration.
+        elif "channels" in self.config:
+            pass
+
         self.init_env()
         await self.async_init_env()
-        self.update_byte_order(byte_order, **kwargs)
+        self.update_byte_order(self.byte_order, **kwargs)
 
     def update_byte_order(self, byte_order: ByteOrder, **kwargs) -> None:
         """Update the over-the-wire byte order for this struct."""

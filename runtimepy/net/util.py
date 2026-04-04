@@ -3,7 +3,7 @@ A module implementing various networking utilities.
 """
 
 # built-in
-from contextlib import suppress as _suppress
+# from contextlib import suppress as _suppress
 from functools import cache
 import ipaddress
 import socket as _socket
@@ -149,8 +149,10 @@ def hostname(ip_address: str) -> str:
     if ip_address in USE_FQDN:
         result = _socket.getfqdn()
     else:
-        with _suppress(_socket.herror, OSError):
-            result = _socket.gethostbyaddr(ip_address)[0]
+        pass
+        # wip
+        # with _suppress(_socket.herror, OSError):
+        #     result = _socket.gethostbyaddr(ip_address)[0]
 
     return result
 

@@ -3,6 +3,7 @@ Test the 'mixins.logging' module.
 """
 
 # built-in
+import asyncio
 from contextlib import AsyncExitStack
 import logging
 
@@ -37,14 +38,28 @@ async def test_log_capture_mixin_basic():
 
     async with AsyncExitStack() as stack:
         path = stack.enter_context(tempfile())
-        writer = stack.enter_context(path.open("w"))
-
         await inst.init_log_capture(stack, [("info", path)])
-        await inst.dispatch_log_capture()
 
-        for _ in range(10):
-            writer.write("Hello, world!\n")
-            writer.flush()
+        for idx in range(5):
+            with path.open("w") as writer:
+                await inst.dispatch_log_capture()
+
+                for _ in range(10):
+                    writer.write(f"Hello, world! ({idx}.1)\n")
+                    writer.flush()
+                    await inst.dispatch_log_capture()
+
+                await inst.dispatch_log_capture()
+
+            await asyncio.sleep(0.1)
+            path.unlink()
+            await inst.dispatch_log_capture()
             await inst.dispatch_log_capture()
 
-        await inst.dispatch_log_capture()
+            with path.open("w") as writer:
+                await inst.dispatch_log_capture()
+
+                for _ in range(10):
+                    writer.write(f"Hello, world! ({idx}.2)\n")
+                    writer.flush()
+                    await inst.dispatch_log_capture()

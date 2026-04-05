@@ -150,7 +150,7 @@ def hostname(ip_address: str) -> str:
         result = _socket.getfqdn()
     else:
         pass
-        # wip
+        # https://github.com/libre-embedded/runtimepy/issues/250
         # with _suppress(_socket.herror, OSError):
         #     result = _socket.gethostbyaddr(ip_address)[0]
 

@@ -345,7 +345,7 @@ class BaseConnectionArbiter(_NamespaceMixin, _LoggerMixin, TuiMixin):
 
             # Run commands.
             await _asyncio.sleep(0)
-            global_commands(*self._commands)
+            await global_commands(*self._commands)
 
             if result == 0:
                 # Get application methods.

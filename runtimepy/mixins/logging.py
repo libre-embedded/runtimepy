@@ -3,10 +3,10 @@ A module implementing a logger-mixin extension.
 """
 
 # built-in
-from contextlib import AsyncExitStack
+from contextlib import AsyncExitStack, asynccontextmanager
 import io
 import logging
-from typing import Any, Iterable, Optional
+from typing import Any, AsyncIterator, Iterable, Optional
 
 # third-party
 import aiofiles
@@ -92,6 +92,23 @@ def handle_safe_log(
                 handler.emit(record)
 
 
+class FileWatcher:
+    """A class implementing an interface for watching file contents."""
+
+    def __init__(self, level: LogLevellike, path: Pathlike) -> None:
+        """Initialize this instance."""
+
+        self.level = LogLevel.normalize(level)
+        self.path = path
+
+    @asynccontextmanager
+    async def running(self) -> AsyncIterator[Any]:
+        """todo"""
+
+        async with aiofiles.open(self.path, mode="r") as path_fd:
+            yield path_fd
+
+
 class LogCaptureMixin:
     """A simple async file-reading interface."""
 
@@ -113,6 +130,8 @@ class LogCaptureMixin:
         self.streams = [
             (
                 LogLevel.normalize(level),
+                # make this instead an OO interface with a static method
+                # context to replace this
                 await stack.enter_async_context(aiofiles.open(path, mode="r")),
             )
             for level, path in log_paths
@@ -132,6 +151,7 @@ class LogCaptureMixin:
         """Get the next line from this log stream."""
 
         for level, stream in self.streams:
+            # need to handle re-opening stream (with retry)
             line = (await stream.readline()).rstrip()
             while line:
                 self.log_line(level, line)

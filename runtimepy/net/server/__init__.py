@@ -268,7 +268,7 @@ class RuntimepyServerConnection(HttpConnection):
 
         return result
 
-    def handle_command(
+    async def handle_command(
         self, stream: TextIO, response: ResponseHeader, args: tuple[str, ...]
     ) -> None:
         """Handle a command request."""
@@ -286,7 +286,7 @@ class RuntimepyServerConnection(HttpConnection):
             response_data["environments"] = list(GLOBAL)
 
         if args:
-            result = global_command(args[0], " ".join(args[1:]))
+            result = await global_command(args[0], " ".join(args[1:]))
             if result is None:
                 cmd_usage()
             else:
@@ -345,7 +345,7 @@ class RuntimepyServerConnection(HttpConnection):
 
                 # Treat request as a command.
                 else:
-                    self.handle_command(stream, response, parts)
+                    await self.handle_command(stream, response, parts)
 
             result = stream.getvalue().encode()
 

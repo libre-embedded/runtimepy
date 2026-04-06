@@ -54,7 +54,7 @@ async def runtimepy_websocket_client(app: AppInfo) -> None:
     send_ui(client, "test", {"a": 1, "b": 2, "c": 3})
 
     time = 0.0
-    period = 0.05
+    period = 0.1
 
     await client.wait_json()
 
@@ -75,10 +75,12 @@ async def runtimepy_websocket_client(app: AppInfo) -> None:
         send_ui(client, f"sample{idx}", {"kind": "init"})
         send_ui(client, f"sample{idx}", {"kind": "tab.shown"})
         send_ui(client, f"sample{idx}", {"kind": "command", "value": "help"})
+        await asyncio.sleep(0)
 
         # Trigger some telemetry sending.
         send_ui(client, f"wave{idx}", {"kind": "init"})
         send_ui(client, f"wave{idx}", {"kind": "tab.shown"})
+        await asyncio.sleep(0)
 
         app.logger.info("%d", idx)
 
@@ -88,10 +90,12 @@ async def runtimepy_websocket_client(app: AppInfo) -> None:
                 struct.poll()
             await asyncio.sleep(period)
             client.send_json({"ui": {"time": time}})
+            await asyncio.sleep(0)
             time += period
 
         send_ui(client, f"wave{idx}", {"kind": "tab.hidden"})
         send_ui(client, f"sample{idx}", {"kind": "tab.hidden"})
+        await asyncio.sleep(0)
 
     cast(Logger, app.logger).removeHandler(client.list_handler)
 

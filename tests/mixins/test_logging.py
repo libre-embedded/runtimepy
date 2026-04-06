@@ -4,7 +4,7 @@ Test the 'mixins.logging' module.
 
 # built-in
 import asyncio
-from contextlib import AsyncExitStack
+from contextlib import AsyncExitStack, suppress
 import logging
 
 # third-party
@@ -52,7 +52,8 @@ async def test_log_capture_mixin_basic():
                 await inst.dispatch_log_capture()
 
             await asyncio.sleep(0.1)
-            path.unlink()
+            with suppress(PermissionError):  # WINDOWS
+                path.unlink()
             await inst.dispatch_log_capture()
             await inst.dispatch_log_capture()
 

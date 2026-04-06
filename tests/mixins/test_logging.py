@@ -64,3 +64,5 @@ async def test_log_capture_mixin_basic():
                     writer.write(f"Hello, world! ({idx}.2)\n")
                     writer.flush()
                     await inst.dispatch_log_capture()
+
+    assert False

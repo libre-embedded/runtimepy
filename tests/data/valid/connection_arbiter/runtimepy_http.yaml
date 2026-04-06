@@ -17,7 +17,9 @@ structs:
 
 commands:
   - [fake, "asdf"]
+  - [sleep, 0.1]
   - [clock, ""]
+  - [sleep, 0.1]
   - [clock, "toggle step"]
 
 config:

@@ -53,7 +53,9 @@ def to_json(response: HttpResponse) -> Any:
     )
 
 
-IDENTITY = f"{PKG_NAME}/{VERSION}"
+IDENTITY = (
+    f"{PKG_NAME}/{VERSION} (https://github.com/libre-embedded/{PKG_NAME})"
+)
 
 
 class HttpConnection(_TcpConnection):

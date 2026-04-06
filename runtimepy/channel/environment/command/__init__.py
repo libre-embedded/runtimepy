@@ -3,6 +3,7 @@ A module implementing UI command processing.
 """
 
 # built-in
+import asyncio
 from collections import UserDict
 from contextlib import ExitStack, contextmanager
 import logging
@@ -246,12 +247,14 @@ GLOBAL = GlobalEnvironment()
 ENVIRONMENTS = GLOBAL
 
 
-def global_command(env: str, value: str) -> Optional[CommandResult]:
+async def global_command(env: str, value: str) -> Optional[CommandResult]:
     """Handle a global command."""
 
     result = None
     if env in GLOBAL:
         result = GLOBAL[env].command(value)
+    elif env == "sleep":
+        await asyncio.sleep(float(value))
     else:
         GLOBAL.logger.error(
             "Couldn't run command env='%s' value='%s'.", env, value
@@ -259,19 +262,19 @@ def global_command(env: str, value: str) -> Optional[CommandResult]:
     return result
 
 
-def global_commands(*cmds: tuple[str, str]) -> None:
+async def global_commands(*cmds: tuple[str, str]) -> None:
     """Handle a global command."""
     for env, value in cmds:
-        global_command(env, value)
+        await global_command(env, value)
 
 
 async def global_command_bus(payload: GenericStrDict) -> None:
     """Handle a bus message."""
 
     if "env" in payload and "value" in payload:
-        global_command(payload["env"], payload["value"])
+        await global_command(payload["env"], payload["value"])
     elif "cmds" in payload:
-        global_commands(*payload["cmds"])
+        await global_commands(*payload["cmds"])
 
 
 BUS.register_ro("command", global_command_bus)

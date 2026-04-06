@@ -3,10 +3,11 @@ A module implementing a logger-mixin extension.
 """
 
 # built-in
-from contextlib import AsyncExitStack
+import asyncio
+from contextlib import AsyncExitStack, asynccontextmanager
 import io
 import logging
-from typing import Any, Iterable, Optional
+from typing import Any, AsyncIterator, Iterable, Optional
 
 # third-party
 import aiofiles
@@ -92,13 +93,76 @@ def handle_safe_log(
                 handler.emit(record)
 
 
+class FileWatcher:
+    """A class implementing an interface for watching file contents."""
+
+    def __init__(self, level: LogLevellike, path: Pathlike) -> None:
+        """Initialize this instance."""
+
+        self.level = LogLevel.normalize(level)
+        self.path = path
+        self.stream: Optional[Any] = None
+        self.ctime: int = 0
+
+    async def get_ctime(self) -> int:
+        """Get ctime for this path."""
+
+        return round(  # type: ignore
+            await aiofiles.os.path.getctime(self.path),
+        )
+
+    async def handle_open(self) -> None:
+        """Handle opening the stream."""
+
+        if not self.stream and normalize(self.path).is_file():
+            self.stream = await aiofiles.open(self.path, mode="r")
+            await self.stream.seek(0, io.SEEK_END)
+            self.ctime = await self.get_ctime()
+
+    async def poll(self) -> AsyncIterator[tuple[LogLevel, str]]:
+        """Poll stream contents."""
+
+        try:
+            # Handle re-opening file if necessary.
+            if self.ctime != await self.get_ctime():
+                await self.close()
+
+            await self.handle_open()
+            if self.stream:
+                while line := (await self.stream.readline()).rstrip():
+                    yield self.level, line.rstrip()
+
+        except FileNotFoundError:
+            await self.close()
+
+    async def close(self) -> None:
+        """Close this stream."""
+
+        if self.stream:
+            await self.stream.close()
+        self.stream = None
+
+    @asynccontextmanager
+    @staticmethod
+    async def running(
+        level: LogLevellike, path: Pathlike
+    ) -> AsyncIterator["FileWatcher"]:
+        """Handle closing stream."""
+
+        inst = FileWatcher(level, path)
+        await inst.handle_open()
+        try:
+            yield inst
+        finally:
+            await inst.close()
+
+
 class LogCaptureMixin:
     """A simple async file-reading interface."""
 
     logger: LoggerType
 
-    # Open aiofiles handles.
-    streams: list[tuple[int, Any]]
+    watchers: list[FileWatcher]
 
     # Set false to only forward to ListLogger handlers. Required for when the
     # system log / process-management logs are being forwarded (otherwise also
@@ -110,29 +174,23 @@ class LogCaptureMixin:
     ) -> None:
         """Initialize this task with application information."""
 
-        self.streams = [
-            (
-                LogLevel.normalize(level),
-                await stack.enter_async_context(aiofiles.open(path, mode="r")),
-            )
+        self.watchers = [
+            await stack.enter_async_context(FileWatcher.running(level, path))
             for level, path in log_paths
-            if normalize(path).is_file()
         ]
-
-        # Don't handle any kind of backhaul.
-        for stream in self.streams:
-            await stream[1].seek(0, io.SEEK_END)
 
     def log_line(self, level: int, data: str) -> None:
         """Log a line for output."""
 
         handle_safe_log(self.logger, level, data, self.safe_to_log)
 
+    async def handle_watcher(self, watcher: FileWatcher) -> None:
+        """Handle any file watcher lines."""
+
+        async for level, line in watcher.poll():
+            self.log_line(level, line)
+
     async def dispatch_log_capture(self) -> None:
         """Get the next line from this log stream."""
 
-        for level, stream in self.streams:
-            line = (await stream.readline()).rstrip()
-            while line:
-                self.log_line(level, line)
-                line = (await stream.readline()).rstrip()
+        await asyncio.gather(*(self.handle_watcher(x) for x in self.watchers))

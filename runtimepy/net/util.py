@@ -3,8 +3,8 @@ A module implementing various networking utilities.
 """
 
 # built-in
-from contextlib import suppress as _suppress
-from functools import cache
+# from contextlib import suppress as _suppress
+from functools import lru_cache
 import ipaddress
 import socket as _socket
 from typing import Awaitable, NamedTuple, Optional, TypeVar
@@ -137,7 +137,7 @@ def normalize_host(
 USE_FQDN = {"::", "0.0.0.0"}
 
 
-@cache
+@lru_cache
 def hostname(ip_address: str) -> str:
     """
     Attempt to get a string hostname for a string IP address argument that
@@ -149,13 +149,15 @@ def hostname(ip_address: str) -> str:
     if ip_address in USE_FQDN:
         result = _socket.getfqdn()
     else:
-        with _suppress(_socket.herror, OSError):
-            result = _socket.gethostbyaddr(ip_address)[0]
+        pass
+        # https://github.com/libre-embedded/runtimepy/issues/250
+        # with _suppress(_socket.herror, OSError):
+        #     result = _socket.gethostbyaddr(ip_address)[0]
 
     return result
 
 
-@cache
+@lru_cache
 def address_str(name: str, fallback_host: str = "localhost", **kwargs) -> str:
     """Get an IP address string for a given name."""
 
@@ -164,7 +166,6 @@ def address_str(name: str, fallback_host: str = "localhost", **kwargs) -> str:
     )[0][4][0]
 
 
-@cache
 def hostname_port(ip_address: str, port: int) -> str:
     """Get a hostname string with a port appended."""
     return f"{hostname(ip_address)}:{port}"

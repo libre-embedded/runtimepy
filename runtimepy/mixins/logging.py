@@ -102,14 +102,11 @@ class FileWatcher:
         self.level = LogLevel.normalize(level)
         self.path = path
         self.stream: Optional[Any] = None
-        self.ctime: int = 0
+        self.path_size: int = 0
 
-    async def get_ctime(self) -> int:
+    async def get_size(self) -> int:
         """Get ctime for this path."""
-
-        return round(  # type: ignore
-            await aiofiles.os.path.getctime(self.path),
-        )
+        return (await aiofiles.os.stat(self.path)).st_size  # type: ignore
 
     async def handle_open(self) -> None:
         """Handle opening the stream."""
@@ -117,15 +114,18 @@ class FileWatcher:
         if not self.stream and normalize(self.path).is_file():
             self.stream = await aiofiles.open(self.path, mode="r")
             await self.stream.seek(0, io.SEEK_END)
-            self.ctime = await self.get_ctime()
+            self.path_size = await self.get_size()
 
     async def poll(self) -> AsyncIterator[tuple[LogLevel, str]]:
         """Poll stream contents."""
 
         try:
             # Handle re-opening file if necessary.
-            if self.ctime != await self.get_ctime():
+            curr = await self.get_size()
+            if curr < self.path_size:
+                yield LogLevel.WARNING, f"'{self.path}' truncated, re-opening."
                 await self.close()
+            self.path_size = curr
 
             await self.handle_open()
             if self.stream:

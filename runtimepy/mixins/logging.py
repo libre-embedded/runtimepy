@@ -123,7 +123,7 @@ class FileWatcher:
             # Handle re-opening file if necessary.
             curr = await self.get_size()
             if curr < self.path_size:
-                yield LogLevel.WARNING, "Detected truncated file (re-opening)."
+                yield LogLevel.WARNING, f"'{self.path}' truncated, re-opening."
                 await self.close()
             self.path_size = curr
 

@@ -1,72 +1,12 @@
 ---
-# UDP JSON clients.
-clients:
-  - factory: udp_json
-    name: udp_json_client
-    defer: true
-    kwargs:
-      remote_addr: [localhost, "$udp_json"]
-    views:
-      - [metrics, metrics]
-      - [transmit, tx]
-      - [receive, rx]
-    buttons: &buttons
-      - icon: tux
-        key: test
-        payload: {}
-      - icon: tux
-        key: test
-        text: asdf
-        payload: {}
-      - icon: tux
-        key: test
-        payload: {}
-        outline: false
-      - icon: tux
-        key: test
-        text: asdf
-        payload: {}
-        outline: false
-    markdown: |
-      # `udp_json_client`
+includes:
+  - dummy_load_lite.yaml
 
-      Connects to `udp_json_server`.
-
-  - factory: udp_json
-    name: udp_json_server
-    kwargs:
-      local_addr: [localhost, "$udp_json"]
-
-# Add some sample tasks.
 tasks:
-  # Chaos.
-  - name: sample1
-    factory: Sample
-    period_s: 0.9
-    config:
-      a: 1
-      b: 2
-      c: 3
-      buttons: *buttons
-      views:
-        - [zero, "\\.0\\."]
-        - [one, "\\.1\\."]
-    markdown: |
-      # This is a Test
-
-      ```
-      todo
-
-      does this work?
-
-      todo
-      ```
-
   - {name: sample2, factory: Sample, period_s: 1.0}
   - {name: sample3, factory: Sample, period_s: 1.1}
 
   # Sinusoids.
-  - {name: wave1, factory: sinusoid, period_s: 0.01}
   - {name: wave2, factory: sinusoid, period_s: 0.02}
   - name: wave3
     factory: sinusoid
@@ -85,26 +25,7 @@ tasks:
 
       `peace`
 
-  # Drive interactions with runtime entities that won't otherwise be polled.
-  - {name: app, factory: SampleApp, period_s: 0.25}
-
-# Add some sample structs.
 structs:
-  - name: example.struct1
-    factory: sample_struct
-    # Not actually used.
-    config: &cfg
-      a: 1
-      b: 2
-      c: 3
-
-      buttons: *buttons
-
-      markdown: |
-        # Docs for `example.struct1`
-
-        Should be shown for peer process as well?
-
   - name: example.struct2
     factory: sample_struct
     config:
@@ -118,26 +39,3 @@ structs:
     config:
       js_uris:
         - package://runtimepy/js/sample.js
-
-# Sample peer processes.
-processes:
-  - name: proc1
-    factory: sample_peer
-
-    markdown: |
-      # Markdown for `proc1`
-
-      A process that
-
-    # The peer itself runs an arbiter process.
-    config:
-      config: *cfg
-      includes:
-        - package://runtimepy/server.yaml
-      app: runtimepy.sample.program.run
-
-    program: runtimepy.sample.program.SampleProgram
-
-commands:
-  - [udp_json_client, "set log_level warning"]
-  - [proc1.peer, "set log_level warning"]
